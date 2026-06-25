@@ -12,7 +12,7 @@
             <div class="logo-area">
                 <span class="logo-accent">TARA</span> LMS
             </div>
-            <div class="status-badge" id="lesson-status">Loading Lesson...</div>
+            <div class="status-badge" id="lesson-status">Loading Lesson Matrix...</div>
         </header>
 
         <main class="workspace">
@@ -20,52 +20,41 @@
                 <div class="video-wrapper" id="video-wrapper">
                     <div class="spinner-container" id="loading-spinner">
                         <div class="spinner"></div>
-                        <p class="spinner-text">Loading your training module...</p>
+                        <p class="spinner-text">Loading secure training stream...</p>
                     </div>
                 </div>
                 <div class="video-meta">
-                    <h2 class="video-title" id="video-title">Module Loading...</h2>
+                    <h2 class="video-title" id="video-title">Module Validation Active</h2>
                     <div class="meta-pills">
-                        <span class="pill" id="duration-pill">Duration: --:--</span>
-                        <span class="pill status-pill locked" id="lock-status-pill">Locked</span>
+                        <span class="pill status-pill locked" id="lock-status-pill">Analysis Engaged</span>
                     </div>
                 </div>
             </section>
 
             <section class="control-card">
                 <div class="control-content">
-                    <h3 class="panel-title">Lesson Progress & Assessment</h3>
+                    <h3 class="panel-title">System Activity Status</h3>
                     <p class="panel-instructions" id="instruction-text">
-                        Please watch the training video completely. The quiz will unlock automatically after the designated lesson duration.
+                        Attention: Continuous stream validation is active. To prevent automated bypass, progress indicators are masked. Watch attentively; the system evaluation block will unlock dynamically.
                     </p>
-                    
-                    <div class="progress-container" id="progress-container" style="display: none;">
-                        <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" id="progress-fill"></div>
-                        </div>
-                        <div class="progress-labels">
-                            <span id="progress-time-elapsed">00:00</span>
-                            <span id="progress-time-total">00:00</span>
-                        </div>
-                    </div>
 
                     <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
                         <div class="countdown-alert">
                             <span class="alert-icon">⚠️</span>
                             <div>
-                                <strong class="alert-title">Quiz Available Now!</strong>
-                                <p class="alert-desc">Complete your assessment before the window closes.</p>
+                                <strong class="alert-title">Evaluation Matrix Open!</strong>
+                                <p class="alert-desc">Your unique window is ticking. Authenticate session parameters now.</p>
                             </div>
                         </div>
                         <div class="timer-display">
-                            <span class="timer-label">Time Remaining:</span>
+                            <span class="timer-label">Expiration Counter:</span>
                             <span class="timer-digits" id="timer-digits">02:00</span>
                         </div>
                     </div>
 
                     <button id="quiz-btn" class="action-btn locked" disabled>
                         <span class="btn-icon">🔒</span>
-                        <span id="btn-text">Awaiting Video Progress</span>
+                        <span id="btn-text">Monitoring Stream Telemetry</span>
                     </button>
                 </div>
             </section>
