@@ -1,16 +1,11 @@
 /**
  * TARA LMS - Quiz & Verification Module Engine Controller (Enterprise Edition)
- * Author: Senior Full Stack Developer
  */
 
 (function () {
     'use strict';
 
-    // ==========================================
-    // 🔒 SINGLE SECURITY ACCESS CHECK 🔒
-    // ==========================================
     const hasAccessPass = sessionStorage.getItem('tara_quiz_access_granted');
-    
     if (!hasAccessPass || hasAccessPass !== 'true') {
         alert("Access Denied: You must complete the video training module before accessing the evaluation portal.");
         window.location.replace('index.html');
@@ -24,8 +19,7 @@
 
     let validationState = {
         q1Valid: false, q2Valid: false, q3Valid: false, q4Valid: false,
-        fileUploaded: false, complianceChecked: false,
-        uploadedFileName: "", uploadedFileBase64: ""
+        fileUploaded: false, complianceChecked: false, uploadedFileBase64: ""
     };
 
     const DOM = {
@@ -36,7 +30,6 @@
         formContainer: document.getElementById('form-container'),
         successContainer: document.getElementById('success-container'),
         verificationStatus: document.getElementById('verification-status'),
-        
         q2TextArea: document.getElementById('biggest-learning'),
         q3TextArea: document.getElementById('action-implementation'),
         q4TextArea: document.getElementById('important-points'),
@@ -44,7 +37,6 @@
         dropzone: document.getElementById('dropzone'),
         complianceCheck: document.getElementById('compliance-check'),
         confidenceSlider: document.getElementById('confidence-rating'),
-        
         counterQ2: document.getElementById('counter-q2'),
         counterQ3: document.getElementById('counter-q3'),
         counterQ4: document.getElementById('counter-q4'),
@@ -63,25 +55,13 @@
 
     function bindInputTrackingEvents() {
         document.getElementsByName('watch_confirm').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                validationState.q1Valid = (e.target.value === 'yes');
-                evaluateGlobalFormValidity();
-            });
+            radio.addEventListener('change', (e) => { validationState.q1Valid = (e.target.value === 'yes'); evaluateGlobalFormValidity(); });
         });
-
         DOM.q2TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q2TextArea, DOM.counterQ2, CONFIG.TARGETS.Q2_MIN_CHAR, 'q2Valid'));
         DOM.q3TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q3TextArea, DOM.counterQ3, CONFIG.TARGETS.Q3_MIN_CHAR, 'q3Valid'));
         DOM.q4TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q4TextArea, DOM.counterQ4, CONFIG.TARGETS.Q4_MIN_CHAR, 'q4Valid'));
-
-        DOM.complianceCheck.addEventListener('change', (e) => {
-            validationState.complianceChecked = e.target.checked;
-            evaluateGlobalFormValidity();
-        });
-
-        DOM.confidenceSlider.addEventListener('input', (e) => {
-            DOM.ratingOutput.textContent = e.target.value;
-        });
-
+        DOM.complianceCheck.addEventListener('change', (e) => { validationState.complianceChecked = e.target.checked; evaluateGlobalFormValidity(); });
+        DOM.confidenceSlider.addEventListener('input', (e) => { DOM.ratingOutput.textContent = e.target.value; });
         DOM.form.addEventListener('submit', handleFormSubmissionPipeline);
     }
 
@@ -96,10 +76,8 @@
     function bindDropzoneSystem() {
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
         DOM.fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) processFileAttachment(e.target.files[0]); });
-
         ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
         ['dragleave', 'drop'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false); });
-
         DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processFileAttachment(e.dataTransfer.files[0]); });
         DOM.removeFileBtn.addEventListener('click', clearFileAttachment);
     }
@@ -107,22 +85,15 @@
     function processFileAttachment(file) {
         const allowed = ['jpg', 'jpeg', 'png', 'pdf'];
         const ext = file.name.split('.').pop().toLowerCase();
-
-        if (!allowed.includes(ext)) {
-            alert('Invalid file format. Please upload JPG, PNG, JPEG or PDF files only.');
-            return;
-        }
+        if (!allowed.includes(ext)) { alert('Invalid file format. Please upload JPG, PNG, JPEG or PDF files only.'); return; }
 
         const reader = new FileReader();
         reader.onload = function(e) {
             validationState.uploadedFileBase64 = e.target.result;
-            validationState.uploadedFileName = file.name;
             validationState.fileUploaded = true;
-
             DOM.previewFilename.textContent = file.name;
             DOM.previewFilesize.textContent = (file.size / 1024).toFixed(2) + " KB";
             DOM.previewIcon.textContent = ext === 'pdf' ? '📕' : '🖼️';
-            
             DOM.dropzone.style.display = 'none';
             DOM.previewContainer.style.display = 'block';
             evaluateGlobalFormValidity();
@@ -132,13 +103,8 @@
 
     function clearFileAttachment(e) {
         e.stopPropagation();
-        validationState.fileUploaded = false;
-        validationState.uploadedFileBase64 = "";
-        validationState.uploadedFileName = "";
-        DOM.fileInput.value = '';
-        DOM.previewContainer.style.display = 'none';
-        DOM.dropzone.style.display = 'block';
-        evaluateGlobalFormValidity();
+        validationState.fileUploaded = false; validationState.uploadedFileBase64 = ""; DOM.fileInput.value = '';
+        DOM.previewContainer.style.display = 'none'; DOM.dropzone.style.display = 'block'; evaluateGlobalFormValidity();
     }
 
     function evaluateGlobalFormValidity() {
@@ -150,12 +116,13 @@
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
 
-        // **PROFESSIONAL ENTERPRISE TEXT UPDATE**
         DOM.submitBtn.setAttribute('disabled', 'true');
         DOM.btnSpinner.style.display = 'inline-block';
         DOM.btnText.textContent = "Authenticating Session Parameters...";
 
         const payload = {
+            userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO", // Pulls verified login context
+            userEmail: sessionStorage.getItem('tara_user_email') || "No Email",
             watchConfirm: DOM.form.watch_confirm.value,
             biggestLearning: DOM.q2TextArea.value.trim(),
             actionImplementation: DOM.q3TextArea.value.trim(),
@@ -165,31 +132,20 @@
         };
 
         try {
-            const response = await fetch(CONFIG.API_ENDPOINT, {
-                method: 'POST',
-                mode: 'no-cors', 
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
+            await fetch(CONFIG.API_ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         } catch (error) {
             console.error(error);
-            alert("Network Sync Error. Please check your internet connection.");
-            DOM.submitBtn.removeAttribute('disabled');
-            DOM.btnSpinner.style.display = 'none';
-            DOM.btnText.textContent = "Complete Today's Learning";
+            DOM.submitBtn.removeAttribute('disabled'); DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
         }
     }
 
     function transitionToSuccessCard() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        DOM.formContainer.style.display = 'none';
-        DOM.successContainer.style.display = 'block';
+        DOM.formContainer.style.display = 'none'; DOM.successContainer.style.display = 'block';
         DOM.verificationStatus.textContent = "Status: Verified & Processed";
-        DOM.verificationStatus.style.borderColor = "var(--accent-success)";
-        DOM.verificationStatus.style.color = "var(--accent-success)";
+        DOM.verificationStatus.style.borderColor = "var(--accent-success)"; DOM.verificationStatus.style.color = "var(--accent-success)";
     }
 
     document.addEventListener('DOMContentLoaded', init);
