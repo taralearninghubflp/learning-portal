@@ -1,9 +1,7 @@
 /**
- * TARA LMS - Core Stream Engine Controller (Exact Duration Match + Infinite Focus Key-Lock + Native Mobile Auto Rotate)
+ * TARA LMS - Core Stream Engine Controller (YouTube-Style Mobile Fullscreen Auto-Rotate Edition)
  * Author: Senior Full Stack Developer
  */
-
-(Object.defineProperty(window, 'secureLMS', { value: true, writable: false }));
 
 (function () {
     'use strict';
@@ -41,21 +39,18 @@
     function init() {
         sessionStorage.removeItem('tara_quiz_access_granted');
         
-        // 🔒 ULTIMATE CAPTURE LOCK - Catch keyboard bypass attempts inside & outside iframes
-        window.addEventListener('keydown', handleKeyboardBypassGuard, true);
-        window.addEventListener('keypress', handleKeyboardBypassGuard, true);
-        window.addEventListener('keyup', handleKeyboardBypassGuard, true);
+        window.addEventListener('keydown', handleGlobalKeyGuard, true);
 
-        // 📱 MOBILE ROTATION DETECTOR - Triggers when Bunny Player enters Fullscreen mode on phone
-        document.addEventListener('fullscreenchange', handleMobileScreenRotationPipeline, true);
-        document.addEventListener('webkitfullscreenchange', handleMobileScreenRotationPipeline, true);
-
-        // Force authority focus recovery loop
-        setInterval(() => {
-            if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-                window.focus();
-            }
-        }, 400);
+        // ==========================================
+        // 📱 MOBILE FULLSCREEN ROTATION LISTENERS
+        // ==========================================
+        // Android/Chrome standard
+        document.addEventListener('fullscreenchange', handleOrientationPipeline);
+        // iOS/Safari standard
+        document.addEventListener('webkitfullscreenchange', handleOrientationPipeline);
+        // Direct video node rotation hooks
+        document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
+        document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
 
         const savedName = sessionStorage.getItem('tara_user_name');
         if (savedName) {
@@ -66,34 +61,42 @@
     }
 
     /**
-     * 📱 NATIVE SCREEN ROTATION CONTROLLER (YouTube Style Landscape Lock)
+     * YouTube Dynamic Orientation Optimizer
+     * Automatically locks device into horizontal landscape whenever full screen executes
      */
-    function handleMobileScreenRotationPipeline() {
-        const isFullscreenActive = document.fullscreenElement || document.webkitFullscreenElement;
+    function handleOrientationPipeline() {
+        const isFullscreen = !!(document.fullscreenElement || 
+                               document.webkitFullscreenElement || 
+                               document.mozFullScreenElement || 
+                               document.msFullscreenElement);
         
-        if (isFullscreenActive) {
-            // Laptop/Mobile settings initialization lookup parameters
+        if (isFullscreen) {
+            // Target specific mobile viewport parameters
             if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(function(err) {
-                    console.log("Auto-rotation initialized gracefully or bypassed on desktop platform viewports.");
+                screen.orientation.lock('landscape').catch(function(error) {
+                    console.log("Device rotation handled natively or context skipped on desktop:", error);
                 });
+            } else if (screen.lockOrientation) {
+                screen.lockOrientation('landscape');
+            } else if (screen.webkitLockOrientation) {
+                screen.webkitLockOrientation('landscape');
             }
         } else {
-            // Revert back safely on fullscreen exit metrics
+            // Release the orientation parameters back to normal portrait view upon exit
             if (screen.orientation && screen.orientation.unlock) {
                 screen.orientation.unlock();
+            } else if (screen.unlockOrientation) {
+                screen.unlockOrientation();
+            } else if (screen.webkitUnlockOrientation) {
+                screen.webkitUnlockOrientation();
             }
         }
     }
 
-    function handleKeyboardBypassGuard(e) {
-        const blockedKeys = ['ArrowRight', 'ArrowLeft', 'Space', ' ', 'MediaTrackNext', 'MediaTrackPrevious'];
-        const blockedCodes = [37, 39, 32];
-
-        if (blockedKeys.includes(e.key) || blockedKeys.includes(e.code) || blockedCodes.includes(e.keyCode)) {
+    function handleGlobalKeyGuard(e) {
+        const blocked = ['ArrowRight', 'ArrowLeft', 'Space', ' '];
+        if (blocked.includes(e.key)) {
             e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
             return false;
         }
     }
@@ -115,15 +118,13 @@
                 sessionStorage.setItem('tara_user_email', data.email);
                 launchPortalWorkspace();
             } else {
-                alert("Authentication Failed: Invalid email coordinates or security passcode.");
+                alert("Authentication Failed: Invalid credentials.");
                 DOM.loginBtn.removeAttribute('disabled');
                 DOM.loginBtn.textContent = "Authenticate Credentials";
             }
         } catch (err) {
             console.error(err);
-            alert("Network timeout exception during credential handshake execution.");
             DOM.loginBtn.removeAttribute('disabled');
-            DOM.loginBtn.textContent = "Authenticate Credentials";
         }
     }
 
@@ -151,14 +152,17 @@
 
     function renderVideoIframe(url) {
         const iframe = document.createElement('iframe');
-        iframe.src = url;
+        const separator = url.includes('?') ? '&' : '?';
+        iframe.src = `${url}${separator}autoplay=1`;
+        
         iframe.id = "tara-secure-stream-frame";
         
-        // Allowed metrics mapping configuration setup permissions natively
-        iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock";
+        // CRITICAL PERMISSIONS LAYER: Direct strict declaration forcing mobile browsers to yield screen control tokens
+        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock;');
+        iframe.setAttribute('webkitallowfullscreen', 'true');
+        iframe.setAttribute('mozallowfullscreen', 'true');
         iframe.allowFullscreen = true;
         
-        iframe.style.pointerEvents = "auto"; 
         iframe.onload = () => { if (DOM.loadingSpinner) DOM.loadingSpinner.style.display = 'none'; };
         DOM.videoWrapper.appendChild(iframe);
     }
