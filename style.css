@@ -80,11 +80,11 @@ body {
 
 /* Main Workspace Layout */
 .workspace {
-    flex: 1;
     display: grid;
     grid-template-columns: 1fr;
     gap: 24px;
     padding: 32px 0;
+    flex: 1;
 }
 
 @media (min-width: 992px) {
