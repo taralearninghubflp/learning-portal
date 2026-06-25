@@ -1,25 +1,33 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (With Link Bypass Guard)
+ * TARA LMS - Quiz & Verification Module Engine Controller (With Bypass Guard)
+ * Author: Senior Full Stack Developer
  */
 
 (function () {
     'use strict';
 
-    // **ANTI-BYPASS SECURITY CHECK**
-    // Agar user bina video poori kiye direct link open karega, toh ye block kar dega.
+    // ==========================================
+    // 🚨 ULTIMATE ANTI-BYPASS SECURITY CHECK 🚨
+    // ==========================================
     const hasAccessPass = sessionStorage.getItem('tara_quiz_access_granted');
-    if (!hasAccessPass || hasAccessPass !== 'true') {
-        alert("🚨 Security Alert: Aap bina video complete kiye direct quiz page par nahi aa sakte! Aapko wapas redirect kiya ja raha hai.");
+    const pichlaPage = document.referrer;
+
+    // Agar token nahi hai YA pichla page direct link/galat page hai, toh turant block karo
+    if (!hasAccessPass || hasAccessPass !== 'true' || !pichlaPage.includes('index.html')) {
+        alert("🚨 Security Block: Laptop/Mobile bypass detected! Aap bina video complete kiye direct quiz page par nahi aa sakte.");
+        sessionStorage.removeItem('tara_quiz_access_granted');
         window.location.replace('index.html');
-        return; // Execution stop
+        return; // Pure execution ko yahi rok do
     }
 
+    // Form Configuration Targets Constants
     const TARGETS = {
         Q2_MIN_CHAR: 50,
         Q3_MIN_CHAR: 30,
         Q4_MIN_CHAR: 80
     };
 
+    // State Matrix Variables
     let validationState = {
         q1Valid: false,
         q2Valid: false,
@@ -30,6 +38,7 @@
         uploadedFileObject: null
     };
 
+    // Core Cached DOM Registry Elements
     const DOM = {
         form: document.getElementById('quiz-form'),
         submitBtn: document.getElementById('submit-verification-btn'),
@@ -39,6 +48,7 @@
         successContainer: document.getElementById('success-container'),
         verificationStatus: document.getElementById('verification-status'),
         
+        // Form Inputs
         q2TextArea: document.getElementById('biggest-learning'),
         q3TextArea: document.getElementById('action-implementation'),
         q4TextArea: document.getElementById('important-points'),
@@ -47,6 +57,7 @@
         complianceCheck: document.getElementById('compliance-check'),
         confidenceSlider: document.getElementById('confidence-rating'),
         
+        // Outputs & Real-Time Nodes
         counterQ2: document.getElementById('counter-q2'),
         counterQ3: document.getElementById('counter-q3'),
         counterQ4: document.getElementById('counter-q4'),
@@ -58,12 +69,19 @@
         removeFileBtn: document.getElementById('remove-file-btn')
     };
 
+    /**
+     * Initialization Core Lifecycle Execution
+     */
     function init() {
         bindInputTrackingEvents();
         bindDropzoneSystem();
     }
 
+    /**
+     * Register real-time change tracking metrics validation loops
+     */
     function bindInputTrackingEvents() {
+        // Radio input listener mutations
         document.getElementsByName('watch_confirm').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 validationState.q1Valid = (e.target.value === 'yes');
@@ -71,22 +89,29 @@
             });
         });
 
+        // Live text length validation listeners
         DOM.q2TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q2TextArea, DOM.counterQ2, TARGETS.Q2_MIN_CHAR, 'q2Valid'));
         DOM.q3TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q3TextArea, DOM.counterQ3, TARGETS.Q3_MIN_CHAR, 'q3Valid'));
         DOM.q4TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q4TextArea, DOM.counterQ4, TARGETS.Q4_MIN_CHAR, 'q4Valid'));
 
+        // Compliance acknowledgment box
         DOM.complianceCheck.addEventListener('change', (e) => {
             validationState.complianceChecked = e.target.checked;
             evaluateGlobalFormValidity();
         });
 
+        // Realtime dynamic slider badge value updating loops
         DOM.confidenceSlider.addEventListener('input', (e) => {
             DOM.ratingOutput.textContent = e.target.value;
         });
 
+        // Dispatched final validation pipeline submission listener
         DOM.form.addEventListener('submit', handleFormSubmissionPipeline);
     }
 
+    /**
+     * Text Character Counter Evaluation Module
+     */
     function handleTextLengthValidation(element, counterElement, minLimit, stateProperty) {
         const length = element.value.trim().length;
         counterElement.textContent = `${length} / ${minLimit} characters`;
@@ -101,6 +126,9 @@
         evaluateGlobalFormValidity();
     }
 
+    /**
+     * Drag & Drop File Integration Upload Core Framework
+     */
     function bindDropzoneSystem() {
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
 
@@ -110,6 +138,7 @@
             }
         });
 
+        // Drag interaction visual status hooks
         ['dragenter', 'dragover'].forEach(eventName => {
             DOM.dropzone.addEventListener(eventName, (e) => {
                 e.preventDefault();
@@ -135,6 +164,9 @@
         DOM.removeFileBtn.addEventListener('click', clearFileAttachment);
     }
 
+    /**
+     * Validates and structural processes uploaded note files
+     */
     function processFileAttachment(file) {
         const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
         const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -155,6 +187,9 @@
         evaluateGlobalFormValidity();
     }
 
+    /**
+     * Flushes note state files out entirely safely
+     */
     function clearFileAttachment(e) {
         e.stopPropagation();
         validationState.fileUploaded = false;
@@ -173,6 +208,9 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
+    /**
+     * Evaluate strict evaluation criteria matrix condition validations
+     */
     function evaluateGlobalFormValidity() {
         const isFormValid = (
             validationState.q1Valid &&
@@ -190,6 +228,9 @@
         }
     }
 
+    /**
+     * Form dispatching submission telemetry pipeline handler
+     */
     function handleFormSubmissionPipeline(e) {
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
@@ -198,9 +239,20 @@
         DOM.btnSpinner.style.display = 'inline-block';
         DOM.btnText.textContent = "Processing Attendance Telemetry...";
 
+        const dataPayloadMatrix = {
+            watchConfirm: DOM.form.watch_confirm.value,
+            biggestLearning: DOM.q2TextArea.value.trim(),
+            actionImplementation: DOM.q3TextArea.value.trim(),
+            importantPoints: DOM.q4TextArea.value.trim(),
+            confidenceRating: DOM.confidenceSlider.value
+        };
+
         setTimeout(() => {
             // Submission ke baad token delete kar do taaki dobara direct link kaam na kare
             sessionStorage.removeItem('tara_quiz_access_granted');
+            executeGoogleAppsScriptSync(dataPayloadMatrix);
+            dispatchDiscordNotificationMetrics(dataPayloadMatrix);
+            recordAttendanceTimestamp();
             transitionToSuccessCard();
         }, 1800);
     }
@@ -214,5 +266,18 @@
         DOM.verificationStatus.style.color = "var(--accent-success)";
     }
 
+    function executeGoogleAppsScriptSync(payload) {
+        console.log("Future-Ready Hook Active: Prepared for Google Apps Script Sheet Array Sync.", payload);
+    }
+
+    function dispatchDiscordNotificationMetrics(payload) {
+        console.log("Future-Ready Hook Active: Prepared for Discord webhook updates.");
+    }
+
+    function recordAttendanceTimestamp() {
+        console.log("Future-Ready Hook Active: Internal persistence sequence checkpoint created.");
+    }
+
     document.addEventListener('DOMContentLoaded', init);
+
 })();
