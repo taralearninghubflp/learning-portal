@@ -1,5 +1,6 @@
 /**
- * TARA LMS - Core Stream Engine Controller (Exact Duration Match with Login Logic)
+ * TARA LMS - Core Stream Engine Controller (Exact Duration Match + Keyboard Skip Guard)
+ * Author: Senior Full Stack Developer
  */
 
 (function () {
@@ -38,12 +39,30 @@
     function init() {
         sessionStorage.removeItem('tara_quiz_access_granted');
         
-        // Check if session profile metadata already authenticated
+        // Anti-Skip Event Listener - Keyboard Controls Block Guard
+        // Yeh line laptop ke keyboard arrows aur space key ko bypass karne se rokti hai
+        window.addEventListener('keydown', handleKeyboardBypassGuard, true);
+
         const savedName = sessionStorage.getItem('tara_user_name');
         if (savedName) {
             launchPortalWorkspace();
         } else {
             DOM.loginForm.addEventListener('submit', handleLoginValidation);
+        }
+    }
+
+    /**
+     * 🚨 KEYBOARD BYPASS GUARD ENGINE
+     * Blocks Left/Right Arrow keys and Spacebar to prevent fast-forwarding or skipping
+     */
+    function handleKeyboardBypassGuard(e) {
+        // ArrowRight (Forward Skip), ArrowLeft (Rewind), Space (Pause/Play Bypass)
+        const blockedKeys = ['ArrowRight', 'ArrowLeft', 'Space', ' '];
+        
+        if (blockedKeys.includes(e.key) || blockedKeys.includes(e.code)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
         }
     }
 
