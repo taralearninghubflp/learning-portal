@@ -1,7 +1,9 @@
 /**
- * TARA LMS - Core Stream Engine Controller (Exact Duration Match + Keyboard Skip Guard)
+ * TARA LMS - Core Stream Engine Controller (Exact Duration Match + Infinite Focus Key-Lock + Native Mobile Auto Rotate)
  * Author: Senior Full Stack Developer
  */
+
+(Object.defineProperty(window, 'secureLMS', { value: true, writable: false }));
 
 (function () {
     'use strict';
@@ -39,9 +41,21 @@
     function init() {
         sessionStorage.removeItem('tara_quiz_access_granted');
         
-        // Anti-Skip Event Listener - Keyboard Controls Block Guard
-        // Yeh line laptop ke keyboard arrows aur space key ko bypass karne se rokti hai
+        // 🔒 ULTIMATE CAPTURE LOCK - Catch keyboard bypass attempts inside & outside iframes
         window.addEventListener('keydown', handleKeyboardBypassGuard, true);
+        window.addEventListener('keypress', handleKeyboardBypassGuard, true);
+        window.addEventListener('keyup', handleKeyboardBypassGuard, true);
+
+        // 📱 MOBILE ROTATION DETECTOR - Triggers when Bunny Player enters Fullscreen mode on phone
+        document.addEventListener('fullscreenchange', handleMobileScreenRotationPipeline, true);
+        document.addEventListener('webkitfullscreenchange', handleMobileScreenRotationPipeline, true);
+
+        // Force authority focus recovery loop
+        setInterval(() => {
+            if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+                window.focus();
+            }
+        }, 400);
 
         const savedName = sessionStorage.getItem('tara_user_name');
         if (savedName) {
@@ -52,16 +66,34 @@
     }
 
     /**
-     * 🚨 KEYBOARD BYPASS GUARD ENGINE
-     * Blocks Left/Right Arrow keys and Spacebar to prevent fast-forwarding or skipping
+     * 📱 NATIVE SCREEN ROTATION CONTROLLER (YouTube Style Landscape Lock)
      */
-    function handleKeyboardBypassGuard(e) {
-        // ArrowRight (Forward Skip), ArrowLeft (Rewind), Space (Pause/Play Bypass)
-        const blockedKeys = ['ArrowRight', 'ArrowLeft', 'Space', ' '];
+    function handleMobileScreenRotationPipeline() {
+        const isFullscreenActive = document.fullscreenElement || document.webkitFullscreenElement;
         
-        if (blockedKeys.includes(e.key) || blockedKeys.includes(e.code)) {
+        if (isFullscreenActive) {
+            // Laptop/Mobile settings initialization lookup parameters
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(function(err) {
+                    console.log("Auto-rotation initialized gracefully or bypassed on desktop platform viewports.");
+                });
+            }
+        } else {
+            // Revert back safely on fullscreen exit metrics
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+        }
+    }
+
+    function handleKeyboardBypassGuard(e) {
+        const blockedKeys = ['ArrowRight', 'ArrowLeft', 'Space', ' ', 'MediaTrackNext', 'MediaTrackPrevious'];
+        const blockedCodes = [37, 39, 32];
+
+        if (blockedKeys.includes(e.key) || blockedKeys.includes(e.code) || blockedCodes.includes(e.keyCode)) {
             e.preventDefault();
             e.stopPropagation();
+            e.stopImmediatePropagation();
             return false;
         }
     }
@@ -120,8 +152,13 @@
     function renderVideoIframe(url) {
         const iframe = document.createElement('iframe');
         iframe.src = url;
-        iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+        iframe.id = "tara-secure-stream-frame";
+        
+        // Allowed metrics mapping configuration setup permissions natively
+        iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock";
         iframe.allowFullscreen = true;
+        
+        iframe.style.pointerEvents = "auto"; 
         iframe.onload = () => { if (DOM.loadingSpinner) DOM.loadingSpinner.style.display = 'none'; };
         DOM.videoWrapper.appendChild(iframe);
     }
