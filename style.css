@@ -1,24 +1,24 @@
 /* ==========================================================================
-   TARA LMS - Enterprise Dark Theme stylesheet 
+   TARA LMS - Ultimate Enterprise Dark Theme stylesheet (Enhanced Lock Edition)
    ========================================================================== */
 
 /* Design Tokens & CSS Variables */
 :root {
-    --bg-main: #0b0f19;
-    --bg-card: #151d30;
-    --bg-card-alt: #1e2942;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
+    --bg-main: #070a13;
+    --bg-card: #0f1626;
+    --bg-card-alt: #17223b;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
     --text-muted: #64748b;
     --accent-primary: #3b82f6;
-    --accent-hover: #2563eb;
+    --accent-hover: #1d4ed8;
     --accent-success: #10b981;
     --accent-warning: #f59e0b;
     --accent-danger: #ef4444;
-    --border-color: #24324f;
-    --border-radius-lg: 12px;
-    --border-radius-md: 8px;
-    --font-stack: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    --border-color: #1e293b;
+    --border-radius-lg: 16px;
+    --border-radius-md: 10px;
+    --font-stack: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
     --max-width: 1280px;
 }
 
@@ -34,7 +34,7 @@ body {
     color: var(--text-primary);
     font-family: var(--font-stack);
     min-height: 100vh;
-    line-height: 1.5;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -71,7 +71,7 @@ body {
 .status-badge {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
-    padding: 6px 16px;
+    padding: 8px 18px;
     border-radius: 50px;
     font-size: 13px;
     font-weight: 600;
@@ -80,11 +80,12 @@ body {
 
 /* Main Workspace Layout */
 .workspace {
+    flex: 1;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 28px;
     padding: 32px 0;
-    flex: 1;
+    align-items: start;
 }
 
 @media (min-width: 992px) {
@@ -96,10 +97,10 @@ body {
 /* Card Component Basics */
 .video-card, .control-card {
     background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.03);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
 }
 
 /* Video Component Layout */
@@ -124,7 +125,7 @@ body {
 }
 
 .video-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     margin-bottom: 12px;
 }
@@ -137,7 +138,7 @@ body {
 .pill {
     background-color: var(--bg-card-alt);
     border: 1px solid var(--border-color);
-    padding: 4px 12px;
+    padding: 6px 14px;
     border-radius: var(--border-radius-md);
     font-size: 12px;
     font-weight: 600;
@@ -145,20 +146,20 @@ body {
 }
 
 .status-pill.locked {
-    background-color: rgba(239, 68, 68, 0.1);
+    background-color: rgba(239, 68, 68, 0.06);
     border-color: rgba(239, 68, 68, 0.2);
-    color: var(--accent-danger);
+    color: #f87171;
 }
 
 .status-pill.unlocked {
-    background-color: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.2);
+    background-color: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.25);
     color: var(--accent-success);
 }
 
 /* Control & Action Panel Component */
 .control-card {
-    padding: 24px;
+    padding: 32px 24px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -168,64 +169,46 @@ body {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 12px;
+    letter-spacing: -0.2px;
 }
 
 .panel-instructions {
     font-size: 14px;
     color: var(--text-secondary);
-    margin-bottom: 24px;
+    margin-bottom: 28px;
+    line-height: 1.6;
 }
 
-/* Progress Bar Visualizer */
-.progress-container {
-    margin-bottom: 24px;
-}
-
-.progress-bar-bg {
-    background-color: var(--bg-card-alt);
-    height: 6px;
-    border-radius: 3px;
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.progress-bar-fill {
-    background-color: var(--accent-primary);
-    width: 0%;
-    height: 100%;
-    transition: width 1s linear;
-}
-
-.progress-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-muted);
-    font-family: monospace;
-}
-
-/* Countdown Notification Area */
+/* ==========================================================================
+   🚨 ENHANCED GLASSMORPHISM COUNTDOWN TIMER AREA
+   ========================================================================== */
 .countdown-wrapper {
-    background-color: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.2);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(245, 158, 11, 0.01) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.15);
     border-radius: var(--border-radius-md);
-    padding: 16px;
-    margin-bottom: 24px;
+    padding: 20px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(4px);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.02);
 }
 
 .countdown-alert {
     display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: flex-start;
 }
 
 .alert-icon {
-    font-size: 20px;
+    font-size: 22px;
+    line-height: 1;
 }
 
 .alert-title {
     font-size: 14px;
-    color: var(--accent-warning);
+    color: #fbbf24;
+    font-weight: 700;
+    margin-bottom: 2px;
 }
 
 .alert-desc {
@@ -237,54 +220,88 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(245, 158, 11, 0.15);
-    padding-top: 12px;
+    border-top: 1px solid rgba(245, 158, 11, 0.1);
+    padding-top: 14px;
 }
 
 .timer-label {
     font-size: 13px;
+    font-weight: 600;
     color: var(--text-secondary);
 }
 
 .timer-digits {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 800;
     font-family: monospace;
-    color: var(--accent-warning);
+    color: #fbbf24;
+    letter-spacing: 0.5px;
 }
 
-/* Main Call-To-Action Interactive Button */
+/* ==========================================================================
+   🚀 PREMIUM LOCK-TO-UNLOCK INTERACTIVE CTA BUTTON
+   ========================================================================== */
 .action-btn {
     width: 100%;
-    padding: 16px;
+    padding: 18px;
     border-radius: var(--border-radius-md);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    border: none;
+    border: 1px solid transparent;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    transition: all 0.25s ease-in-out;
+    gap: 12px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    letter-spacing: -0.1px;
 }
 
+/* Hard Locked State (Jab video chal rahi hai) */
 .action-btn.locked {
-    background-color: var(--bg-card-alt);
+    background-color: #0b111e;
     color: var(--text-muted);
-    border: 1px solid var(--border-color);
+    border-color: rgba(255, 255, 255, 0.02);
     cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
 }
 
+/* Premium Unlocked State (Glowing Effect Engine) */
 .action-btn.unlocked {
-    background-color: var(--accent-success);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4),
+                0 0 0 0px rgba(59, 130, 246, 0.2);
+    animation: pulseGlow 2.5s infinite;
 }
 
 .action-btn.unlocked:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+    box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.6),
+                0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.action-btn.unlocked:active {
+    transform: translateY(0);
+}
+
+/* Unlocked Smart Pulse Animation */
+@keyframes pulseGlow {
+    0% {
+        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4),
+                    0 0 0 0px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+        box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.5),
+                    0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4),
+                    0 0 0 0px rgba(59, 130, 246, 0);
+    }
 }
 
 /* Loading Spinner Engine */
@@ -303,12 +320,12 @@ body {
 }
 
 .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--border-color);
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(255, 255, 255, 0.03);
     border-top-color: var(--accent-primary);
     border-radius: 50%;
-    animation: spin 1s infinite linear;
+    animation: spin 0.8s infinite linear;
     margin-bottom: 16px;
 }
 
@@ -328,4 +345,37 @@ body {
     border-top: 1px solid var(--border-color);
     font-size: 12px;
     color: var(--text-muted);
+    margin-top: auto;
+}
+
+/* ==========================================================================
+   📱 SYSTEM RESPONSIVE DEVICE-FRIENDLY BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 768px) {
+    .app-container {
+        padding: 0 16px;
+    }
+    .main-header {
+        padding: 18px 0;
+    }
+    .logo-area {
+        font-size: 20px;
+    }
+    .workspace {
+        padding: 16px 0;
+        gap: 20px;
+    }
+    .control-card {
+        padding: 24px 16px;
+    }
+    .video-meta {
+        padding: 20px 16px;
+    }
+    .video-title {
+        font-size: 18px;
+    }
+    .action-btn {
+        padding: 16px;
+        font-size: 14px;
+    }
 }
