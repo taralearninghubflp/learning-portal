@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TARA LMS - Ultimate Enterprise Dark Theme stylesheet (Enhanced Lock Edition)
+   TARA LMS - Ultimate Enterprise Stack Stylesheet (Premium Login & Lock Edition)
    ========================================================================== */
 
 /* Design Tokens & CSS Variables */
@@ -89,7 +89,7 @@ body {
 }
 
 @media (min-width: 992px) {
-    .workspace {
+    .workspace:not([style*="max-width"]) {
         grid-template-columns: 7fr 4fr;
     }
 }
@@ -101,6 +101,40 @@ body {
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+}
+
+/* ==========================================================================
+   🔑 ULTIMATE PREMIUM ENTERPRISE LOGIN UI DESIGN
+   ========================================================================== */
+#login-container .control-card {
+    background: linear-gradient(145deg, var(--bg-card) 0%, rgba(15, 22, 38, 0.8) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                0 0 40px -5px rgba(59, 130, 246, 0.05);
+    backdrop-filter: blur(8px);
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+#login-container input[type="password"],
+#login-container textarea {
+    width: 100%;
+    background-color: #070b14;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    color: var(--text-primary);
+    padding: 14px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#login-container input[type="password"]:focus,
+#login-container textarea:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    background-color: #0b111e;
 }
 
 /* Video Component Layout */
@@ -179,9 +213,7 @@ body {
     line-height: 1.6;
 }
 
-/* ==========================================================================
-   🚨 ENHANCED GLASSMORPHISM COUNTDOWN TIMER AREA
-   ========================================================================== */
+/* Glassmorphism Countdown Timer Area */
 .countdown-wrapper {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(245, 158, 11, 0.01) 100%);
     border: 1px solid rgba(245, 158, 11, 0.15);
@@ -238,9 +270,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* ==========================================================================
-   🚀 PREMIUM LOCK-TO-UNLOCK INTERACTIVE CTA BUTTON
-   ========================================================================== */
+/* Premium Lock-to-Unlock Action Button */
 .action-btn {
     width: 100%;
     padding: 18px;
@@ -257,7 +287,6 @@ body {
     letter-spacing: -0.1px;
 }
 
-/* Hard Locked State (Jab video chal rahi hai) */
 .action-btn.locked {
     background-color: #0b111e;
     color: var(--text-muted);
@@ -267,7 +296,6 @@ body {
     box-shadow: none;
 }
 
-/* Premium Unlocked State (Glowing Effect Engine) */
 .action-btn.unlocked {
     background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
     color: #ffffff;
@@ -277,31 +305,21 @@ body {
     animation: pulseGlow 2.5s infinite;
 }
 
-.action-btn.unlocked:hover {
+.action-btn.unlocked:hover:not(:disabled) {
     transform: translateY(-2px);
     background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
     box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.6),
                 0 0 0 4px rgba(59, 130, 246, 0.15);
 }
 
-.action-btn.unlocked:active {
-    transform: translateY(0);
+.action-btn:disabled {
+    cursor: not-allowed;
 }
 
-/* Unlocked Smart Pulse Animation */
 @keyframes pulseGlow {
-    0% {
-        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4),
-                    0 0 0 0px rgba(59, 130, 246, 0.3);
-    }
-    50% {
-        box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.5),
-                    0 0 0 10px rgba(59, 130, 246, 0);
-    }
-    100% {
-        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4),
-                    0 0 0 0px rgba(59, 130, 246, 0);
-    }
+    0% { box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4), 0 0 0 0px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.5), 0 0 0 10px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4), 0 0 0 0px rgba(59, 130, 246, 0); }
 }
 
 /* Loading Spinner Engine */
@@ -348,34 +366,14 @@ body {
     margin-top: auto;
 }
 
-/* ==========================================================================
-   📱 SYSTEM RESPONSIVE DEVICE-FRIENDLY BREAKPOINTS
-   ========================================================================== */
+/* Responsive Device-Friendly Breakpoints */
 @media (max-width: 768px) {
-    .app-container {
-        padding: 0 16px;
-    }
-    .main-header {
-        padding: 18px 0;
-    }
-    .logo-area {
-        font-size: 20px;
-    }
-    .workspace {
-        padding: 16px 0;
-        gap: 20px;
-    }
-    .control-card {
-        padding: 24px 16px;
-    }
-    .video-meta {
-        padding: 20px 16px;
-    }
-    .video-title {
-        font-size: 18px;
-    }
-    .action-btn {
-        padding: 16px;
-        font-size: 14px;
-    }
+    .app-container { padding: 0 16px; }
+    .main-header { padding: 18px 0; }
+    .logo-area { font-size: 20px; }
+    .workspace { padding: 16px 0; gap: 20px; }
+    .control-card { padding: 24px 16px; }
+    .video-meta { padding: 20px 16px; }
+    .video-title { font-size: 18px; }
+    .action-btn { padding: 16px; font-size: 14px; }
 }
