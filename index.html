@@ -1,10 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>TARA Learning Portal</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>TARA Learning Portal</title>
+
+<style>
+
+body{
+margin:0;
+background:#0f172a;
+font-family:Arial;
+color:white;
+}
+
+.container{
+width:90%;
+max-width:1000px;
+margin:auto;
+padding:30px;
+}
+
+h1{
+text-align:center;
+}
+
+.video{
+margin-top:25px;
+}
+
+button{
+
+width:100%;
+padding:18px;
+
+font-size:18px;
+
+border:none;
+
+border-radius:10px;
+
+background:#2563eb;
+
+color:white;
+
+cursor:pointer;
+
+margin-top:25px;
+
+}
+
+button:disabled{
+
+background:#555;
+
+cursor:not-allowed;
+
+}
+
+</style>
+
 </head>
+
 <body>
-  <h1>TARA Learning Portal</h1>
-  <p>Setup Successful</p>
+
+<div class="container">
+
+<h1>TARA Learning Portal</h1>
+
+<p align="center">
+
+Complete the full video to unlock today's quiz.
+
+</p>
+
+<div class="video">
+
+<div style="position:relative;padding-top:56.25%;">
+
+<iframe
+
+id="player"
+
+src="https://player.mediadelivery.net/embed/682161/6a55dbaf-0e06-4fc9-a869-a86e4318088e?autoplay=true&loop=false&muted=true&preload=true&responsive=true"
+
+loading="lazy"
+
+style="border:0;position:absolute;top:0;height:100%;width:100%;"
+
+allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;fullscreen;"
+
+allowfullscreen>
+
+</iframe>
+
+</div>
+
+</div>
+
+<button id="quizBtn" disabled>
+
+🔒 Complete Video To Unlock Quiz
+
+</button>
+
+</div>
+
+<script>
+
+setTimeout(function(){
+
+document.getElementById("quizBtn").disabled=false;
+
+document.getElementById("quizBtn").innerHTML="✅ Continue To Quiz";
+
+},60000);
+
+</script>
+
 </body>
+
 </html>
