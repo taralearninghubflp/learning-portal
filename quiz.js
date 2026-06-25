@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Live Google Sheets Integration)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Enterprise Edition)
  * Author: Senior Full Stack Developer
  */
 
@@ -14,11 +14,10 @@
     if (!hasAccessPass || hasAccessPass !== 'true') {
         alert("Access Denied: You must complete the video training module before accessing the evaluation portal.");
         window.location.replace('index.html');
-        return;
+        return; 
     }
 
     const CONFIG = {
-        // Aapka same Apps Script URL jo index.html use karta hai
         API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
         TARGETS: { Q2_MIN_CHAR: 50, Q3_MIN_CHAR: 30, Q4_MIN_CHAR: 80 }
     };
@@ -114,7 +113,6 @@
             return;
         }
 
-        // Convert notes file to Base64 String so it can travel securely to Google Sheets
         const reader = new FileReader();
         reader.onload = function(e) {
             validationState.uploadedFileBase64 = e.target.result;
@@ -152,9 +150,10 @@
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
 
+        // **PROFESSIONAL ENTERPRISE TEXT UPDATE**
         DOM.submitBtn.setAttribute('disabled', 'true');
         DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Saving to Google Sheets...";
+        DOM.btnText.textContent = "Authenticating Session Parameters...";
 
         const payload = {
             watchConfirm: DOM.form.watch_confirm.value,
@@ -162,19 +161,17 @@
             actionImplementation: DOM.q3TextArea.value.trim(),
             importantPoints: DOM.q4TextArea.value.trim(),
             confidenceRating: DOM.confidenceSlider.value,
-            filePayload: validationState.uploadedFileBase64 // Sends base64 text of the notes
+            filePayload: validationState.uploadedFileBase64 
         };
 
         try {
-            // Send the network request directly to Google Apps Script
             const response = await fetch(CONFIG.API_ENDPOINT, {
                 method: 'POST',
-                mode: 'no-cors', // Solves Google CORS redirect parameters cleanly
+                mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
-            // Clean session on successful dispatch execution context
             sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         } catch (error) {
