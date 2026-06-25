@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (With Bypass Guard)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Clean Single Security Layer)
  * Author: Senior Full Stack Developer
  */
 
@@ -7,17 +7,15 @@
     'use strict';
 
     // ==========================================
-    // 🚨 ULTIMATE ANTI-BYPASS SECURITY CHECK 🚨
+    // 🔒 SINGLE SECURITY ACCESS CHECK 🔒
     // ==========================================
+    // Agar browser memory mein video complete hone ka pass nahi milega, toh entry block ho jayegi.
     const hasAccessPass = sessionStorage.getItem('tara_quiz_access_granted');
-    const pichlaPage = document.referrer;
-
-    // Agar token nahi hai YA pichla page direct link/galat page hai, toh turant block karo
-    if (!hasAccessPass || hasAccessPass !== 'true' || !pichlaPage.includes('index.html')) {
-        alert("🚨 Security Block: Laptop/Mobile bypass detected! Aap bina video complete kiye direct quiz page par nahi aa sakte.");
-        sessionStorage.removeItem('tara_quiz_access_granted');
+    
+    if (!hasAccessPass || hasAccessPass !== 'true') {
+        alert("🚨 Security Block: Aap bina video complete kiye direct quiz page par nahi aa sakte!");
         window.location.replace('index.html');
-        return; // Pure execution ko yahi rok do
+        return; // Code ko yahi rok do
     }
 
     // Form Configuration Targets Constants
