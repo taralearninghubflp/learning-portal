@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>TARA Learning Portal</title>
 
@@ -11,8 +12,8 @@
 body{
 margin:0;
 background:#0f172a;
-font-family:Arial;
-color:white;
+font-family:Arial,sans-serif;
+color:#fff;
 }
 
 .container{
@@ -43,11 +44,13 @@ border-radius:10px;
 
 background:#2563eb;
 
-color:white;
+color:#fff;
 
 cursor:pointer;
 
 margin-top:25px;
+
+transition:.3s;
 
 }
 
@@ -56,6 +59,32 @@ button:disabled{
 background:#555;
 
 cursor:not-allowed;
+
+}
+
+#timer{
+
+margin-top:20px;
+
+text-align:center;
+
+font-size:22px;
+
+font-weight:bold;
+
+color:#22c55e;
+
+display:none;
+
+}
+
+#status{
+
+margin-top:10px;
+
+text-align:center;
+
+font-size:16px;
 
 }
 
@@ -71,7 +100,7 @@ cursor:not-allowed;
 
 <p align="center">
 
-Complete the full video to unlock today's quiz.
+Complete today's learning video to unlock the quiz.
 
 </p>
 
@@ -80,8 +109,6 @@ Complete the full video to unlock today's quiz.
 <div style="position:relative;padding-top:56.25%;">
 
 <iframe
-
-id="player"
 
 src="https://player.mediadelivery.net/embed/682161/6a55dbaf-0e06-4fc9-a869-a86e4318088e?autoplay=true&loop=false&muted=true&preload=true&responsive=true"
 
@@ -105,20 +132,83 @@ allowfullscreen>
 
 </button>
 
+<div id="timer"></div>
+
+<div id="status"></div>
+
 </div>
 
 <script>
 
+const quizBtn=document.getElementById("quizBtn");
+const timer=document.getElementById("timer");
+const status=document.getElementById("status");
+
+let unlockSeconds=120;
+let countdown;
+
 setTimeout(function(){
 
-document.getElementById("quizBtn").disabled=false;
+quizBtn.disabled=false;
 
-document.getElementById("quizBtn").innerHTML="✅ Continue To Quiz";
+quizBtn.innerHTML="✅ Continue To Quiz";
+
+status.innerHTML="Quiz unlocked for 2 minutes.";
+
+timer.style.display="block";
+
+startCountdown();
 
 },60000);
+
+
+function startCountdown(){
+
+updateTimer();
+
+countdown=setInterval(function(){
+
+unlockSeconds--;
+
+updateTimer();
+
+if(unlockSeconds<=0){
+
+clearInterval(countdown);
+
+quizBtn.disabled=true;
+
+quizBtn.innerHTML="🔒 Quiz Locked";
+
+timer.innerHTML="⏰ Quiz Expired";
+
+status.innerHTML="Please watch the complete video again.";
+
+}
+
+},1000);
+
+}
+
+function updateTimer(){
+
+let m=Math.floor(unlockSeconds/60);
+
+let s=unlockSeconds%60;
+
+timer.innerHTML="Quiz Time Remaining : "+m+":"+(s<10?"0":"")+s;
+
+}
+
+quizBtn.onclick=function(){
+
+if(quizBtn.disabled)return;
+
+window.location.href="quiz.html";
+
+}
 
 </script>
 
 </body>
-
 </html>
