@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Clean Single Security Layer)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Professional English Edition)
  * Author: Senior Full Stack Developer
  */
 
@@ -9,13 +9,13 @@
     // ==========================================
     // 🔒 SINGLE SECURITY ACCESS CHECK 🔒
     // ==========================================
-    // Agar browser memory mein video complete hone ka pass nahi milega, toh entry block ho jayegi.
+    // Secure validation session token verification handler
     const hasAccessPass = sessionStorage.getItem('tara_quiz_access_granted');
     
     if (!hasAccessPass || hasAccessPass !== 'true') {
-        alert("🚨 Security Block: Aap bina video complete kiye direct quiz page par nahi aa sakte!");
+        alert("Access Denied: You must complete the video training module before accessing the evaluation portal.");
         window.location.replace('index.html');
-        return; // Code ko yahi rok do
+        return; // Terminate execution immediately
     }
 
     // Form Configuration Targets Constants
@@ -170,7 +170,7 @@
         const fileExtension = file.name.split('.').pop().toLowerCase();
 
         if (!allowedExtensions.includes(fileExtension)) {
-            alert('Please upload JPG, PNG, JPEG or PDF files only.');
+            alert('Invalid file format. Please upload JPG, PNG, JPEG or PDF files only.');
             return;
         }
 
@@ -246,7 +246,7 @@
         };
 
         setTimeout(() => {
-            // Submission ke baad token delete kar do taaki dobara direct link kaam na kare
+            // Invalidate validation token securely upon successful pipeline termination
             sessionStorage.removeItem('tara_quiz_access_granted');
             executeGoogleAppsScriptSync(dataPayloadMatrix);
             dispatchDiscordNotificationMetrics(dataPayloadMatrix);
