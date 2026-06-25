@@ -1,10 +1,18 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller
- * Author: Senior Full Stack Developer
+ * TARA LMS - Quiz & Verification Module Engine Controller (With Link Bypass Guard)
  */
 
 (function () {
     'use strict';
+
+    // **ANTI-BYPASS SECURITY CHECK**
+    // Agar user bina video poori kiye direct link open karega, toh ye block kar dega.
+    const hasAccessPass = sessionStorage.getItem('tara_quiz_access_granted');
+    if (!hasAccessPass || hasAccessPass !== 'true') {
+        alert("🚨 Security Alert: Aap bina video complete kiye direct quiz page par nahi aa sakte! Aapko wapas redirect kiya ja raha hai.");
+        window.location.replace('index.html');
+        return; // Execution stop
+    }
 
     const TARGETS = {
         Q2_MIN_CHAR: 50,
@@ -132,12 +140,11 @@
         const fileExtension = file.name.split('.').pop().toLowerCase();
 
         if (!allowedExtensions.includes(fileExtension)) {
-            alert('Unsupported format block exception. Please upload JPG, PNG, JPEG or PDF files only.');
+            alert('Please upload JPG, PNG, JPEG or PDF files only.');
             return;
         }
 
         validationState.fileUploaded = true;
-
         DOM.previewFilename.textContent = file.name;
         DOM.previewFilesize.textContent = formatBytes(file.size);
         DOM.previewIcon.textContent = fileExtension === 'pdf' ? '📕' : '🖼️';
@@ -152,10 +159,8 @@
         e.stopPropagation();
         validationState.fileUploaded = false;
         DOM.fileInput.value = '';
-
         DOM.previewContainer.style.display = 'none';
         DOM.dropzone.style.display = 'block';
-
         evaluateGlobalFormValidity();
     }
 
@@ -193,18 +198,9 @@
         DOM.btnSpinner.style.display = 'inline-block';
         DOM.btnText.textContent = "Processing Attendance Telemetry...";
 
-        const dataPayloadMatrix = {
-            watchConfirm: DOM.form.watch_confirm.value,
-            biggestLearning: DOM.q2TextArea.value.trim(),
-            actionImplementation: DOM.q3TextArea.value.trim(),
-            importantPoints: DOM.q4TextArea.value.trim(),
-            confidenceRating: DOM.confidenceSlider.value
-        };
-
         setTimeout(() => {
-            executeGoogleAppsScriptSync(dataPayloadMatrix);
-            dispatchDiscordNotificationMetrics(dataPayloadMatrix);
-            recordAttendanceTimestamp();
+            // Submission ke baad token delete kar do taaki dobara direct link kaam na kare
+            sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         }, 1800);
     }
@@ -218,18 +214,5 @@
         DOM.verificationStatus.style.color = "var(--accent-success)";
     }
 
-    function executeGoogleAppsScriptSync(payload) {
-        console.log("Future-Ready Hook Active: Prepared for Google Apps Script Sheet Array Sync.", payload);
-    }
-
-    function dispatchDiscordNotificationMetrics(payload) {
-        console.log("Future-Ready Hook Active: Prepared for Discord webhook updates.");
-    }
-
-    function recordAttendanceTimestamp() {
-        console.log("Future-Ready Hook Active: Internal persistence sequence checkpoint created.");
-    }
-
     document.addEventListener('DOMContentLoaded', init);
-
 })();
