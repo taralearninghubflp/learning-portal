@@ -1,214 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>TARA Learning Portal</title>
-
-<style>
-
-body{
-margin:0;
-background:#0f172a;
-font-family:Arial,sans-serif;
-color:#fff;
-}
-
-.container{
-width:90%;
-max-width:1000px;
-margin:auto;
-padding:30px;
-}
-
-h1{
-text-align:center;
-}
-
-.video{
-margin-top:25px;
-}
-
-button{
-
-width:100%;
-padding:18px;
-
-font-size:18px;
-
-border:none;
-
-border-radius:10px;
-
-background:#2563eb;
-
-color:#fff;
-
-cursor:pointer;
-
-margin-top:25px;
-
-transition:.3s;
-
-}
-
-button:disabled{
-
-background:#555;
-
-cursor:not-allowed;
-
-}
-
-#timer{
-
-margin-top:20px;
-
-text-align:center;
-
-font-size:22px;
-
-font-weight:bold;
-
-color:#22c55e;
-
-display:none;
-
-}
-
-#status{
-
-margin-top:10px;
-
-text-align:center;
-
-font-size:16px;
-
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TARA LMS - Learning Portal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="logo-area">
+                <span class="logo-accent">TARA</span> LMS
+            </div>
+            <div class="status-badge" id="lesson-status">Loading Lesson...</div>
+        </header>
 
-<div class="container">
+        <main class="workspace">
+            <section class="video-card">
+                <div class="video-wrapper" id="video-wrapper">
+                    <div class="spinner-container" id="loading-spinner">
+                        <div class="spinner"></div>
+                        <p class="spinner-text">Loading your training module...</p>
+                    </div>
+                </div>
+                <div class="video-meta">
+                    <h2 class="video-title" id="video-title">Module Loading...</h2>
+                    <div class="meta-pills">
+                        <span class="pill" id="duration-pill">Duration: --:--</span>
+                        <span class="pill status-pill locked" id="lock-status-pill">Locked</span>
+                    </div>
+                </div>
+            </section>
 
-<h1>TARA Learning Portal</h1>
+            <section class="control-card">
+                <div class="control-content">
+                    <h3 class="panel-title">Lesson Progress & Assessment</h3>
+                    <p class="panel-instructions" id="instruction-text">
+                        Please watch the training video completely. The quiz will unlock automatically after the designated lesson duration.
+                    </p>
+                    
+                    <div class="progress-container" id="progress-container" style="display: none;">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span id="progress-time-elapsed">00:00</span>
+                            <span id="progress-time-total">00:00</span>
+                        </div>
+                    </div>
 
-<p align="center">
+                    <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
+                        <div class="countdown-alert">
+                            <span class="alert-icon">⚠️</span>
+                            <div>
+                                <strong class="alert-title">Quiz Available Now!</strong>
+                                <p class="alert-desc">Complete your assessment before the window closes.</p>
+                            </div>
+                        </div>
+                        <div class="timer-display">
+                            <span class="timer-label">Time Remaining:</span>
+                            <span class="timer-digits" id="timer-digits">02:00</span>
+                        </div>
+                    </div>
 
-Complete today's learning video to unlock the quiz.
+                    <button id="quiz-btn" class="action-btn locked" disabled>
+                        <span class="btn-icon">🔒</span>
+                        <span id="btn-text">Awaiting Video Progress</span>
+                    </button>
+                </div>
+            </section>
+        </main>
 
-</p>
+        <footer class="main-footer">
+            <p>&copy; 2026 TARA LMS. Production-Ready Enterprise Architecture. Controlled strictly via Cloud Matrix.</p>
+        </footer>
+    </div>
 
-<div class="video">
-
-<div style="position:relative;padding-top:56.25%;">
-
-<iframe
-
-src="https://player.mediadelivery.net/embed/682161/6a55dbaf-0e06-4fc9-a869-a86e4318088e?autoplay=true&loop=false&muted=true&preload=true&responsive=true"
-
-loading="lazy"
-
-style="border:0;position:absolute;top:0;height:100%;width:100%;"
-
-allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;fullscreen;"
-
-allowfullscreen>
-
-</iframe>
-
-</div>
-
-</div>
-
-<button id="quizBtn" disabled>
-
-🔒 Complete Video To Unlock Quiz
-
-</button>
-
-<div id="timer"></div>
-
-<div id="status"></div>
-
-</div>
-
-<script>
-
-const quizBtn=document.getElementById("quizBtn");
-const timer=document.getElementById("timer");
-const status=document.getElementById("status");
-
-let unlockSeconds=120;
-let countdown;
-
-setTimeout(function(){
-
-quizBtn.disabled=false;
-
-quizBtn.innerHTML="✅ Continue To Quiz";
-
-status.innerHTML="Quiz unlocked for 2 minutes.";
-
-timer.style.display="block";
-
-startCountdown();
-
-},60000);
-
-
-function startCountdown(){
-
-updateTimer();
-
-countdown=setInterval(function(){
-
-unlockSeconds--;
-
-updateTimer();
-
-if(unlockSeconds<=0){
-
-clearInterval(countdown);
-
-quizBtn.disabled=true;
-
-quizBtn.innerHTML="🔒 Quiz Locked";
-
-timer.innerHTML="⏰ Quiz Expired";
-
-status.innerHTML="Please watch the complete video again.";
-
-}
-
-},1000);
-
-}
-
-function updateTimer(){
-
-let m=Math.floor(unlockSeconds/60);
-
-let s=unlockSeconds%60;
-
-timer.innerHTML="Quiz Time Remaining : "+m+":"+(s<10?"0":"")+s;
-
-}
-
-quizBtn.onclick=function(){
-
-if(quizBtn.disabled)return;
-
-window.location.href="quiz.html";
-
-}
-
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
