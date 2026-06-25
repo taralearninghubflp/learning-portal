@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Professional English Edition)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Live Google Sheets Integration)
  * Author: Senior Full Stack Developer
  */
 
@@ -9,34 +9,26 @@
     // ==========================================
     // 🔒 SINGLE SECURITY ACCESS CHECK 🔒
     // ==========================================
-    // Secure validation session token verification handler
     const hasAccessPass = sessionStorage.getItem('tara_quiz_access_granted');
     
     if (!hasAccessPass || hasAccessPass !== 'true') {
         alert("Access Denied: You must complete the video training module before accessing the evaluation portal.");
         window.location.replace('index.html');
-        return; // Terminate execution immediately
+        return;
     }
 
-    // Form Configuration Targets Constants
-    const TARGETS = {
-        Q2_MIN_CHAR: 50,
-        Q3_MIN_CHAR: 30,
-        Q4_MIN_CHAR: 80
+    const CONFIG = {
+        // Aapka same Apps Script URL jo index.html use karta hai
+        API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
+        TARGETS: { Q2_MIN_CHAR: 50, Q3_MIN_CHAR: 30, Q4_MIN_CHAR: 80 }
     };
 
-    // State Matrix Variables
     let validationState = {
-        q1Valid: false,
-        q2Valid: false,
-        q3Valid: false,
-        q4Valid: false,
-        fileUploaded: false,
-        complianceChecked: false,
-        uploadedFileObject: null
+        q1Valid: false, q2Valid: false, q3Valid: false, q4Valid: false,
+        fileUploaded: false, complianceChecked: false,
+        uploadedFileName: "", uploadedFileBase64: ""
     };
 
-    // Core Cached DOM Registry Elements
     const DOM = {
         form: document.getElementById('quiz-form'),
         submitBtn: document.getElementById('submit-verification-btn'),
@@ -46,7 +38,6 @@
         successContainer: document.getElementById('success-container'),
         verificationStatus: document.getElementById('verification-status'),
         
-        // Form Inputs
         q2TextArea: document.getElementById('biggest-learning'),
         q3TextArea: document.getElementById('action-implementation'),
         q4TextArea: document.getElementById('important-points'),
@@ -55,7 +46,6 @@
         complianceCheck: document.getElementById('compliance-check'),
         confidenceSlider: document.getElementById('confidence-rating'),
         
-        // Outputs & Real-Time Nodes
         counterQ2: document.getElementById('counter-q2'),
         counterQ3: document.getElementById('counter-q3'),
         counterQ4: document.getElementById('counter-q4'),
@@ -67,19 +57,12 @@
         removeFileBtn: document.getElementById('remove-file-btn')
     };
 
-    /**
-     * Initialization Core Lifecycle Execution
-     */
     function init() {
         bindInputTrackingEvents();
         bindDropzoneSystem();
     }
 
-    /**
-     * Register real-time change tracking metrics validation loops
-     */
     function bindInputTrackingEvents() {
-        // Radio input listener mutations
         document.getElementsByName('watch_confirm').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 validationState.q1Valid = (e.target.value === 'yes');
@@ -87,172 +70,120 @@
             });
         });
 
-        // Live text length validation listeners
-        DOM.q2TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q2TextArea, DOM.counterQ2, TARGETS.Q2_MIN_CHAR, 'q2Valid'));
-        DOM.q3TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q3TextArea, DOM.counterQ3, TARGETS.Q3_MIN_CHAR, 'q3Valid'));
-        DOM.q4TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q4TextArea, DOM.counterQ4, TARGETS.Q4_MIN_CHAR, 'q4Valid'));
+        DOM.q2TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q2TextArea, DOM.counterQ2, CONFIG.TARGETS.Q2_MIN_CHAR, 'q2Valid'));
+        DOM.q3TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q3TextArea, DOM.counterQ3, CONFIG.TARGETS.Q3_MIN_CHAR, 'q3Valid'));
+        DOM.q4TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q4TextArea, DOM.counterQ4, CONFIG.TARGETS.Q4_MIN_CHAR, 'q4Valid'));
 
-        // Compliance acknowledgment box
         DOM.complianceCheck.addEventListener('change', (e) => {
             validationState.complianceChecked = e.target.checked;
             evaluateGlobalFormValidity();
         });
 
-        // Realtime dynamic slider badge value updating loops
         DOM.confidenceSlider.addEventListener('input', (e) => {
             DOM.ratingOutput.textContent = e.target.value;
         });
 
-        // Dispatched final validation pipeline submission listener
         DOM.form.addEventListener('submit', handleFormSubmissionPipeline);
     }
 
-    /**
-     * Text Character Counter Evaluation Module
-     */
     function handleTextLengthValidation(element, counterElement, minLimit, stateProperty) {
         const length = element.value.trim().length;
         counterElement.textContent = `${length} / ${minLimit} characters`;
-
-        if (length >= minLimit) {
-            counterElement.classList.add('valid');
-            validationState[stateProperty] = true;
-        } else {
-            counterElement.classList.remove('valid');
-            validationState[stateProperty] = false;
-        }
+        validationState[stateProperty] = (length >= minLimit);
+        counterElement.classList.toggle('valid', length >= minLimit);
         evaluateGlobalFormValidity();
     }
 
-    /**
-     * Drag & Drop File Integration Upload Core Framework
-     */
     function bindDropzoneSystem() {
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
+        DOM.fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) processFileAttachment(e.target.files[0]); });
 
-        DOM.fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                processFileAttachment(e.target.files[0]);
-            }
-        });
+        ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
+        ['dragleave', 'drop'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false); });
 
-        // Drag interaction visual status hooks
-        ['dragenter', 'dragover'].forEach(eventName => {
-            DOM.dropzone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                DOM.dropzone.classList.add('drag-over');
-            }, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            DOM.dropzone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                DOM.dropzone.classList.remove('drag-over');
-            }, false);
-        });
-
-        DOM.dropzone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0) {
-                processFileAttachment(files[0]);
-            }
-        });
-
+        DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processFileAttachment(e.dataTransfer.files[0]); });
         DOM.removeFileBtn.addEventListener('click', clearFileAttachment);
     }
 
-    /**
-     * Validates and structural processes uploaded note files
-     */
     function processFileAttachment(file) {
-        const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
-        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const allowed = ['jpg', 'jpeg', 'png', 'pdf'];
+        const ext = file.name.split('.').pop().toLowerCase();
 
-        if (!allowedExtensions.includes(fileExtension)) {
+        if (!allowed.includes(ext)) {
             alert('Invalid file format. Please upload JPG, PNG, JPEG or PDF files only.');
             return;
         }
 
-        validationState.fileUploaded = true;
-        DOM.previewFilename.textContent = file.name;
-        DOM.previewFilesize.textContent = formatBytes(file.size);
-        DOM.previewIcon.textContent = fileExtension === 'pdf' ? '📕' : '🖼️';
-        
-        DOM.dropzone.style.display = 'none';
-        DOM.previewContainer.style.display = 'block';
+        // Convert notes file to Base64 String so it can travel securely to Google Sheets
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            validationState.uploadedFileBase64 = e.target.result;
+            validationState.uploadedFileName = file.name;
+            validationState.fileUploaded = true;
 
-        evaluateGlobalFormValidity();
+            DOM.previewFilename.textContent = file.name;
+            DOM.previewFilesize.textContent = (file.size / 1024).toFixed(2) + " KB";
+            DOM.previewIcon.textContent = ext === 'pdf' ? '📕' : '🖼️';
+            
+            DOM.dropzone.style.display = 'none';
+            DOM.previewContainer.style.display = 'block';
+            evaluateGlobalFormValidity();
+        };
+        reader.readAsDataURL(file);
     }
 
-    /**
-     * Flushes note state files out entirely safely
-     */
     function clearFileAttachment(e) {
         e.stopPropagation();
         validationState.fileUploaded = false;
+        validationState.uploadedFileBase64 = "";
+        validationState.uploadedFileName = "";
         DOM.fileInput.value = '';
         DOM.previewContainer.style.display = 'none';
         DOM.dropzone.style.display = 'block';
         evaluateGlobalFormValidity();
     }
 
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
-
-    /**
-     * Evaluate strict evaluation criteria matrix condition validations
-     */
     function evaluateGlobalFormValidity() {
-        const isFormValid = (
-            validationState.q1Valid &&
-            validationState.q2Valid &&
-            validationState.q3Valid &&
-            validationState.q4Valid &&
-            validationState.fileUploaded &&
-            validationState.complianceChecked
-        );
-
-        if (isFormValid) {
-            DOM.submitBtn.removeAttribute('disabled');
-        } else {
-            DOM.submitBtn.setAttribute('disabled', 'true');
-        }
+        const isValid = (validationState.q1Valid && validationState.q2Valid && validationState.q3Valid && validationState.q4Valid && validationState.fileUploaded && validationState.complianceChecked);
+        if (isValid) DOM.submitBtn.removeAttribute('disabled'); else DOM.submitBtn.setAttribute('disabled', 'true');
     }
 
-    /**
-     * Form dispatching submission telemetry pipeline handler
-     */
-    function handleFormSubmissionPipeline(e) {
+    async function handleFormSubmissionPipeline(e) {
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
 
         DOM.submitBtn.setAttribute('disabled', 'true');
         DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Processing Attendance Telemetry...";
+        DOM.btnText.textContent = "Saving to Google Sheets...";
 
-        const dataPayloadMatrix = {
+        const payload = {
             watchConfirm: DOM.form.watch_confirm.value,
             biggestLearning: DOM.q2TextArea.value.trim(),
             actionImplementation: DOM.q3TextArea.value.trim(),
             importantPoints: DOM.q4TextArea.value.trim(),
-            confidenceRating: DOM.confidenceSlider.value
+            confidenceRating: DOM.confidenceSlider.value,
+            filePayload: validationState.uploadedFileBase64 // Sends base64 text of the notes
         };
 
-        setTimeout(() => {
-            // Invalidate validation token securely upon successful pipeline termination
+        try {
+            // Send the network request directly to Google Apps Script
+            const response = await fetch(CONFIG.API_ENDPOINT, {
+                method: 'POST',
+                mode: 'no-cors', // Solves Google CORS redirect parameters cleanly
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            // Clean session on successful dispatch execution context
             sessionStorage.removeItem('tara_quiz_access_granted');
-            executeGoogleAppsScriptSync(dataPayloadMatrix);
-            dispatchDiscordNotificationMetrics(dataPayloadMatrix);
-            recordAttendanceTimestamp();
             transitionToSuccessCard();
-        }, 1800);
+        } catch (error) {
+            console.error(error);
+            alert("Network Sync Error. Please check your internet connection.");
+            DOM.submitBtn.removeAttribute('disabled');
+            DOM.btnSpinner.style.display = 'none';
+            DOM.btnText.textContent = "Complete Today's Learning";
+        }
     }
 
     function transitionToSuccessCard() {
@@ -264,18 +195,5 @@
         DOM.verificationStatus.style.color = "var(--accent-success)";
     }
 
-    function executeGoogleAppsScriptSync(payload) {
-        console.log("Future-Ready Hook Active: Prepared for Google Apps Script Sheet Array Sync.", payload);
-    }
-
-    function dispatchDiscordNotificationMetrics(payload) {
-        console.log("Future-Ready Hook Active: Prepared for Discord webhook updates.");
-    }
-
-    function recordAttendanceTimestamp() {
-        console.log("Future-Ready Hook Active: Internal persistence sequence checkpoint created.");
-    }
-
     document.addEventListener('DOMContentLoaded', init);
-
 })();
