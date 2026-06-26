@@ -1,6 +1,6 @@
 /**
  * TARA LMS - Core Stream Engine Controller
- * Feature: 11 PM - 12 AM Automated Maintenance Lockout
+ * Feature: 11 PM - 12 AM Automated Maintenance Lockout (TEST MODE ACTIVE)
  * Author: Senior Full Stack Developer
  */
 
@@ -12,8 +12,8 @@
         QUIZ_COUNTDOWN_DURATION: 120,
         TICK_RATE_MS: 1000,
         MAINTENANCE: {
-            START_HOUR: 23, // 11 PM
-            END_HOUR: 0     // 12 AM (Midnight)
+            START_HOUR: 3, // Abhi test karne ke liye 3 AM kiya hai
+            END_HOUR: 4     
         }
     };
 
@@ -45,7 +45,7 @@
         const now = new Date();
         const currentHour = now.getHours();
 
-        // Check if current time falls between 11:00 PM and 11:59 PM
+        // Check if current hour matches test setup
         if (currentHour === CONFIG.MAINTENANCE.START_HOUR) {
             injectMaintenanceUI();
             return true;
@@ -54,7 +54,6 @@
     }
 
     function injectMaintenanceUI() {
-        // Clear all portal displays and force a full-screen lockdown banner
         document.body.innerHTML = `
             <div style="
                 height: 100vh; 
@@ -85,26 +84,23 @@
                     font-size: 14px; 
                     color: #ffbc00;
                 ">
-                    Standard Lockout Window: 11:00 PM - 12:00 AM Daily
+                    [TEST MODE] Maintenance Window: 3:00 AM - 4:00 AM Active
                 </div>
             </div>
         `;
     }
 
     function init() {
-        // Guard Check: If maintenance hour is active, halt core engine immediately
         if (checkMaintenanceStatus()) return;
 
         sessionStorage.removeItem('tara_quiz_access_granted');
         window.addEventListener('keydown', handleGlobalKeyGuard, true);
 
-        // Mobile Fullscreen Auto-Rotate Listeners
         document.addEventListener('fullscreenchange', handleOrientationPipeline);
         document.addEventListener('webkitfullscreenchange', handleOrientationPipeline);
         document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
         document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
 
-        // Periodically verify time context so users already on the page get booted at 11 PM
         setInterval(checkMaintenanceStatus, 15000);
 
         const savedName = sessionStorage.getItem('tara_user_name');
@@ -152,7 +148,6 @@
 
     async function handleLoginValidation(e) {
         e.preventDefault();
-        // Double check maintenance window right before allowing form submission
         if (checkMaintenanceStatus()) return;
 
         DOM.loginBtn.setAttribute('disabled', 'true');
