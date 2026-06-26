@@ -1,5 +1,6 @@
 /**
- * TARA LMS - Core Stream Engine Controller (YouTube-Style Mobile Fullscreen Auto-Rotate Edition)
+ * TARA LMS - Core Stream Engine Controller
+ * Feature: 11 PM - 12 AM Automated Maintenance Lockout
  * Author: Senior Full Stack Developer
  */
 
@@ -9,7 +10,11 @@
     const CONFIG = {
         API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
         QUIZ_COUNTDOWN_DURATION: 120,
-        TICK_RATE_MS: 1000
+        TICK_RATE_MS: 1000,
+        MAINTENANCE: {
+            START_HOUR: 23, // 11 PM
+            END_HOUR: 0     // 12 AM (Midnight)
+        }
     };
 
     let state = {
@@ -36,21 +41,71 @@
         btnText: document.getElementById('btn-text')
     };
 
+    function checkMaintenanceStatus() {
+        const now = new Date();
+        const currentHour = now.getHours();
+
+        // Check if current time falls between 11:00 PM and 11:59 PM
+        if (currentHour === CONFIG.MAINTENANCE.START_HOUR) {
+            injectMaintenanceUI();
+            return true;
+        }
+        return false;
+    }
+
+    function injectMaintenanceUI() {
+        // Clear all portal displays and force a full-screen lockdown banner
+        document.body.innerHTML = `
+            <div style="
+                height: 100vh; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: center; 
+                align-items: center; 
+                background: linear-gradient(135deg, #1e1e2f 0%, #111119 100%); 
+                color: #ffffff; 
+                font-family: 'Roboto', sans-serif; 
+                text-align: center; 
+                padding: 20px;
+            ">
+                <div style="font-size: 80px; margin-bottom: 20px;">⚙️</div>
+                <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #ffbc00;">
+                    Daily Data Sync & Maintenance
+                </h1>
+                <p style="font-size: 18px; max-width: 600px; color: #a0a0b8; line-height: 1.6;">
+                    Portal is temporarily offline for daily attendance synchronization and database optimization. 
+                    We will be back live sharp at <b>12:00 AM (Midnight)</b>.
+                </p>
+                <div style="
+                    margin-top: 30px; 
+                    padding: 10px 20px; 
+                    background: rgba(255, 188, 0, 0.1); 
+                    border: 1px solid #ffbc00; 
+                    border-radius: 20px; 
+                    font-size: 14px; 
+                    color: #ffbc00;
+                ">
+                    Standard Lockout Window: 11:00 PM - 12:00 AM Daily
+                </div>
+            </div>
+        `;
+    }
+
     function init() {
+        // Guard Check: If maintenance hour is active, halt core engine immediately
+        if (checkMaintenanceStatus()) return;
+
         sessionStorage.removeItem('tara_quiz_access_granted');
-        
         window.addEventListener('keydown', handleGlobalKeyGuard, true);
 
-        // ==========================================
-        // 📱 MOBILE FULLSCREEN ROTATION LISTENERS
-        // ==========================================
-        // Android/Chrome standard
+        // Mobile Fullscreen Auto-Rotate Listeners
         document.addEventListener('fullscreenchange', handleOrientationPipeline);
-        // iOS/Safari standard
         document.addEventListener('webkitfullscreenchange', handleOrientationPipeline);
-        // Direct video node rotation hooks
         document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
         document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
+
+        // Periodically verify time context so users already on the page get booted at 11 PM
+        setInterval(checkMaintenanceStatus, 15000);
 
         const savedName = sessionStorage.getItem('tara_user_name');
         if (savedName) {
@@ -60,10 +115,6 @@
         }
     }
 
-    /**
-     * YouTube Dynamic Orientation Optimizer
-     * Automatically locks device into horizontal landscape whenever full screen executes
-     */
     function handleOrientationPipeline() {
         const isFullscreen = !!(document.fullscreenElement || 
                                document.webkitFullscreenElement || 
@@ -71,10 +122,9 @@
                                document.msFullscreenElement);
         
         if (isFullscreen) {
-            // Target specific mobile viewport parameters
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('landscape').catch(function(error) {
-                    console.log("Device rotation handled natively or context skipped on desktop:", error);
+                    console.log("Orientation lock skipped on desktop:", error);
                 });
             } else if (screen.lockOrientation) {
                 screen.lockOrientation('landscape');
@@ -82,7 +132,6 @@
                 screen.webkitLockOrientation('landscape');
             }
         } else {
-            // Release the orientation parameters back to normal portrait view upon exit
             if (screen.orientation && screen.orientation.unlock) {
                 screen.orientation.unlock();
             } else if (screen.unlockOrientation) {
@@ -103,6 +152,9 @@
 
     async function handleLoginValidation(e) {
         e.preventDefault();
+        // Double check maintenance window right before allowing form submission
+        if (checkMaintenanceStatus()) return;
+
         DOM.loginBtn.setAttribute('disabled', 'true');
         DOM.loginBtn.textContent = "Verifying Identity...";
 
@@ -156,8 +208,6 @@
         iframe.src = `${url}${separator}autoplay=1`;
         
         iframe.id = "tara-secure-stream-frame";
-        
-        // CRITICAL PERMISSIONS LAYER: Direct strict declaration forcing mobile browsers to yield screen control tokens
         iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock;');
         iframe.setAttribute('webkitallowfullscreen', 'true');
         iframe.setAttribute('mozallowfullscreen', 'true');
