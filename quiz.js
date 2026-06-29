@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Unified Cloud Sync Edition)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Unified Form Data Edition)
  */
 
 (function () {
@@ -168,7 +168,6 @@
         DOM.btnSpinner.style.display = 'inline-block';
         DOM.btnText.textContent = "Securing Answers & Sheets in Drive...";
 
-        // SINGLE PACKET PAYLOAD: Text + Complete Image Base64 Arrays combined
         const unifiedPayload = {
             userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO",
             userEmail: sessionStorage.getItem('tara_user_email') || "No Email",
@@ -178,14 +177,14 @@
             importantPoints: DOM.q4TextArea.value.trim(),
             confidenceRating: DOM.confidenceSlider.value,
             sheetsCount: validationState.fileUploadPayloads.length,
-            fileUploadPayloads: validationState.fileUploadPayloads // Inside single stream payload!
+            fileUploadPayloads: validationState.fileUploadPayloads
         };
 
         try {
-            // Standard dynamic direct POST request execution
+            // 🛠️ CRITICAL FIX: Sending data as text/plain to completely avoid CORS preflight drops
             const response = await fetch(CONFIG.API_ENDPOINT, { 
                 method: 'POST', 
-                headers: { 'Content-Type': 'text/plain' }, 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                 body: JSON.stringify(unifiedPayload) 
             });
             
