@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TARA LMS - Learning Verification</title>
     <link rel="stylesheet" href="quiz.css">
 </head>
@@ -70,28 +70,31 @@
                         <p class="input-hint">Minimum 80 characters required.</p>
                     </section>
 
+                    <!-- UPDATED: Notes Upload Section for Multiple Cloud Sync -->
                     <section class="form-section">
                         <label class="section-label">Notes Upload <span class="required-asterisk">*</span></label>
-                        <p class="question-text">Upload Your Notes</p>
+                        <p class="question-text">Sync Assessment Sheets to Secure Cloud</p>
                         
                         <div class="dropzone-area" id="dropzone">
-                            <input type="file" id="file-input" name="notes_file" accept=".jpg,.jpeg,.png,.pdf" required style="display:none;">
+                            <!-- Removed capture="environment" to prevent crash, added multiple -->
+                            <input type="file" id="file-input" name="notes_files" accept=".jpg,.jpeg,.png,.pdf" multiple style="display:none;">
                             <div class="dropzone-prompt">
                                 <span class="dropzone-icon">📁</span>
-                                <p class="dropzone-text">Drag & drop your files here or <span class="highlight">browse</span></p>
-                                <p class="dropzone-subtext">Supported formats: JPG, PNG, JPEG, PDF</p>
+                                <p class="dropzone-text">Drag & drop or <span class="highlight">browse sheets</span></p>
+                                <p class="dropzone-subtext">Supported: JPG, PNG, PDF (Multiple allowed)</p>
                             </div>
                         </div>
 
-                        <div id="file-preview-container" class="preview-container" style="display: none;">
-                            <div class="preview-card">
-                                <span class="file-type-icon" id="preview-icon">📄</span>
-                                <div class="file-details">
-                                    <p class="file-name" id="preview-filename">notes.pdf</p>
-                                    <p class="file-size" id="preview-filesize">0 KB</p>
-                                </div>
-                                <button type="button" class="remove-file-btn" id="remove-file-btn" title="Remove File">✕</button>
+                        <!-- Full Upload Progress/Status UI Grid -->
+                        <div id="file-upload-matrix" class="upload-matrix" style="display: none;">
+                            <div class="matrix-header">
+                                <span id="matrix-status-icon">⏳</span>
+                                <span id="matrix-status-text">Synchronizing sheets...</span>
                             </div>
+                            <div class="file-grid" id="file-preview-grid">
+                                <!-- Dynamic File Slots Injected by quiz.js -->
+                            </div>
+                            <button type="button" class="remove-all-btn" id="remove-all-files-btn">Clear All Sheets</button>
                         </div>
                     </section>
 
@@ -100,7 +103,7 @@
                             <label class="section-label">Today's Confidence Rating</label>
                             <div class="rating-badge" id="rating-output">5</div>
                         </div>
-                        <p class="question-text">Rate your confidence level in understanding and executing today's core module concepts:</p>
+                        <p class="question-text">Rate your confidence level in understanding and executing today's core concepts:</p>
                         <div class="slider-container">
                             <span class="slider-boundary-label">1</span>
                             <input type="range" id="confidence-rating" name="confidence_rating" min="1" max="10" value="5" class="modern-slider">
@@ -121,7 +124,7 @@
                     <div class="action-row">
                         <button type="submit" id="submit-verification-btn" class="submit-btn" disabled>
                             <span class="spinner-icon" id="btn-spinner" style="display: none;"></span>
-                            <span id="btn-text">Complete Today's Learning</span>
+                            <span id="btn-text">Authenticate Session & Complete</span>
                         </button>
                     </div>
                 </form>
@@ -135,9 +138,9 @@
                 <p class="success-message">Today's Learning Completed Successfully.</p>
                 <div class="success-badge-row">
                     <span class="success-pill">Attendance Recorded</span>
-                    <span class="success-pill">Submission Authenticated</span>
+                    <span class="success-pill">Sheets Secured in Drive</span>
                 </div>
-                <p class="success-submessage">Your attendance has been recorded. See you in the next learning session.</p>
+                <p class="success-submessage">Your attendance has been recorded and assessment sheets have been secured in your Google Drive folder. You may now close this portal.</p>
                 <button type="button" class="dashboard-return-btn" onclick="window.location.href='index.html'">
                     Return to Dashboard
                 </button>
@@ -145,11 +148,10 @@
         </main>
 
         <footer class="main-footer">
-            <p>&copy; 2026 TARA LMS. Production-Ready Enterprise Architecture. Controlled strictly via Cloud Matrix.</p>
+            <p>&copy; 2026 TARA LMS. Controlled strictly via Cloud Matrix. Unauthorized Access Prohibited.</p>
         </footer>
     </div>
 
     <script src="quiz.js"></script>
 </body>
 </html>
-
