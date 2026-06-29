@@ -1,5 +1,6 @@
 /**
- * TARA LMS - Core Stream Engine Controller (Updated for Fullscreen Exit)
+ * TARA LMS - Core Stream Engine Controller
+ * Synchronized with Premium Enterprise Stylesheet
  */
 
 (function () {
@@ -120,48 +121,68 @@
         }, CONFIG.TICK_RATE_MS);
     }
 
-    // --- UPDATED CORE ORIENTATION RESET INTERFACE ---
+    /* ==========================================================================
+       🎥 AUTOMATIC WORKSPACE FORCE SCREEN EXIT & PORTRAIT ORIENTATION RESET
+       ========================================================================== */
     function triggerQuizUnlockSequence() {
         state.isUnlocked = true;
         
-        // 1. Fullscreen Exit Module
+        // 1. Fullscreen Exit Logic Engine
         if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
             const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFS) {
-                exitFS.call(document).catch(err => console.log("Fullscreen exit ignored:", err));
+                exitFS.call(document).catch(err => console.log("LMS Viewport Reset Restrained:", err));
             }
         }
 
-        // 2. Device Orientation Unlock Interface (Portrait Reset)
+        // 2. Telemetry Orientation Unlock Protocol (Force Back to Native Portrait)
         if (screen.orientation && screen.orientation.unlock) {
             screen.orientation.unlock();
         }
 
         sessionStorage.setItem('tara_quiz_access_granted', 'true');
-        DOM.lockStatusPill.textContent = "Authorized";
-        DOM.lockStatusPill.classList.remove('locked');
-        DOM.lockStatusPill.classList.add('unlocked');
-        DOM.quizBtn.removeAttribute('disabled');
-        DOM.quizBtn.classList.remove('locked');
-        DOM.quizBtn.classList.add('unlocked');
-        DOM.btnText.textContent = "Initialize Learning Evaluation Form";
+        
+        // Dynamic CSS Variable Status Updates Map
+        if (DOM.lockStatusPill) {
+            DOM.lockStatusPill.textContent = "Authorized";
+            DOM.lockStatusPill.classList.remove('locked');
+            DOM.lockStatusPill.classList.add('unlocked');
+        }
+        
+        if (DOM.quizBtn) {
+            DOM.quizBtn.removeAttribute('disabled');
+            DOM.quizBtn.classList.remove('locked');
+            DOM.quizBtn.classList.add('unlocked');
+        }
+        
+        if (DOM.btnText) {
+            DOM.btnText.textContent = "Initialize Learning Evaluation Form";
+        }
+        
         initiateExpirationCountdown();
     }
 
     function initiateExpirationCountdown() {
-        DOM.countdownWrapper.style.display = 'block';
+        if (DOM.countdownWrapper) DOM.countdownWrapper.style.display = 'block';
         state.countdownTimerId = setInterval(() => {
             state.countdownRemaining--;
-            DOM.timerDigits.textContent = formatTime(state.countdownRemaining);
-            if (state.countdownRemaining <= 0) { clearInterval(state.countdownTimerId); enforceRelockSequence(); }
+            if (DOM.timerDigits) DOM.timerDigits.textContent = formatTime(state.countdownRemaining);
+            if (state.countdownRemaining <= 0) { 
+                clearInterval(state.countdownTimerId); 
+                enforceRelockSequence(); 
+            }
         }, CONFIG.TICK_RATE_MS);
     }
 
     function enforceRelockSequence() {
         state.isUnlocked = false;
         sessionStorage.removeItem('tara_quiz_access_granted');
-        DOM.quizBtn.setAttribute('disabled', 'true');
-        DOM.btnText.textContent = "Session Expired";
+        if (DOM.quizBtn) {
+            DOM.quizBtn.setAttribute('disabled', 'true');
+            DOM.quizBtn.classList.remove('unlocked');
+            DOM.quizBtn.classList.add('locked');
+        }
+        if (DOM.btnText) DOM.btnText.textContent = "Session Expired";
     }
 
     function formatTime(seconds) {
