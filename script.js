@@ -120,15 +120,21 @@
         }, CONFIG.TICK_RATE_MS);
     }
 
-    // --- FULLSCREEN EXIT LOGIC HERE ---
+    // --- UPDATED CORE ORIENTATION RESET INTERFACE ---
     function triggerQuizUnlockSequence() {
         state.isUnlocked = true;
         
-        // Fullscreen Exit Trigger
+        // 1. Fullscreen Exit Module
         if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            else if (document.msExitFullscreen) document.msExitFullscreen();
+            const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+            if (exitFS) {
+                exitFS.call(document).catch(err => console.log("Fullscreen exit ignored:", err));
+            }
+        }
+
+        // 2. Device Orientation Unlock Interface (Portrait Reset)
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
         }
 
         sessionStorage.setItem('tara_quiz_access_granted', 'true');
