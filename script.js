@@ -1,6 +1,7 @@
 /**
  * TARA LMS - Core Stream Engine Controller
- * Synchronized with Premium Enterprise Stylesheet
+ * Feature: 11 PM - 12 AM Automated Maintenance Lockout (PRODUCTION ACTIVE)
+ * Author: Senior Full Stack Developer
  */
 
 (function () {
@@ -10,7 +11,10 @@
         API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
         QUIZ_COUNTDOWN_DURATION: 120,
         TICK_RATE_MS: 1000,
-        MAINTENANCE: { START_HOUR: 23, END_HOUR: 0 }
+        MAINTENANCE: {
+            START_HOUR: 23, // Real timing: Raat ke 11:00 baje lock hoga
+            END_HOUR: 0     // Real timing: Raat ke 12:00 baje (Midnight) wapas khulega
+        }
     };
 
     let state = {
@@ -26,6 +30,7 @@
         loginCode: document.getElementById('login-code'),
         loginBtn: document.getElementById('login-btn'),
         userDisplayBadge: document.getElementById('user-display-badge'),
+        
         videoWrapper: document.getElementById('video-wrapper'),
         loadingSpinner: document.getElementById('loading-spinner'),
         lockStatusPill: document.getElementById('lock-status-pill'),
@@ -39,6 +44,8 @@
     function checkMaintenanceStatus() {
         const now = new Date();
         const currentHour = now.getHours();
+
+        // Check if current hour matches 11 PM (23)
         if (currentHour === CONFIG.MAINTENANCE.START_HOUR) {
             injectMaintenanceUI();
             return true;
@@ -47,27 +54,86 @@
     }
 
     function injectMaintenanceUI() {
-        document.body.innerHTML = `<div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #1e1e2f 0%, #111119 100%); color: #ffffff; font-family: 'Roboto', sans-serif; text-align: center; padding: 20px;">
-            <div style="font-size: 80px; margin-bottom: 20px;">⚙️</div>
-            <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #ffbc00;">Daily Data Sync & Maintenance</h1>
-            <p style="font-size: 18px; max-width: 600px; color: #a0a0b8; line-height: 1.6;">Portal is temporarily offline. Back live at <b>12:00 AM</b>.</p></div>`;
+        document.body.innerHTML = `
+            <div style="
+                height: 100vh; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: center; 
+                align-items: center; 
+                background: linear-gradient(135deg, #1e1e2f 0%, #111119 100%); 
+                color: #ffffff; 
+                font-family: 'Roboto', sans-serif; 
+                text-align: center; 
+                padding: 20px;
+            ">
+                <div style="font-size: 80px; margin-bottom: 20px;">⚙️</div>
+                <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #ffbc00;">
+                    Daily Data Sync & Maintenance
+                </h1>
+                <p style="font-size: 18px; max-width: 600px; color: #a0a0b8; line-height: 1.6;">
+                    Portal is temporarily offline for daily attendance synchronization and database optimization. 
+                    We will be back live sharp at <b>12:00 AM (Midnight)</b>.
+                </p>
+                <div style="
+                    margin-top: 30px; 
+                    padding: 10px 20px; 
+                    background: rgba(255, 188, 0, 0.1); 
+                    border: 1px solid #ffbc00; 
+                    border-radius: 20px; 
+                    font-size: 14px; 
+                    color: #ffbc00;
+                ">
+                    Standard Lockout Window: 11:00 PM - 12:00 AM Daily
+                </div>
+            </div>
+        `;
     }
 
     function init() {
         if (checkMaintenanceStatus()) return;
+
         sessionStorage.removeItem('tara_quiz_access_granted');
+        window.addEventListener('keydown', handleGlobalKeyGuard, true);
+
+        document.addEventListener('fullscreenchange', handleOrientationPipeline);
+        document.addEventListener('webkitfullscreenchange', handleOrientationPipeline);
+        document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
+        document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
+
         setInterval(checkMaintenanceStatus, 15000);
+
         const savedName = sessionStorage.getItem('tara_user_name');
-        if (savedName) { launchPortalWorkspace(); } else { DOM.loginForm.addEventListener('submit', handleLoginValidation); }
+        if (savedName) {
+            launchPortalWorkspace();
+        } else {
+            DOM.loginForm.addEventListener('submit', handleLoginValidation);
+        }
+    }
+
+    function handleOrientationPipeline() {
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        if (isFullscreen) {
+            if (screen.orientation && screen.orientation.lock) { screen.orientation.lock('landscape').catch(function(e){}); }
+        } else {
+            if (screen.orientation && screen.orientation.unlock) { screen.orientation.unlock(); }
+        }
+    }
+
+    function handleGlobalKeyGuard(e) {
+        const blocked = ['ArrowRight', 'ArrowLeft', 'Space', ' '];
+        if (blocked.includes(e.key)) { e.preventDefault(); return false; }
     }
 
     async function handleLoginValidation(e) {
         e.preventDefault();
         if (checkMaintenanceStatus()) return;
+
         DOM.loginBtn.setAttribute('disabled', 'true');
         DOM.loginBtn.textContent = "Verifying Identity...";
         const email = DOM.loginEmail.value.trim();
         const code = DOM.loginCode.value.trim();
+
         try {
             const response = await fetch(`${CONFIG.API_ENDPOINT}?action=login&email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
             const data = await response.json();
@@ -76,11 +142,13 @@
                 sessionStorage.setItem('tara_user_email', data.email);
                 launchPortalWorkspace();
             } else {
-                alert("Authentication Failed.");
+                alert("Authentication Failed: Invalid credentials.");
                 DOM.loginBtn.removeAttribute('disabled');
                 DOM.loginBtn.textContent = "Authenticate Credentials";
             }
-        } catch (err) { DOM.loginBtn.removeAttribute('disabled'); }
+        } catch (err) {
+            DOM.loginBtn.removeAttribute('disabled');
+        }
     }
 
     function launchPortalWorkspace() {
@@ -95,17 +163,20 @@
         try {
             const response = await fetch(CONFIG.API_ENDPOINT);
             const data = await response.json();
+            state.lessonNumber = data.no || 1;
+            state.videoUrl = data.video;
             state.targetDuration = parseInt(data.duration, 10) || 60;
-            renderVideoIframe(data.video);
+            renderVideoIframe(state.videoUrl);
             startStealthProgressTracking();
         } catch (error) {}
     }
 
     function renderVideoIframe(url) {
         const iframe = document.createElement('iframe');
-        iframe.src = url;
+        const separator = url.includes('?') ? '&' : '?';
+        iframe.src = `${url}${separator}autoplay=1`;
         iframe.id = "tara-secure-stream-frame";
-        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen;');
+        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock;');
         iframe.allowFullscreen = true;
         iframe.onload = () => { if (DOM.loadingSpinner) DOM.loadingSpinner.style.display = 'none'; };
         DOM.videoWrapper.appendChild(iframe);
@@ -122,67 +193,54 @@
     }
 
     /* ==========================================================================
-       🎥 AUTOMATIC WORKSPACE FORCE SCREEN EXIT & PORTRAIT ORIENTATION RESET
+       🎥 AUTOMATED FULLSCREEN DISMISSAL & ORIENTATION RESET INTERFACE
        ========================================================================== */
     function triggerQuizUnlockSequence() {
         state.isUnlocked = true;
-        
-        // 1. Fullscreen Exit Logic Engine
+
+        // 1. Force Exit Fullscreen Native Event Layer
         if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
             const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFS) {
-                exitFS.call(document).catch(err => console.log("LMS Viewport Reset Restrained:", err));
+                exitFS.call(document).catch(function(err) {
+                    console.log("LMS Reset Redirect Restrained:", err);
+                });
             }
         }
 
-        // 2. Telemetry Orientation Unlock Protocol (Force Back to Native Portrait)
+        // 2. Clear Screen Orientation Constraints (Force Snap Back to Normal Portrait)
         if (screen.orientation && screen.orientation.unlock) {
             screen.orientation.unlock();
         }
 
         sessionStorage.setItem('tara_quiz_access_granted', 'true');
-        
-        // Dynamic CSS Variable Status Updates Map
-        if (DOM.lockStatusPill) {
-            DOM.lockStatusPill.textContent = "Authorized";
-            DOM.lockStatusPill.classList.remove('locked');
-            DOM.lockStatusPill.classList.add('unlocked');
-        }
-        
-        if (DOM.quizBtn) {
-            DOM.quizBtn.removeAttribute('disabled');
-            DOM.quizBtn.classList.remove('locked');
-            DOM.quizBtn.classList.add('unlocked');
-        }
-        
-        if (DOM.btnText) {
-            DOM.btnText.textContent = "Initialize Learning Evaluation Form";
-        }
-        
+        DOM.lockStatusPill.textContent = "Authorized";
+        DOM.lockStatusPill.classList.remove('locked');
+        DOM.lockStatusPill.classList.add('unlocked');
+        DOM.quizBtn.removeAttribute('disabled');
+        DOM.quizBtn.classList.remove('locked');
+        DOM.quizBtn.classList.add('unlocked');
+        DOM.quizBtn.querySelector('.btn-icon').textContent = '🚀';
+        DOM.btnText.textContent = "Initialize Learning Evaluation Form";
         initiateExpirationCountdown();
     }
 
     function initiateExpirationCountdown() {
-        if (DOM.countdownWrapper) DOM.countdownWrapper.style.display = 'block';
+        DOM.countdownWrapper.style.display = 'block';
         state.countdownTimerId = setInterval(() => {
             state.countdownRemaining--;
-            if (DOM.timerDigits) DOM.timerDigits.textContent = formatTime(state.countdownRemaining);
-            if (state.countdownRemaining <= 0) { 
-                clearInterval(state.countdownTimerId); 
-                enforceRelockSequence(); 
-            }
+            DOM.timerDigits.textContent = formatTime(state.countdownRemaining);
+            if (state.countdownRemaining <= 0) { clearInterval(state.countdownTimerId); enforceRelockSequence(); }
         }, CONFIG.TICK_RATE_MS);
     }
 
     function enforceRelockSequence() {
         state.isUnlocked = false;
         sessionStorage.removeItem('tara_quiz_access_granted');
-        if (DOM.quizBtn) {
-            DOM.quizBtn.setAttribute('disabled', 'true');
-            DOM.quizBtn.classList.remove('unlocked');
-            DOM.quizBtn.classList.add('locked');
-        }
-        if (DOM.btnText) DOM.btnText.textContent = "Session Expired";
+        DOM.lockStatusPill.textContent = "Revoked";
+        DOM.lockStatusPill.classList.add('locked');
+        DOM.quizBtn.setAttribute('disabled', 'true');
+        DOM.btnText.textContent = "Session Access Protocol Expired";
     }
 
     function formatTime(seconds) {
