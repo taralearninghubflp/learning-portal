@@ -176,8 +176,15 @@
         const separator = url.includes('?') ? '&' : '?';
         iframe.src = `${url}${separator}autoplay=1`;
         iframe.id = "tara-secure-stream-frame";
+        
+        // Enforcing comprehensive HTML5 media permissions injection string
         iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock;');
+        
+        // Multi-engine hardware layer authorization blueprints
         iframe.allowFullscreen = true;
+        iframe.webkitAllowFullScreen = true;
+        iframe.mozallowfullscreen = true;
+        
         iframe.onload = () => { if (DOM.loadingSpinner) DOM.loadingSpinner.style.display = 'none'; };
         DOM.videoWrapper.appendChild(iframe);
     }
@@ -198,7 +205,7 @@
     function triggerQuizUnlockSequence() {
         state.isUnlocked = true;
 
-        // 1. Force Exit Fullscreen Native Event Layer
+        // 1. Force Exit Fullscreen Native Event Layer[cite: 3]
         if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
             const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFS) {
@@ -208,7 +215,7 @@
             }
         }
 
-        // 2. Clear Screen Orientation Constraints (Force Snap Back to Normal Portrait)
+        // 2. Clear Screen Orientation Constraints (Force Snap Back to Normal Portrait)[cite: 3]
         if (screen.orientation && screen.orientation.unlock) {
             screen.orientation.unlock();
         }
