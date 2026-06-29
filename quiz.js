@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Enterprise Cloud Sync Edition)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Unified Cloud Sync Edition)
  */
 
 (function () {
@@ -42,7 +42,6 @@
         counterQ4: document.getElementById('counter-q4'),
         ratingOutput: document.getElementById('rating-output'),
         
-        // Matrix Upload Components
         matrixWrapper: document.getElementById('file-upload-matrix'),
         matrixGrid: document.getElementById('file-preview-grid'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
@@ -84,24 +83,19 @@
         DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
     }
 
-    // --- NEW: Cloud Drive Sync Module Handling Multiple Sheets ---
     async function processMultipleFilesToDrive(files) {
-        // Clear previous state and grid
         validationState.fileUploadPayloads = [];
         validationState.filesReadyToUpload = false;
         DOM.matrixGrid.innerHTML = '';
-        DOM.submitBtn.setAttribute('disabled', 'true'); // Temporarily disable submit while converting
+        DOM.submitBtn.setAttribute('disabled', 'true');
 
         const allowed = ['jpg', 'jpeg', 'png', 'pdf'];
-        
         if (files.length === 0) return;
 
-        // Transition UI to Matrix view
         DOM.dropzone.style.display = 'none';
         DOM.matrixWrapper.style.display = 'block';
         DOM.matrixStatusIcon.textContent = '⏳';
-        DOM.matrixStatusText.style.color = 'var(--accent-warning)';
-        DOM.matrixStatusText.textContent = `Converting 0/${files.length} sheets for Cloud Sync...`;
+        DOM.matrixStatusText.textContent = `Processing ${files.length} sheets...`;
 
         const userEmail = sessionStorage.getItem('tara_user_email') || 'anonymous_fbo';
         
@@ -109,29 +103,24 @@
             const file = files[i];
             const ext = file.name.split('.').pop().toLowerCase();
             
-            // Create Dynamic File Slot Card
             const cardId = `file-slot-${i}`;
             const fileSlotHtml = `
                 <div class="matrix-card" id="${cardId}">
                     <span class="file-icon">${ext === 'pdf' ? '📕' : '🖼️'}</span>
                     <div class="file-info">
                         <p class="name">${file.name}</p>
-                        <p class="meta" id="${cardId}-status">Preparing...</p>
+                        <p class="meta" id="${cardId}-status">Ready</p>
                     </div>
                 </div>`;
             DOM.matrixGrid.insertAdjacentHTML('beforeend', fileSlotHtml);
             const slotStatusText = document.getElementById(`${cardId}-status`);
 
             if (!allowed.includes(ext)) {
-                slotStatusText.textContent = "Error: Format Not Supported";
+                slotStatusText.textContent = "Error: Invalid Format";
                 slotStatusText.style.color = "var(--accent-danger)";
-                DOM.matrixStatusText.textContent = `Format error detected. Sheets invalidated.`;
-                validationState.fileUploadPayloads = []; // Nuke payloads on single error for strict integrity
-                evaluateGlobalFormValidity();
-                return; // Critical failure, halt processing
+                return;
             }
 
-            // Convert file to Base64 String internally without native capture triggers
             try {
                 const base64String = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -145,24 +134,17 @@
                     mimeType: file.type,
                     base64Data: base64String
                 });
-                slotStatusText.textContent = "Verified, Ready for Sync";
+                slotStatusText.textContent = "Verified";
                 slotStatusText.style.color = "var(--accent-success)";
-
-                DOM.matrixStatusText.textContent = `Converting ${i + 1}/${files.length} sheets for Cloud Sync...`;
-
             } catch (error) {
-                console.error("Internal conversion crash:", error);
-                DOM.matrixStatusText.textContent = `System conversion error. Retry upload.`;
-                validationState.fileUploadPayloads = [];
-                evaluateGlobalFormValidity();
+                console.error(error);
                 return;
             }
         }
 
-        validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length > 0);
+        validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length === files.length);
         DOM.matrixStatusIcon.textContent = '✅';
-        DOM.matrixStatusText.style.color = 'var(--accent-success)';
-        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets secured internally. Awaiting Session Complete command.`;
+        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets ready. Please complete the form questions.`;
         evaluateGlobalFormValidity();
     }
 
@@ -184,19 +166,10 @@
 
         DOM.submitBtn.setAttribute('disabled', 'true');
         DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Synchronizing Sheets with Google Drive...";
+        DOM.btnText.textContent = "Securing Answers & Sheets in Drive...";
 
-        // Split submission into parallel Drive uploads and single text sheet log
-        const fileUploadPromises = validationState.fileUploadPayloads.map(payload => {
-            return fetch(`${CONFIG.API_ENDPOINT}?action=driveUpload`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain' }, // Bypass CORS preflight for faster direct POST
-                body: JSON.stringify(payload) 
-            });
-        });
-
-        // 🟢 Apps Script doPOST handles regular log if action not specified
-        const quizLogPayload = {
+        // SINGLE PACKET PAYLOAD: Text + Complete Image Base64 Arrays combined
+        const unifiedPayload = {
             userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO",
             userEmail: sessionStorage.getItem('tara_user_email') || "No Email",
             watchConfirm: DOM.form.watch_confirm.value,
@@ -204,24 +177,24 @@
             actionImplementation: DOM.q3TextArea.value.trim(),
             importantPoints: DOM.q4TextArea.value.trim(),
             confidenceRating: DOM.confidenceSlider.value,
-            sheetsCount: validationState.fileUploadPayloads.length
+            sheetsCount: validationState.fileUploadPayloads.length,
+            fileUploadPayloads: validationState.fileUploadPayloads // Inside single stream payload!
         };
 
-        const quizLogPromise = fetch(CONFIG.API_ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(quizLogPayload) });
-
-        DOM.matrixStatusIcon.textContent = '📤';
-        DOM.matrixStatusText.textContent = `Pushing Sheets to Drive...`;
-
         try {
-            // Execution Matrix Parallel Dispatch
-            await Promise.all([...fileUploadPromises, quizLogPromise]);
+            // Standard dynamic direct POST request execution
+            const response = await fetch(CONFIG.API_ENDPOINT, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain' }, 
+                body: JSON.stringify(unifiedPayload) 
+            });
             
             sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         } catch (error) {
             console.error("Cloud push failed:", error);
-            alert("Network Error during Drive synchronization. Your textual answers are safe, but sheets were not fully secured. Please re-submit.");
-            DOM.submitBtn.removeAttribute('disabled'); DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Resubmit Learning Verification";
+            alert("Submission error. Please verify network status and try again.");
+            DOM.submitBtn.removeAttribute('disabled'); DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
         }
     }
 
