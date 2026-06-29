@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TARA LMS - Learning Verification Module Dark Theme Engine Stylesheet
+   TARA LMS - Learning Verification Module Dark Theme Engine Stylesheet (Enterprise Edition)
    ========================================================================== */
 
 :root {
@@ -321,55 +321,73 @@ textarea:focus {
     margin-top: 4px;
 }
 
-.preview-container {
-    margin-top: 16px;
-}
-
-.preview-card {
-    background-color: var(--bg-main);
+/* --- NEW: Upload Matrix UI Components (Enterprise Grade) --- */
+.upload-matrix {
+    margin-top: 20px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
+    background-color: var(--bg-main);
+    overflow: hidden;
+}
+
+.matrix-header {
+    background-color: rgba(30, 41, 66, 0.7);
     padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#matrix-status-icon { font-size: 16px; }
+
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    padding: 16px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.matrix-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 12px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    animation: slide-in 0.3s ease;
 }
 
-.file-type-icon {
-    font-size: 24px;
+@keyframes slide-in {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-.file-details {
-    flex: 1;
-    min-width: 0;
-}
+.matrix-card .file-icon { font-size: 20px; }
+.matrix-card .file-info { flex: 1; min-width: 0; }
+.matrix-card .name { font-size: 13px; font-weight: 600; color: var(--text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.matrix-card .meta { font-size: 11px; color: var(--text-muted); font-family: monospace; }
 
-.file-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.file-size {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.remove-file-btn {
-    background: transparent;
+.remove-all-btn {
+    width: 100%;
+    background-color: transparent;
     border: none;
-    color: var(--text-muted);
-    font-size: 16px;
+    border-top: 1px solid var(--border-color);
+    color: var(--accent-danger);
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 700;
     cursor: pointer;
-    padding: 4px;
-    transition: color 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
-.remove-file-btn:hover {
-    color: var(--accent-danger);
+.remove-all-btn:hover {
+    background-color: rgba(239, 68, 68, 0.05);
 }
 
 .rating-badge {
@@ -572,5 +590,9 @@ textarea:focus {
     }
     .success-title {
         font-size: 26px;
+    }
+    /* Mobile optimization for matrix */
+    .file-grid {
+        grid-template-columns: 1fr;
     }
 }
