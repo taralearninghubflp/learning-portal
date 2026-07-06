@@ -3,7 +3,6 @@
    ========================================================================== */
 
 :root {
-    /* DEFAULT DARK MODE DESIGN TOKENS */
     --bg-main: #0b0f19;
     --bg-card: #151d30;
     --bg-card-alt: #1e2942;
@@ -26,19 +25,18 @@
     --max-width: 800px;
 }
 
-/* LIGHT MODE OVERRIDES USING DATA CLASS ATTRIBUTE */
 [data-theme="light"] {
     --bg-main: #f8fafc;
     --bg-card: #ffffff;
     --bg-card-alt: #f1f5f9;
     --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    --text-secondary: #334155;
+    --text-muted: #475569; /* Bold readable color context for light mode counter */
     --accent-primary: #2563eb;
     --accent-hover: #1d4ed8;
-    --border-color: #e2e8f0;
+    --border-color: #cbd5e1;
     --border-inner: rgba(241, 245, 249, 0.9);
-    --dropzone-bg: rgba(241, 245, 249, 0.4);
+    --dropzone-bg: #f8fafc;
     --shadow-main: 0 20px 30px -10px rgba(15, 23, 42, 0.06);
 }
 
@@ -85,7 +83,6 @@ body {
     color: var(--accent-primary);
 }
 
-/* Modern Minimalist Theme Toggle Button Component */
 .theme-toggle-btn {
     background: var(--bg-card-alt);
     border: 1px solid var(--border-color);
@@ -176,13 +173,14 @@ body {
 }
 
 .char-counter {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-muted);
+    font-weight: 700; /* Bold highlights text properly */
     font-family: monospace;
 }
 
 .char-counter.valid {
-    color: var(--accent-success);
+    color: var(--accent-success) !important;
 }
 
 .question-text {
@@ -409,21 +407,22 @@ textarea:focus {
 .matrix-card .name { font-size: 13px; font-weight: 600; color: var(--text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .matrix-card .meta { font-size: 11px; color: var(--text-muted); font-family: monospace; }
 
+/* 🔴 Clear All Sheets Premium Look Override Styling */
 .remove-all-btn {
     width: 100%;
     background-color: transparent;
     border: none;
     border-top: 1px solid var(--border-color);
     color: var(--accent-danger);
-    padding: 10px;
-    font-size: 12px;
+    padding: 12px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 .remove-all-btn:hover {
-    background-color: rgba(239, 68, 68, 0.05);
+    background-color: rgba(239, 68, 68, 0.06);
 }
 
 .rating-badge {
