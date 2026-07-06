@@ -1,7 +1,6 @@
 /**
- * TARA LMS - Core Stream Engine Controller
- * Feature: 11 PM - 12 AM Automated Maintenance Lockout (PRODUCTION ACTIVE)
- * Author: Senior Full Stack Developer
+ * TARA LMS - Core Stream Engine Controller (Premium Theme & Production Lock Edition)
+ * Features: Dark/Light Premium Toggle Logic & 11 PM - 12 AM Automated Maintenance Lockout
  */
 
 (function () {
@@ -12,8 +11,8 @@
         QUIZ_COUNTDOWN_DURATION: 120,
         TICK_RATE_MS: 1000,
         MAINTENANCE: {
-            START_HOUR: 23, // Real timing: Raat ke 11:00 baje lock hoga
-            END_HOUR: 0     // Real timing: Raat ke 12:00 baje (Midnight) wapas khulega
+            START_HOUR: 23, // Real timing: Raat ke 11:00 baje automatic lock hoga
+            END_HOUR: 0     // Real timing: Raat ke 12:00 baje (Midnight) automatic khulega
         }
     };
 
@@ -30,7 +29,6 @@
         loginCode: document.getElementById('login-code'),
         loginBtn: document.getElementById('login-btn'),
         userDisplayBadge: document.getElementById('user-display-badge'),
-        
         videoWrapper: document.getElementById('video-wrapper'),
         loadingSpinner: document.getElementById('loading-spinner'),
         lockStatusPill: document.getElementById('lock-status-pill'),
@@ -38,14 +36,19 @@
         countdownWrapper: document.getElementById('countdown-wrapper'),
         timerDigits: document.getElementById('timer-digits'),
         quizBtn: document.getElementById('quiz-btn'),
-        btnText: document.getElementById('btn-text')
+        btnText: document.getElementById('btn-text'),
+        
+        // ☀️ Theme Elements Mapping
+        themeToggleBtn: document.getElementById('theme-toggle-btn'),
+        themeToggleIcon: document.getElementById('theme-toggle-icon')
     };
 
+    // 🔒 REAL MAINTENANCE CHECK ENGINE
     function checkMaintenanceStatus() {
         const now = new Date();
         const currentHour = now.getHours();
 
-        // Check if current hour matches 11 PM (23)
+        // Agar raat ke 11:00 baje hain (23), toh portal lock screen block actively inject karega
         if (currentHour === CONFIG.MAINTENANCE.START_HOUR) {
             injectMaintenanceUI();
             return true;
@@ -61,28 +64,30 @@
                 flex-direction: column; 
                 justify-content: center; 
                 align-items: center; 
-                background: linear-gradient(135deg, #1e1e2f 0%, #111119 100%); 
+                background: linear-gradient(135deg, #0f1626 0%, #070a13 100%); 
                 color: #ffffff; 
-                font-family: 'Roboto', sans-serif; 
+                font-family: 'Segoe UI', -apple-system, sans-serif; 
                 text-align: center; 
                 padding: 20px;
             ">
                 <div style="font-size: 80px; margin-bottom: 20px;">⚙️</div>
-                <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #ffbc00;">
+                <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #3b82f6; letter-spacing: -0.5px;">
                     Daily Data Sync & Maintenance
                 </h1>
-                <p style="font-size: 18px; max-width: 600px; color: #a0a0b8; line-height: 1.6;">
+                <p style="font-size: 15px; max-width: 550px; color: #cbd5e1; line-height: 1.6; margin-bottom: 24px;">
                     Portal is temporarily offline for daily attendance synchronization and database optimization. 
                     We will be back live sharp at <b>12:00 AM (Midnight)</b>.
                 </p>
                 <div style="
-                    margin-top: 30px; 
-                    padding: 10px 20px; 
-                    background: rgba(255, 188, 0, 0.1); 
-                    border: 1px solid #ffbc00; 
-                    border-radius: 20px; 
-                    font-size: 14px; 
-                    color: #ffbc00;
+                    padding: 10px 24px; 
+                    background: rgba(59, 130, 246, 0.05); 
+                    border: 1px solid rgba(59, 130, 246, 0.2); 
+                    border-radius: 50px; 
+                    font-size: 12px; 
+                    font-weight: 600;
+                    color: #3b82f6;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
                 ">
                     Standard Lockout Window: 11:00 PM - 12:00 AM Daily
                 </div>
@@ -90,8 +95,38 @@
         `;
     }
 
+    // ☀️ THEME MATRIX SYSTEM CONTROL
+    function initializeThemeEngine() {
+        const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
+        
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
+        }
+
+        if (DOM.themeToggleBtn) {
+            DOM.themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'light') {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('tara_lms_theme', 'dark');
+                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('tara_lms_theme', 'light');
+                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
+                }
+            });
+        }
+    }
+
     function init() {
-        if (checkMaintenanceStatus()) return;
+        if (checkMaintenanceStatus()) return; // Lock if time is exactly between 11 PM and 12 AM
+
+        initializeThemeEngine();
 
         sessionStorage.removeItem('tara_quiz_access_granted');
         window.addEventListener('keydown', handleGlobalKeyGuard, true);
@@ -101,6 +136,7 @@
         document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
         document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
 
+        // Continuous real-time loop checking for 11 PM window arrival every 15s
         setInterval(checkMaintenanceStatus, 15000);
 
         const savedName = sessionStorage.getItem('tara_user_name');
@@ -148,13 +184,20 @@
             }
         } catch (err) {
             DOM.loginBtn.removeAttribute('disabled');
+            DOM.loginBtn.textContent = "Authenticate Credentials";
         }
     }
 
     function launchPortalWorkspace() {
         DOM.loginContainer.style.display = 'none';
         DOM.portalContent.style.display = 'block';
-        DOM.userDisplayBadge.textContent = `ID: ${sessionStorage.getItem('tara_user_name')}`;
+        
+        const badge = document.getElementById('user-display-badge');
+        if (badge) {
+            badge.style.display = 'block';
+            badge.textContent = `ID: ${sessionStorage.getItem('tara_user_name')}`;
+        }
+        
         fetchLessonData();
         DOM.quizBtn.addEventListener('click', handleQuizRedirect);
     }
@@ -177,12 +220,9 @@
         iframe.src = `${url}${separator}autoplay=1`;
         iframe.id = "tara-secure-stream-frame";
         
-        // Enforcing comprehensive HTML5 media permissions injection string
         iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock;');
-        
-        // Multi-engine hardware layer authorization blueprints
         iframe.allowFullscreen = true;
-        iframe.webkitAllowFullScreen = true;
+        iframe.webkitAllowFullscreen = true;
         iframe.mozallowfullscreen = true;
         
         iframe.onload = () => { if (DOM.loadingSpinner) DOM.loadingSpinner.style.display = 'none'; };
@@ -199,13 +239,9 @@
         }, CONFIG.TICK_RATE_MS);
     }
 
-    /* ==========================================================================
-       🎥 AUTOMATED FULLSCREEN DISMISSAL & ORIENTATION RESET INTERFACE
-       ========================================================================== */
     function triggerQuizUnlockSequence() {
         state.isUnlocked = true;
 
-        // 1. Force Exit Fullscreen Native Event Layer[cite: 3]
         if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
             const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFS) {
@@ -215,7 +251,6 @@
             }
         }
 
-        // 2. Clear Screen Orientation Constraints (Force Snap Back to Normal Portrait)[cite: 3]
         if (screen.orientation && screen.orientation.unlock) {
             screen.orientation.unlock();
         }
@@ -247,6 +282,9 @@
         DOM.lockStatusPill.textContent = "Revoked";
         DOM.lockStatusPill.classList.add('locked');
         DOM.quizBtn.setAttribute('disabled', 'true');
+        DOM.quizBtn.classList.remove('unlocked');
+        DOM.quizBtn.classList.add('locked');
+        DOM.quizBtn.querySelector('.btn-icon').textContent = '🔒';
         DOM.btnText.textContent = "Session Access Protocol Expired";
     }
 
@@ -254,7 +292,6 @@
         return `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
     }
 
-    function handleQuizRedirect() { if (state.isUnlocked) window.location.href = 'quiz.html'; }
-
     document.addEventListener('DOMContentLoaded', init);
+    function handleQuizRedirect() { if (state.isUnlocked) window.location.href = 'quiz.html'; }
 })();
