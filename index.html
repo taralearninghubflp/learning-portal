@@ -9,20 +9,31 @@
 <body>
     <div class="app-container">
         
-        <div id="login-container" class="workspace" style="max-width: 450px; margin: 80px auto; display: block;">
-            <section class="control-card" style="padding: 32px;">
-                <div style="text-align: center; margin-bottom: 24px;">
-                    <h1 class="logo-area" style="font-size: 32px; margin-bottom: 8px;"><span class="logo-accent">TARA</span> LMS</h1>
-                    <p style="color: var(--text-secondary); font-size: 14px;">Identity & Access Authentication Management Node</p>
+        <!-- Global Navigation Node with Dark/Light Toggle -->
+        <header class="main-header">
+            <div class="logo-area"><span class="logo-accent">TARA</span> LMS</div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Interface Theme">
+                    <span id="theme-toggle-icon">🌙</span>
+                </button>
+                <div class="status-badge" id="user-display-badge" style="display: none;">Verified User</div>
+            </div>
+        </header>
+
+        <div id="login-container" class="workspace-auth" style="display: block;">
+            <section class="control-card auth-card">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <h1 class="logo-area" style="font-size: 36px; margin-bottom: 8px; letter-spacing: -1px;"><span class="logo-accent">TARA</span> LMS</h1>
+                    <p style="color: var(--text-secondary); font-size: 13px; letter-spacing: 0.2px; text-transform: uppercase; font-weight: 600; opacity: 0.8;">Identity & Access Management Node</p>
                 </div>
                 <form id="login-form" onsubmit="return false;">
-                    <div style="margin-bottom: 20px;">
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px; color:var(--accent-primary); text-transform:uppercase;">Registered Email Address</label>
-                        <textarea id="login-email" rows="1" style="resize:none; padding:12px;" placeholder="name@domain.com" required></textarea>
-                    </div>
                     <div style="margin-bottom: 24px;">
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px; color:var(--accent-primary); text-transform:uppercase;">Secure Passcode</label>
-                        <input type="password" id="login-code" style="width:100%; background-color:var(--bg-main); border:1px solid var(--border-color); border-radius:var(--border-radius-md); color:var(--text-primary); padding:12px; font-size:14px; outline:none;" placeholder="••••••••" required>
+                        <label style="display:block; font-size:11px; font-weight:700; margin-bottom:8px; color:var(--accent-primary); text-transform:uppercase; letter-spacing: 1px;">Registered Email Address</label>
+                        <textarea id="login-email" rows="1" style="resize:none;" placeholder="name@domain.com" required></textarea>
+                    </div>
+                    <div style="margin-bottom: 32px;">
+                        <label style="display:block; font-size:11px; font-weight:700; margin-bottom:8px; color:var(--accent-primary); text-transform:uppercase; letter-spacing: 1px;">Secure Passcode</label>
+                        <input type="password" id="login-code" class="input-field" placeholder="••••••••" required>
                     </div>
                     <button type="submit" id="login-btn" class="action-btn unlocked" style="background-color: var(--accent-primary);">Authenticate Credentials</button>
                 </form>
@@ -30,10 +41,6 @@
         </div>
 
         <div id="portal-content" style="display: none;">
-            <header class="main-header">
-                <div class="logo-area"><span class="logo-accent">TARA</span> LMS</div>
-                <div class="status-badge" id="user-display-badge">Verified User</div>
-            </header>
             <main class="workspace">
                 <section class="video-card">
                     <div class="video-wrapper" id="video-wrapper">
@@ -53,6 +60,7 @@
                     <div class="control-content">
                         <h3 class="panel-title">System Activity Status</h3>
                         <p class="panel-instructions" id="instruction-text">Continuous stream validation active. Complete the viewing duration timeline parameters to unlock validation module gates.</p>
+                        
                         <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
                             <div class="countdown-alert">
                                 <span class="alert-icon">⚠️</span>
@@ -66,6 +74,7 @@
                                 <span class="timer-digits" id="timer-digits">02:00</span>
                             </div>
                         </div>
+                        
                         <button id="quiz-btn" class="action-btn locked" disabled>
                             <span class="btn-icon">🔒</span> <span id="btn-text">Monitoring Stream Telemetry</span>
                         </button>
@@ -81,4 +90,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
