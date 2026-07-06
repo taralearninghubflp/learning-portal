@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition)
+ * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with UI Progress Lock)
  */
 
 (function () {
@@ -80,7 +80,7 @@
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
         DOM.fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) processMultipleFilesToDrive(Array.from(e.target.files)); });
         ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
-        ['dragleave', 'drop'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false); });
+        ['dragleave', 'drop'].forEach(name => { DOM.dropzone.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false);
         DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processMultipleFilesToDrive(Array.from(e.dataTransfer.files)); });
         DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
     }
@@ -147,9 +147,10 @@
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
 
+        // 🔒 UI LOCK: Button ko disable karke loading status text badalna
         DOM.submitBtn.setAttribute('disabled', 'true');
-        DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Logging text answers in spreadsheet...";
+        if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'inline-block';
+        DOM.btnText.textContent = "Connecting to Secure Sheet Network...";
         
         const userName = sessionStorage.getItem('tara_user_name') || "Anonymous FBO";
         const userEmail = sessionStorage.getItem('tara_user_email') || "No Email";
@@ -174,10 +175,9 @@
             });
 
             // B. Push files straight to Discord via Webhook Multipart Form Data
-            DOM.btnText.textContent = "Streaming sheets directly to Discord Server...";
+            DOM.btnText.textContent = `Streaming 1 of ${validationState.fileUploadPayloads.length} Sheets to Discord...`;
             
             const formData = new FormData();
-            
             const embedPayload = {
                 title: "📝 New Notes Verification Packet",
                 color: 5814783,
@@ -193,6 +193,7 @@
             formData.append("payload_json", JSON.stringify({ embeds: [embedPayload] }));
 
             for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
+                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
                 formData.append(`file${i}`, validationState.fileUploadPayloads[i]);
             }
 
@@ -201,19 +202,20 @@
                 body: formData
             });
 
+            DOM.btnText.textContent = "Verification Complete! Finalizing...";
             sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         } catch (error) {
             console.error(error);
-            alert("Discord server connection sync dropped. Retrying...");
-            DOM.submitBtn.removeAttribute('disabled'); DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
+            alert("Connection timeout. The file bundle is too heavy or the network dropped. Retrying...");
+            DOM.submitBtn.removeAttribute('disabled'); if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
         }
     }
 
     function transitionToSuccessCard() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         DOM.formContainer.style.display = 'none'; DOM.successContainer.style.display = 'block';
-        DOM.verificationStatus.textContent = "Status: Processed & Discord Synced";
+        if(DOM.verificationStatus) DOM.verificationStatus.textContent = "Status: Processed & Discord Synced";
     }
 
     document.addEventListener('DOMContentLoaded', init);
