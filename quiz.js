@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Streamlined Edition)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Streamlined Split Edition)
  */
 
 (function () {
@@ -130,7 +130,6 @@
                     reader.readAsDataURL(file);
                 });
 
-                // Unique Identifier Naming Setup
                 validationState.fileUploadPayloads.push({
                     fileName: `${userEmail}_${todayDate}_sheet_${i + 1}.${ext}`,
                     mimeType: file.type,
@@ -172,26 +171,27 @@
         const userEmail = sessionStorage.getItem('tara_user_email') || "No Email";
 
         try {
-            // STEP A: Progressively push images one-by-one BEFORE refreshing page
+            // STEP A: Progressive image storage loop via clean text/plain transmission lock
             for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
                 DOM.btnText.textContent = `Uploading Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
                 
                 const fileItem = validationState.fileUploadPayloads[i];
                 const imagePayload = {
+                    isImage: true, // 🟢 CORE FIX: Inside payload identification parameters
                     userEmail: userEmail,
                     fileName: fileItem.fileName,
                     mimeType: fileItem.mimeType,
                     base64Data: fileItem.base64Data
                 };
 
-                await fetch(`${CONFIG.API_ENDPOINT}?action=uploadImage`, {
+                await fetch(CONFIG.API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(imagePayload)
                 });
             }
 
-            // STEP B: Log text answers only AFTER images are 100% saved in Drive
+            // STEP B: Log textual answers safely after files are dumped into Drive folder path
             DOM.btnText.textContent = "Finalizing sheet response...";
             const textualPayload = {
                 userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO",
