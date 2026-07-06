@@ -1,6 +1,6 @@
 /**
  * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with Dynamic UI Theme Engine)
- * Final Clean Execution Build with Multi-Tap Append & Robust Clear Matrix
+ * Feature: Multi-Tap Append Files Logic with Individual File Removal (❌ Button)
  */
 
 (function () {
@@ -13,6 +13,7 @@
         return; 
     }
 
+    // 🟢 DISCORD AUTH COORDINATE
     const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1523754029174227106/2ENRAQQG8UvH3QV44D26HWxp_zaTP87fi3HxaMcalB7x2SbQnJgAw0oPyATe9quWMbp9"; 
 
     const CONFIG = {
@@ -49,7 +50,6 @@
         matrixGrid: document.getElementById('file-preview-grid'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
         matrixStatusText: document.getElementById('matrix-status-text'),
-        clearAllBtn: document.getElementById('remove-all-files-btn'), // Re-activated identifier node
         
         themeToggleBtn: document.getElementById('theme-toggle-btn'),
         themeToggleIcon: document.getElementById('theme-toggle-icon')
@@ -111,7 +111,8 @@
     function bindDropzoneSystem() {
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
         DOM.matrixWrapper.addEventListener('click', (e) => {
-            if (e.target !== DOM.clearAllBtn) {
+            // Agar cross button par click nahi hua, tabhi upload open hoga
+            if (!e.target.classList.contains('remove-file-btn')) {
                 DOM.fileInput.click();
             }
         });
@@ -120,10 +121,6 @@
         ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
         ['dragleave', 'drop'].forEach(name => { DOM.dropzone.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false);
         DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processMultipleFilesToDrive(Array.from(e.dataTransfer.files)); });
-        
-        if (DOM.clearAllBtn) {
-            DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
-        }
     }
 
     async function processMultipleFilesToDrive(newFiles) {
@@ -132,14 +129,10 @@
 
         DOM.dropzone.style.display = 'block'; 
         DOM.matrixWrapper.style.display = 'block';
-        DOM.matrixStatusIcon.textContent = '⏳';
-        DOM.matrixStatusText.textContent = `Processing selected files...`;
-
+        
         for (let i = 0; i < newFiles.length; i++) {
             const file = newFiles[i];
             const ext = file.name.split('.').pop().toLowerCase();
-            const dynamicIndex = validationState.fileUploadPayloads.length;
-            const cardId = `file-slot-${dynamicIndex}`;
             
             if (validationState.fileUploadPayloads.length >= CONFIG.MAX_FILES) {
                 alert(`Maximum ${CONFIG.MAX_FILES} sheets allowed.`);
@@ -152,36 +145,61 @@
             }
 
             validationState.fileUploadPayloads.push(file);
-            
+        }
+
+        DOM.fileInput.value = '';
+        renderFileGridUI();
+    }
+
+    // 🟢 DYNAMIC RENDER ENGINE: Builds clean layout with unique delete indices
+    function renderFileGridUI() {
+        DOM.matrixGrid.innerHTML = '';
+        const totalFiles = validationState.fileUploadPayloads.length;
+
+        if (totalFiles === 0) {
+            DOM.matrixWrapper.style.display = 'none';
+            validationState.filesReadyToUpload = false;
+            evaluateGlobalFormValidity();
+            return;
+        }
+
+        DOM.matrixStatusIcon.textContent = '✅';
+        DOM.matrixStatusText.textContent = `${totalFiles} Sheets loaded. Tap area again to add more documents.`;
+
+        for (let i = 0; i < totalFiles; i++) {
+            const file = validationState.fileUploadPayloads[i];
+            const ext = file.name.split('.').pop().toLowerCase();
+            const cardId = `file-slot-${i}`;
+
             DOM.matrixGrid.insertAdjacentHTML('beforeend', `
                 <div class="matrix-card" id="${cardId}">
                     <span class="file-icon">${ext === 'pdf' ? '📕' : '🖼️'}</span>
                     <div class="file-info">
                         <p class="name">${file.name}</p>
-                        <p class="meta" id="${cardId}-status" style="color: var(--accent-success); font-weight:700;">Verified</p>
+                        <p class="meta" style="color: var(--accent-success); font-weight:700;">Verified</p>
                     </div>
+                    <button type="button" class="remove-file-btn" data-index="${i}" title="Remove this file">❌</button>
                 </div>`);
         }
 
-        DOM.fileInput.value = '';
-        validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length > 0);
-        DOM.matrixStatusIcon.textContent = '✅';
-        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets loaded. Tap area again to add more documents.`;
+        // Add fresh click handlers to all new ❌ buttons
+        document.querySelectorAll('.remove-file-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); // Stops opening gallery window
+                const indexToRemove = parseInt(this.getAttribute('data-index'), 10);
+                removeSingleFilePipeline(indexToRemove);
+            });
+        });
+
+        validationState.filesReadyToUpload = true;
         evaluateGlobalFormValidity();
     }
 
-    function clearFileMatrixSystem(e) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        validationState.filesReadyToUpload = false; 
-        validationState.fileUploadPayloads = []; 
-        if (DOM.fileInput) DOM.fileInput.value = '';
-        DOM.matrixGrid.innerHTML = ''; 
-        DOM.matrixWrapper.style.display = 'none'; 
-        DOM.dropzone.style.display = 'block'; 
-        evaluateGlobalFormValidity();
+    // 🟢 DELETE PIPELINE: Splices targeted element and triggers fluid UI sync
+    function removeSingleFilePipeline(index) {
+        validationState.fileUploadPayloads.splice(index, 1);
+        renderFileGridUI();
     }
 
     function evaluateGlobalFormValidity() {
