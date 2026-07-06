@@ -1,6 +1,6 @@
 /**
  * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with Dynamic UI Theme Engine)
- * Feature: Multi-Tap Append Files Logic
+ * Final Clean Execution Build with Multi-Tap Append & Robust Clear Matrix
  */
 
 (function () {
@@ -13,18 +13,17 @@
         return; 
     }
 
-    // 🟢 DISCORD AUTH COORDINATE
     const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1523754029174227106/2ENRAQQG8UvH3QV44D26HWxp_zaTP87fi3HxaMcalB7x2SbQnJgAw0oPyATe9quWMbp9"; 
 
     const CONFIG = {
         API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
         TARGETS: { Q2_MIN_CHAR: 50, Q3_MIN_CHAR: 30, Q4_MIN_CHAR: 80 },
-        MAX_FILES: 5 // Maximum 5 sheets allowed
+        MAX_FILES: 5 
     };
 
     let validationState = {
         q1Valid: false, q2Valid: false, q3Valid: false, q4Valid: false,
-        filesReadyToUpload: false, complianceChecked: false, fileUploadPayloads: [] // Array to store appended files
+        filesReadyToUpload: false, complianceChecked: false, fileUploadPayloads: [] 
     };
 
     const DOM = {
@@ -50,14 +49,12 @@
         matrixGrid: document.getElementById('file-preview-grid'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
         matrixStatusText: document.getElementById('matrix-status-text'),
-        clearAllBtn: document.getElementById('remove-all-files-btn'),
+        clearAllBtn: document.getElementById('remove-all-files-btn'), // Re-activated identifier node
         
-        // Theme nodes mapping
         themeToggleBtn: document.getElementById('theme-toggle-btn'),
         themeToggleIcon: document.getElementById('theme-toggle-icon')
     };
 
-    // ☀️ FLUID THEME TRACKING LAYER
     function initializeThemeEngine() {
         const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
         
@@ -112,10 +109,8 @@
     }
 
     function bindDropzoneSystem() {
-        // 🟢 FIX A: Pure Upload Matrix area par click karne par bhi add file ka option khulega
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
         DOM.matrixWrapper.addEventListener('click', (e) => {
-            // Agar clear button par click nahi kiya hai, toh click par input trigger hoga
             if (e.target !== DOM.clearAllBtn) {
                 DOM.fileInput.click();
             }
@@ -135,7 +130,6 @@
         DOM.submitBtn.setAttribute('disabled', 'true');
         const allowed = ['jpg', 'jpeg', 'png', 'pdf'];
 
-        // 🟢 FIX B: Dropzone hamesha open rahega retap ke liye, aur list layout badlega
         DOM.dropzone.style.display = 'block'; 
         DOM.matrixWrapper.style.display = 'block';
         DOM.matrixStatusIcon.textContent = '⏳';
@@ -144,10 +138,11 @@
         for (let i = 0; i < newFiles.length; i++) {
             const file = newFiles[i];
             const ext = file.name.split('.').pop().toLowerCase();
+            const dynamicIndex = validationState.fileUploadPayloads.length;
+            const cardId = `file-slot-${dynamicIndex}`;
             
-            // Check max limits parameters
             if (validationState.fileUploadPayloads.length >= CONFIG.MAX_FILES) {
-                alert(`Maximum ${CONFIG.MAX_FILES} sheets allowed context template limits.`);
+                alert(`Maximum ${CONFIG.MAX_FILES} sheets allowed.`);
                 break;
             }
 
@@ -156,11 +151,7 @@
                 continue;
             }
 
-            // Append new raw file array seamlessly inside state arrays tracking matrix
             validationState.fileUploadPayloads.push(file);
-
-            const dynamicIndex = validationState.fileUploadPayloads.length - 1;
-            const cardId = `file-slot-${dynamicIndex}`;
             
             DOM.matrixGrid.insertAdjacentHTML('beforeend', `
                 <div class="matrix-card" id="${cardId}">
@@ -172,9 +163,7 @@
                 </div>`);
         }
 
-        // Clean file input reference path string token
         DOM.fileInput.value = '';
-
         validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length > 0);
         DOM.matrixStatusIcon.textContent = '✅';
         DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets loaded. Tap area again to add more documents.`;
@@ -223,14 +212,12 @@
         };
 
         try {
-            // A. Log text answers to Google Sheet
             await fetch(CONFIG.API_ENDPOINT, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                 body: JSON.stringify(textualPayload) 
             });
 
-            // B. Push files straight to Discord via Webhook Multipart Form Data
             const formData = new FormData();
             const embedPayload = {
                 title: "📝 New Notes Verification Packet",
@@ -259,18 +246,14 @@
 
             DOM.btnText.textContent = "Verification Complete! Finalizing...";
             sessionStorage.removeItem('tara_quiz_access_granted');
-            transitionToSuccessCard();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            DOM.formContainer.style.display = 'none'; DOM.successContainer.style.display = 'block';
+            if(DOM.verificationStatus) DOM.verificationStatus.textContent = "Status: Processed & Discord Synced";
         } catch (error) {
             console.error(error);
-            alert("Connection timeout. The file bundle is too heavy or the network dropped. Retrying...");
+            alert("Connection timeout. Please retry submission.");
             DOM.submitBtn.removeAttribute('disabled'); if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
         }
-    }
-
-    function transitionToSuccessCard() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        DOM.formContainer.style.display = 'none'; DOM.successContainer.style.display = 'block';
-        if(DOM.verificationStatus) DOM.verificationStatus.textContent = "Status: Processed & Discord Synced";
     }
 
     document.addEventListener('DOMContentLoaded', init);
