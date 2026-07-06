@@ -8,11 +8,18 @@
 </head>
 <body>
     <div class="app-container">
+        
+        <!-- Global Sync Header Matrix -->
         <header class="main-header">
             <div class="logo-area">
                 <span class="logo-accent">TARA</span> LMS
             </div>
-            <div class="status-badge" id="verification-status">Status: Pending Verification</div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Interface Theme">
+                    <span id="theme-toggle-icon">🌙</span>
+                </button>
+                <div class="status-badge" id="verification-status">Status: Pending Verification</div>
+            </div>
         </header>
 
         <main class="workspace">
@@ -70,13 +77,11 @@
                         <p class="input-hint">Minimum 80 characters required.</p>
                     </section>
 
-                    <!-- UPDATED: Notes Upload Section for Multiple Cloud Sync -->
                     <section class="form-section">
                         <label class="section-label">Notes Upload <span class="required-asterisk">*</span></label>
                         <p class="question-text">Sync Assessment Sheets to Secure Cloud</p>
                         
                         <div class="dropzone-area" id="dropzone">
-                            <!-- Removed capture="environment" to prevent crash, added multiple -->
                             <input type="file" id="file-input" name="notes_files" accept=".jpg,.jpeg,.png,.pdf" multiple style="display:none;">
                             <div class="dropzone-prompt">
                                 <span class="dropzone-icon">📁</span>
@@ -85,15 +90,12 @@
                             </div>
                         </div>
 
-                        <!-- Full Upload Progress/Status UI Grid -->
                         <div id="file-upload-matrix" class="upload-matrix" style="display: none;">
                             <div class="matrix-header">
                                 <span id="matrix-status-icon">⏳</span>
                                 <span id="matrix-status-text">Synchronizing sheets...</span>
                             </div>
-                            <div class="file-grid" id="file-preview-grid">
-                                <!-- Dynamic File Slots Injected by quiz.js -->
-                            </div>
+                            <div class="file-grid" id="file-preview-grid"></div>
                             <button type="button" class="remove-all-btn" id="remove-all-files-btn">Clear All Sheets</button>
                         </div>
                     </section>
@@ -138,9 +140,9 @@
                 <p class="success-message">Today's Learning Completed Successfully.</p>
                 <div class="success-badge-row">
                     <span class="success-pill">Attendance Recorded</span>
-                    <span class="success-pill">Sheets Secured in Drive</span>
+                    <span class="success-pill">Sheets Dispatched to Discord</span>
                 </div>
-                <p class="success-submessage">Your attendance has been recorded and assessment sheets have been secured in your Google Drive folder. You may now close this portal.</p>
+                <p class="success-submessage">Your attendance parameters have been logged and sheets securely mirrored to the server matrix node. You may now close this portal context.</p>
                 <button type="button" class="dashboard-return-btn" onclick="window.location.href='index.html'">
                     Return to Dashboard
                 </button>
@@ -155,4 +157,3 @@
     <script src="quiz.js"></script>
 </body>
 </html>
-
