@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Unified Form Data Edition)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Streamlined Split Edition)
  */
 
 (function () {
@@ -166,33 +166,54 @@
 
         DOM.submitBtn.setAttribute('disabled', 'true');
         DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Securing Answers & Sheets in Drive...";
+        DOM.btnText.textContent = "Saving Responses to Log Sheet...";
 
-        const unifiedPayload = {
+        const userEmail = sessionStorage.getItem('tara_user_email') || "No Email";
+
+        const textualPayload = {
             userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO",
-            userEmail: sessionStorage.getItem('tara_user_email') || "No Email",
+            userEmail: userEmail,
             watchConfirm: DOM.form.watch_confirm.value,
             biggestLearning: DOM.q2TextArea.value.trim(),
             actionImplementation: DOM.q3TextArea.value.trim(),
             importantPoints: DOM.q4TextArea.value.trim(),
             confidenceRating: DOM.confidenceSlider.value,
-            sheetsCount: validationState.fileUploadPayloads.length,
-            fileUploadPayloads: validationState.fileUploadPayloads
+            sheetsCount: validationState.fileUploadPayloads.length
         };
 
         try {
-            // 🛠️ CRITICAL FIX: Sending data as text/plain to completely avoid CORS preflight drops
-            const response = await fetch(CONFIG.API_ENDPOINT, { 
+            // STEP A: Log the text parameters first to guarantee spreadsheet entry
+            await fetch(CONFIG.API_ENDPOINT, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                body: JSON.stringify(unifiedPayload) 
+                body: JSON.stringify(textualPayload) 
             });
+
+            // STEP B: Progressively push images one-by-one to safely prevent timeouts
+            DOM.btnText.textContent = "Uploading Sheets to Secure Drive...";
+            for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
+                DOM.btnText.textContent = `Uploading Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
+                
+                const fileItem = validationState.fileUploadPayloads[i];
+                const imagePayload = {
+                    userEmail: userEmail,
+                    fileName: fileItem.fileName,
+                    mimeType: fileItem.mimeType,
+                    base64Data: fileItem.base64Data
+                };
+
+                await fetch(`${CONFIG.API_ENDPOINT}?action=uploadImage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(imagePayload)
+                });
+            }
             
             sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         } catch (error) {
-            console.error("Cloud push failed:", error);
-            alert("Submission error. Please verify network status and try again.");
+            console.error("Submission failed:", error);
+            alert("Network routing sync failed. Text or image packets were restricted. Please re-submit.");
             DOM.submitBtn.removeAttribute('disabled'); DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
         }
     }
