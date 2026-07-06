@@ -19,6 +19,10 @@
     --border-inner: rgba(30, 41, 66, 0.3);
     --dropzone-bg: rgba(11, 15, 25, 0.5);
     --shadow-main: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+    
+    /* 🔄 Spinner Colors Token for Dark Theme */
+    --spinner-border: rgba(255, 255, 255, 0.2);
+    --spinner-active: #ffffff;
 
     --border-radius-lg: 12px;
     --border-radius-md: 8px;
@@ -33,13 +37,17 @@
     --bg-card-alt: #f1f5f9;
     --text-primary: #0f172a;
     --text-secondary: #334155;
-    --text-muted: #475569; /* Counter text completely visible and clear in white mode */
+    --text-muted: #475569; 
     --accent-primary: #2563eb;
     --accent-hover: #1d4ed8;
     --border-color: #cbd5e1;
     --border-inner: rgba(241, 245, 249, 0.9);
     --dropzone-bg: #f8fafc;
     --shadow-main: 0 20px 30px -10px rgba(15, 23, 42, 0.06);
+    
+    /* 🔄 Spinner Colors Token for Light Theme (Fixes Visibility) */
+    --spinner-border: rgba(15, 23, 42, 0.1);
+    --spinner-active: #1e293b;
 }
 
 * {
@@ -177,7 +185,7 @@ body {
 .char-counter {
     font-size: 12px;
     color: var(--text-muted);
-    font-weight: 700; /* Bold readable contrast lock */
+    font-weight: 700; 
     font-family: monospace;
 }
 
@@ -394,7 +402,6 @@ textarea:focus {
     overflow-y: auto;
 }
 
-/* ❌ CUSTOM INTERACTIVE MATRIX CARD CONFIGURATION */
 .matrix-card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -412,20 +419,12 @@ textarea:focus {
 .matrix-card .name { font-size: 13px; font-weight: 600; color: var(--text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .matrix-card .meta { font-size: 11px; color: var(--text-muted); font-family: monospace; }
 
-/* ❌ DYNAMIC REMOVE FILE BUTTON STYLE */
 .remove-all-btn {
-    display: none; /* Removed clean button default triggers explicitly */
+    display: none; 
 }
 
-.matrix-card .remove-file-badge, 
-.matrix-card + .remove-all-btn,
-#remove-all-files-btn {
-    display: none !important; /* Fully wiped clear layout configurations */
-}
-
-/* Modern Cross-Platform Action Element for Singular File Eviction */
-.matrix-card {
-    position: relative;
+.matrix-card .remove-all-btn {
+    display: none !important; 
 }
 
 .rating-badge {
@@ -513,13 +512,25 @@ textarea:focus {
     cursor: not-allowed;
 }
 
+/* 🔄 FIXED FLUID SPINNER ANIMATION DESIGN */
 .spinner-icon {
     width: 18px;
     height: 18px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #fff;
+    border: 3px solid var(--spinner-border); /* Transparent channel color mapping */
+    border-top-color: var(--spinner-active); /* High intensity glow track selection */
     border-radius: 50%;
     animation: button-spin 0.8s infinite linear;
+}
+
+/* Base loading spinner container visibility node matching variables */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--spinner-border);
+    border-top-color: var(--accent-primary);
+    border-radius: 50%;
+    animation: button-spin 0.8s infinite linear;
+    margin-bottom: 16px;
 }
 
 @keyframes button-spin {
@@ -610,7 +621,6 @@ textarea:focus {
     margin-top: auto;
 }
 
-/* ❌ CROSS BUTTON INDIVIDUAL DELETION DESIGN */
 .remove-file-btn {
     position: absolute;
     right: 12px;
