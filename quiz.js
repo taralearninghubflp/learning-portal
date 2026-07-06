@@ -1,251 +1,338 @@
 /**
- * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with Dynamic UI Theme Engine)
+ * TARA LMS - Learning Verification Module Core System (Enterprise Edition)
+ * Feature: Advanced File Processing, Light/Dark Theme Sync, UI Telemetry & State Matrix
+ * Component: quiz.js
  */
 
 (function () {
     'use strict';
 
-    const hasAccessPass = sessionStorage.getItem('tara_quiz_access_granted');
-    if (!hasAccessPass || hasAccessPass !== 'true') {
-        alert("Access Denied: You must complete the video training module before accessing the evaluation portal.");
-        window.location.replace('index.html');
-        return; 
-    }
-
-    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1523754029174227106/2ENRAQQG8UvH3QV44D26HWxp_zaTP87fi3HxaMcalB7x2SbQnJgAw0oPyATe9quWMbp9"; 
-
+    // Global Configuration Matrix
     const CONFIG = {
-        API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
-        TARGETS: { Q2_MIN_CHAR: 50, Q3_MIN_CHAR: 30, Q4_MIN_CHAR: 80 }
+        API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkI1Gl5gxeTlwpYSfBsqjl0ZbMyCgnRjktLLTSqyO__/exec',
+        MIN_CHAR_COUNT: 10,
+        MAX_FILES: 5
     };
 
-    let validationState = {
-        q1Valid: false, q2Valid: false, q3Valid: false, q4Valid: false,
-        filesReadyToUpload: false, complianceChecked: false, fileUploadPayloads: []
+    // System Application State
+    let appState = {
+        theme: 'dark',
+        verifiedFiles: [] // Stores uploaded file metadata object matrix
     };
 
+    // DOM References Cache
     const DOM = {
-        form: document.getElementById('quiz-form'),
-        submitBtn: document.getElementById('submit-verification-btn'),
-        btnSpinner: document.getElementById('btn-spinner'),
-        btnText: document.getElementById('btn-text'),
-        formContainer: document.getElementById('form-container'),
-        successContainer: document.getElementById('success-container'),
-        verificationStatus: document.getElementById('verification-status'),
-        q2TextArea: document.getElementById('biggest-learning'),
-        q3TextArea: document.getElementById('action-implementation'),
-        q4TextArea: document.getElementById('important-points'),
-        fileInput: document.getElementById('file-input'),
+        html: document.documentElement,
+        themeToggle: document.getElementById('theme-toggle'),
+        themeIcon: document.getElementById('theme-icon'),
+        
+        // Form Fields
+        biggestLearning: document.getElementById('biggest-learning'),
+        actionImplementation: document.getElementById('action-implementation'),
+        importantPoints: document.getElementById('important-points'),
+        confidenceSlider: document.getElementById('confidence-slider'),
+        confidenceRating: document.getElementById('confidence-rating'),
+        confirmationCheckbox: document.getElementById('confirmation-checkbox'),
+        submitBtn: document.getElementById('submit-btn'),
+        quizForm: document.getElementById('quiz-form'),
+        
+        // Character Counters
+        blCounter: document.getElementById('bl-counter'),
+        aiCounter: document.getElementById('ai-counter'),
+        ipCounter: document.getElementById('ip-counter'),
+        
+        // Dropzone & Multi-upload Matrix Components
         dropzone: document.getElementById('dropzone'),
-        complianceCheck: document.getElementById('compliance-check'),
-        confidenceSlider: document.getElementById('confidence-rating'),
-        counterQ2: document.getElementById('counter-q2'),
-        counterQ3: document.getElementById('counter-q3'),
-        counterQ4: document.getElementById('counter-q4'),
-        ratingOutput: document.getElementById('rating-output'),
-        matrixWrapper: document.getElementById('file-upload-matrix'),
-        matrixGrid: document.getElementById('file-preview-grid'),
+        fileInput: document.getElementById('notes-file'),
+        uploadMatrix: document.getElementById('upload-matrix'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
         matrixStatusText: document.getElementById('matrix-status-text'),
-        clearAllBtn: document.getElementById('remove-all-files-btn'),
-        
-        // Theme nodes mapping
-        themeToggleBtn: document.getElementById('theme-toggle-btn'),
-        themeToggleIcon: document.getElementById('theme-toggle-icon')
+        fileGrid: document.getElementById('file-grid'),
+        removeAllBtn: document.getElementById('clear-all-sheets') // Maps to "Clear All Sheets" Action trigger
     };
 
-    // ☀️ FLUID THEME TRACKING LAYER
-    function initializeThemeEngine() {
-        const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
-        
-        if (savedTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
-        }
+    /**
+     * Core Subsystem 1: Theme Management (Dark/Light Engine Integration)
+     */
+    function initThemeEngine() {
+        const savedTheme = localStorage.getItem('tara-quiz-theme') || 'dark';
+        setSystemTheme(savedTheme);
 
-        if (DOM.themeToggleBtn) {
-            DOM.themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                if (currentTheme === 'light') {
-                    document.documentElement.removeAttribute('data-theme');
-                    localStorage.setItem('tara_lms_theme', 'dark');
-                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
-                } else {
-                    document.documentElement.setAttribute('data-theme', 'light');
-                    localStorage.setItem('tara_lms_theme', 'light');
-                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
-                }
+        if (DOM.themeToggle) {
+            DOM.themeToggle.addEventListener('click', () => {
+                const targetTheme = appState.theme === 'dark' ? 'light' : 'dark';
+                setSystemTheme(targetTheme);
             });
         }
     }
 
-    function init() {
-        initializeThemeEngine();
-        bindInputTrackingEvents();
-        bindDropzoneSystem();
+    function setSystemTheme(theme) {
+        appState.theme = theme;
+        DOM.html.setAttribute('data-theme', theme);
+        localStorage.setItem('tara-quiz-theme', theme);
+        
+        if (DOM.themeIcon) {
+            DOM.themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
     }
 
-    function bindInputTrackingEvents() {
-        document.getElementsByName('watch_confirm').forEach(radio => {
-            radio.addEventListener('change', (e) => { validationState.q1Valid = (e.target.value === 'yes'); evaluateGlobalFormValidity(); });
-        });
-        DOM.q2TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q2TextArea, DOM.counterQ2, CONFIG.TARGETS.Q2_MIN_CHAR, 'q2Valid'));
-        DOM.q3TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q3TextArea, DOM.counterQ3, CONFIG.TARGETS.Q3_MIN_CHAR, 'q3Valid'));
-        DOM.q4TextArea.addEventListener('input', () => handleTextLengthValidation(DOM.q4TextArea, DOM.counterQ4, CONFIG.TARGETS.Q4_MIN_CHAR, 'q4Valid'));
-        DOM.complianceCheck.addEventListener('change', (e) => { validationState.complianceChecked = e.target.checked; evaluateGlobalFormValidity(); });
-        DOM.confidenceSlider.addEventListener('input', (e) => { DOM.ratingOutput.textContent = e.target.value; });
-        DOM.form.addEventListener('submit', handleFormSubmissionPipeline);
+    /**
+     * Core Subsystem 2: Dynamic Input & Form Validation Telemetry
+     */
+    function initFormTelemetry() {
+        // Dynamic Slider Real-time Update
+        if (DOM.confidenceSlider && DOM.confidenceRating) {
+            DOM.confidenceSlider.addEventListener('input', (e) => {
+                DOM.confidenceRating.textContent = e.target.value;
+            });
+        }
+
+        // Live Character Counters Setup
+        setupCharCounter(DOM.biggestLearning, DOM.blCounter);
+        setupCharCounter(DOM.actionImplementation, DOM.aiCounter);
+        setupCharCounter(DOM.importantPoints, DOM.ipCounter);
+
+        // Global Event Delegation for Dynamic Form Interactivity Validation
+        if (DOM.quizForm) {
+            ['input', 'change'].forEach(eventType => {
+                DOM.quizForm.addEventListener(eventType, validateFormState);
+            });
+        }
     }
 
-    function handleTextLengthValidation(element, counterElement, minLimit, stateProperty) {
-        const length = element.value.trim().length;
-        counterElement.textContent = `${length} / ${minLimit} characters`;
-        validationState[stateProperty] = (length >= minLimit);
-        counterElement.classList.toggle('valid', length >= minLimit);
-        evaluateGlobalFormValidity();
+    function setupCharCounter(inputEl, counterEl) {
+        if (!inputEl || !counterEl) return;
+        
+        const updateCounter = () => {
+            const length = inputEl.value.trim().length;
+            counterEl.textContent = `${length}/${CONFIG.MIN_CHAR_COUNT} min chars`;
+            
+            if (length >= CONFIG.MIN_CHAR_COUNT) {
+                counterEl.classList.add('valid');
+            } else {
+                counterEl.classList.remove('valid');
+            }
+        };
+
+        inputEl.addEventListener('input', updateCounter);
+        updateCounter(); // Initial invocation context lifecycle run
     }
 
-    function bindDropzoneSystem() {
+    function validateFormState() {
+        if (!DOM.submitBtn) return;
+
+        const isBlValid = (DOM.biggestLearning?.value.trim().length || 0) >= CONFIG.MIN_CHAR_COUNT;
+        const isAiValid = (DOM.actionImplementation?.value.trim().length || 0) >= CONFIG.MIN_CHAR_COUNT;
+        const isIpValid = (DOM.importantPoints?.value.trim().length || 0) >= CONFIG.MIN_CHAR_COUNT;
+        const isConfirmed = DOM.confirmationCheckbox ? DOM.confirmationCheckbox.checked : false;
+        const hasFiles = appState.verifiedFiles.length > 0;
+
+        const isFormStructurallyValid = isBlValid && isAiValid && isIpValid && isConfirmed && hasFiles;
+        DOM.submitBtn.disabled = !isFormStructurallyValid;
+    }
+
+    /**
+     * Core Subsystem 3: Industrial Dropzone & Upload Matrix Engine
+     */
+    function initDropzoneEngine() {
+        if (!DOM.dropzone || !DOM.fileInput) return;
+
+        // Click trigger mapping
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
-        DOM.fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) processMultipleFilesToDrive(Array.from(e.target.files)); });
-        ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
-        ['dragleave', 'drop'].forEach(name => { DOM.dropzone.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false);
-        DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processMultipleFilesToDrive(Array.from(e.dataTransfer.files)); });
-        DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
+
+        // Drag & Drop animations context
+        DOM.dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            DOM.dropzone.classList.add('drag-over');
+        });
+
+        ['dragleave', 'drop'].forEach(eventType => {
+            DOM.dropzone.addEventListener(eventType, () => {
+                DOM.dropzone.classList.remove('drag-over');
+            });
+        });
+
+        DOM.dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length > 0) {
+                processIncomingFiles(e.dataTransfer.files);
+            }
+        });
+
+        DOM.fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                processIncomingFiles(e.target.files);
+                DOM.fileInput.value = ''; // Reset input target channel parameters
+            }
+        });
+
+        // FIXED: Clear All Sheets button implementation logic matrix mapping
+        if (DOM.removeAllBtn) {
+            DOM.removeAllBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                clearUploadMatrixPipeline();
+            });
+        }
     }
 
-    async function processMultipleFilesToDrive(files) {
-        validationState.fileUploadPayloads = [];
-        validationState.filesReadyToUpload = false;
-        DOM.matrixGrid.innerHTML = '';
-        DOM.submitBtn.setAttribute('disabled', 'true');
-
-        const allowed = ['jpg', 'jpeg', 'png', 'pdf'];
-        if (files.length === 0) return;
-
-        DOM.dropzone.style.display = 'none';
-        DOM.matrixWrapper.style.display = 'block';
-        DOM.matrixStatusIcon.textContent = '⏳';
-        DOM.matrixStatusText.textContent = `Verifying ${files.length} sheets...`;
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const ext = file.name.split('.').pop().toLowerCase();
-            const cardId = `file-slot-${i}`;
-            
-            DOM.matrixGrid.insertAdjacentHTML('beforeend', `
-                <div class="matrix-card" id="${cardId}">
-                    <span class="file-icon">${ext === 'pdf' ? '📕' : '🖼️'}</span>
-                    <div class="file-info">
-                        <p class="name">${file.name}</p>
-                        <p class="meta" id="${cardId}-status">Ready</p>
-                    </div>
-                </div>`);
-            
-            const slotStatusText = document.getElementById(`${cardId}-status`);
-            if (!allowed.includes(ext)) {
-                slotStatusText.textContent = "Invalid Format";
-                slotStatusText.style.color = "var(--accent-danger)";
+    function processIncomingFiles(fileList) {
+        Array.from(fileList).forEach(file => {
+            if (appState.verifiedFiles.length >= CONFIG.MAX_FILES) {
+                alert(`Maximum upload boundary reached (${CONFIG.MAX_FILES} files allowed).`);
                 return;
             }
 
-            validationState.fileUploadPayloads.push(file);
-            slotStatusText.textContent = "Verified";
-            slotStatusText.style.color = "var(--accent-success)";
-        }
-
-        validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length === files.length);
-        DOM.matrixStatusIcon.textContent = '✅';
-        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets verified. Ready to submit.`;
-        evaluateGlobalFormValidity();
-    }
-
-    function clearFileMatrixSystem(e) {
-        if (e) e.stopPropagation();
-        validationState.filesReadyToUpload = false; validationState.fileUploadPayloads = []; DOM.fileInput.value = '';
-        DOM.matrixGrid.innerHTML = ''; DOM.matrixWrapper.style.display = 'none'; DOM.dropzone.style.display = 'block'; 
-        evaluateGlobalFormValidity();
-    }
-
-    function evaluateGlobalFormValidity() {
-        const isValid = (validationState.q1Valid && validationState.q2Valid && validationState.q3Valid && validationState.q4Valid && validationState.filesReadyToUpload && validationState.complianceChecked);
-        if (isValid) DOM.submitBtn.removeAttribute('disabled'); else DOM.submitBtn.setAttribute('disabled', 'true');
-    }
-
-    async function handleFormSubmissionPipeline(e) {
-        e.preventDefault();
-        if (DOM.submitBtn.hasAttribute('disabled')) return;
-
-        DOM.submitBtn.setAttribute('disabled', 'true');
-        if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Connecting to Secure Sheet Network...";
-        
-        const userName = sessionStorage.getItem('tara_user_name') || "Anonymous FBO";
-        const userEmail = sessionStorage.getItem('tara_user_email') || "No Email";
-
-        const textualPayload = {
-            userName: userName,
-            userEmail: userEmail,
-            watchConfirm: DOM.form.watch_confirm.value,
-            biggestLearning: DOM.q2TextArea.value.trim(),
-            actionImplementation: DOM.q3TextArea.value.trim(),
-            importantPoints: DOM.q4TextArea.value.trim(),
-            confidenceRating: DOM.confidenceSlider.value,
-            sheetsCount: validationState.fileUploadPayloads.length
-        };
-
-        try {
-            await fetch(CONFIG.API_ENDPOINT, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                body: JSON.stringify(textualPayload) 
-            });
-
-            DOM.btnText.textContent = `Streaming 1 of ${validationState.fileUploadPayloads.length} Sheets to Discord...`;
-            
-            const formData = new FormData();
-            const embedPayload = {
-                title: "📝 New Notes Verification Packet",
-                color: 5814783,
-                fields: [
-                    { name: "👤 Candidate Name", value: userName, inline: true },
-                    { name: "📧 Email Address", value: userEmail, inline: true },
-                    { name: "📊 Total Attached Sheets", value: `${validationState.fileUploadPayloads.length} Page(s)`, inline: true },
-                    { name: "📅 Date Submitted", value: new Date().toLocaleDateString('en-GB'), inline: true }
-                ],
-                footer: { text: "TARA LMS Security Engine" }
-            };
-
-            formData.append("payload_json", JSON.stringify({ embeds: [embedPayload] }));
-
-            for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
-                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
-                formData.append(`file${i}`, validationState.fileUploadPayloads[i]);
+            // Accept images/screenshots or documents safely
+            if (!file.type.startsWith('image/') && !file.name.endsWith('.pdf')) {
+                alert('Invalid file format signature detected. Please upload screenshots/images or PDF parameters.');
+                return;
             }
 
-            await fetch(DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                body: formData
-            });
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const base64Content = event.target.result.split(',')[1];
+                
+                // Construct clean immutable component record parameters
+                const fileMetadata = {
+                    id: 'file-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                    name: file.name,
+                    size: (file.size / 1024).toFixed(1) + ' KB',
+                    base64: base64Content
+                };
 
-            DOM.btnText.textContent = "Verification Complete! Finalizing...";
-            sessionStorage.removeItem('tara_quiz_access_granted');
-            transitionToSuccessCard();
-        } catch (error) {
-            console.error(error);
-            alert("Connection timeout. The file bundle is too heavy or the network dropped. Retrying...");
-            DOM.submitBtn.removeAttribute('disabled'); if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
+                appState.verifiedFiles.push(fileMetadata);
+                renderUploadMatrixUI();
+                validateFormState();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function renderUploadMatrixUI() {
+        if (!DOM.uploadMatrix || !DOM.fileGrid || !DOM.matrixStatusText || !DOM.matrixStatusIcon) return;
+
+        if (appState.verifiedFiles.length === 0) {
+            DOM.uploadMatrix.style.display = 'none';
+            DOM.fileGrid.innerHTML = '';
+            return;
+        }
+
+        // Display current upload validation statistics structural layout mapping
+        DOM.uploadMatrix.style.display = 'block';
+        DOM.matrixStatusIcon.textContent = '✅';
+        DOM.matrixStatusText.textContent = `${appState.verifiedFiles.length} Sheets verified. Ready to submit.`;
+
+        // Render cards loop logic execution
+        DOM.fileGrid.innerHTML = appState.verifiedFiles.map(file => `
+            <div class="matrix-card" data-id="${file.id}">
+                <div class="file-icon">📄</div>
+                <div class="file-info">
+                    <div class="name" title="${file.name}">${file.name}</div>
+                    <div class="meta">${file.size} | <span style="color: var(--accent-success); font-weight: 700;">Verified</span></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // FIXED: Complete reset logic execution channel implementation pipeline
+    function clearUploadMatrixPipeline() {
+        appState.verifiedFiles = [];
+        if (DOM.fileInput) DOM.fileInput.value = '';
+        renderUploadMatrixUI();
+        validateFormState();
+    }
+
+    /**
+     * Core Subsystem 4: API Form Transmission Engine Pipeline
+     */
+    function initSubmissionPipeline() {
+        if (!DOM.quizForm) return;
+
+        DOM.quizForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Double layer protection verification sequence
+            if (DOM.submitBtn.disabled) return;
+
+            // UI Transition to processing lockdown phase state parameters
+            setFormProcessingState(true);
+
+            try {
+                // Multi-sheet payload compilation sequence
+                const sheetCount = appState.verifiedFiles.length;
+                
+                // Submit each verified file in sequence array stack parameters mapping
+                for (let i = 0; i < sheetCount; i++) {
+                    const activeFile = appState.verifiedFiles[i];
+                    
+                    // Update submission telemetry interface indicators safely
+                    if (DOM.submitBtn) {
+                        DOM.submitBtn.innerHTML = `<div class="spinner-icon"></div> Uploading Notes Sheet ${i + 1}/${sheetCount}...`;
+                    }
+
+                    const payload = {
+                        biggestLearning: DOM.biggestLearning.value.trim(),
+                        actionImplementation: DOM.actionImplementation.value.trim(),
+                        importantPoints: DOM.importantPoints.value.trim(),
+                        confidenceRating: parseInt(DOM.confidenceSlider.value, 10),
+                        fileName: activeFile.name,
+                        fileData: activeFile.base64,
+                        currentContextIndex: i + 1,
+                        totalContextLength: sheetCount
+                    };
+
+                    const response = await fetch(CONFIG.API_ENDPOINT, {
+                        method: 'POST',
+                        mode: 'no-cors', // Integration context boundary execution compatibility architecture
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                // Redirect to production target success routing window page framework layout location parameters
+                window.location.href = 'quiz.html?status=success_telemetry_confirmed';
+
+            } catch (error) {
+                console.error('LMS Telemetry Critical Transmission Error Failure:', error);
+                alert('Critical connectivity error while uploading system parameters array matrix. Please verify internet stack configurations.');
+                setFormProcessingState(false);
+            }
+        });
+    }
+
+    function setFormProcessingState(isProcessing) {
+        if (!DOM.submitBtn) return;
+
+        if (isProcessing) {
+            DOM.submitBtn.disabled = true;
+            DOM.submitBtn.innerHTML = '<div class="spinner-icon"></div> Initiating Cloud Pipeline Secure Uplink...';
+            
+            // Lock form components input nodes pipeline safely
+            [DOM.biggestLearning, DOM.actionImplementation, DOM.importantPoints, DOM.confidenceSlider, DOM.confirmationCheckbox, DOM.removeAllBtn].forEach(el => {
+                if (el) el.disabled = true;
+            });
+            if (DOM.dropzone) DOM.dropzone.style.pointerEvents = 'none';
+        } else {
+            validateFormState();
+            DOM.submitBtn.innerHTML = 'Submit Learning Verification Matrix';
+            
+            // Unlock elements nodes structure elements array parameters channel
+            [DOM.biggestLearning, DOM.actionImplementation, DOM.importantPoints, DOM.confidenceSlider, DOM.confirmationCheckbox, DOM.removeAllBtn].forEach(el => {
+                if (el) el.disabled = false;
+            });
+            if (DOM.dropzone) DOM.dropzone.style.pointerEvents = 'auto';
         }
     }
 
-    function transitionToSuccessCard() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        DOM.formContainer.style.display = 'none'; DOM.successContainer.style.display = 'block';
-        if(DOM.verificationStatus) DOM.verificationStatus.textContent = "Status: Processed & Discord Synced";
-    }
+    /**
+     * Application Module Lifecycle Boot Initialization Sequence Integration Core Matrix
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+        initThemeEngine();
+        initFormTelemetry();
+        initDropzoneEngine();
+        initSubmissionPipeline();
+    });
 
-    document.addEventListener('DOMContentLoaded', init);
 })();
