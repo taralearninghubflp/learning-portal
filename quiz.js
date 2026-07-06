@@ -1,5 +1,6 @@
 /**
- * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with UI Progress Lock)
+ * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with Dynamic UI Theme Engine)
+ * Feature: Multi-Tap Append Files Logic
  */
 
 (function () {
@@ -17,12 +18,13 @@
 
     const CONFIG = {
         API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
-        TARGETS: { Q2_MIN_CHAR: 50, Q3_MIN_CHAR: 30, Q4_MIN_CHAR: 80 }
+        TARGETS: { Q2_MIN_CHAR: 50, Q3_MIN_CHAR: 30, Q4_MIN_CHAR: 80 },
+        MAX_FILES: 5 // Maximum 5 sheets allowed
     };
 
     let validationState = {
         q1Valid: false, q2Valid: false, q3Valid: false, q4Valid: false,
-        filesReadyToUpload: false, complianceChecked: false, fileUploadPayloads: []
+        filesReadyToUpload: false, complianceChecked: false, fileUploadPayloads: [] // Array to store appended files
     };
 
     const DOM = {
@@ -48,10 +50,43 @@
         matrixGrid: document.getElementById('file-preview-grid'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
         matrixStatusText: document.getElementById('matrix-status-text'),
-        clearAllBtn: document.getElementById('remove-all-files-btn')
+        clearAllBtn: document.getElementById('remove-all-files-btn'),
+        
+        // Theme nodes mapping
+        themeToggleBtn: document.getElementById('theme-toggle-btn'),
+        themeToggleIcon: document.getElementById('theme-toggle-icon')
     };
 
+    // ☀️ FLUID THEME TRACKING LAYER
+    function initializeThemeEngine() {
+        const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
+        
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
+        }
+
+        if (DOM.themeToggleBtn) {
+            DOM.themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'light') {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('tara_lms_theme', 'dark');
+                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('tara_lms_theme', 'light');
+                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
+                }
+            });
+        }
+    }
+
     function init() {
+        initializeThemeEngine();
         bindInputTrackingEvents();
         bindDropzoneSystem();
     }
@@ -77,64 +112,86 @@
     }
 
     function bindDropzoneSystem() {
+        // 🟢 FIX A: Pure Upload Matrix area par click karne par bhi add file ka option khulega
         DOM.dropzone.addEventListener('click', () => DOM.fileInput.click());
+        DOM.matrixWrapper.addEventListener('click', (e) => {
+            // Agar clear button par click nahi kiya hai, toh click par input trigger hoga
+            if (e.target !== DOM.clearAllBtn) {
+                DOM.fileInput.click();
+            }
+        });
+
         DOM.fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) processMultipleFilesToDrive(Array.from(e.target.files)); });
         ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
         ['dragleave', 'drop'].forEach(name => { DOM.dropzone.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false);
         DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processMultipleFilesToDrive(Array.from(e.dataTransfer.files)); });
-        DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
+        
+        if (DOM.clearAllBtn) {
+            DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
+        }
     }
 
-    async function processMultipleFilesToDrive(files) {
-        validationState.fileUploadPayloads = [];
-        validationState.filesReadyToUpload = false;
-        DOM.matrixGrid.innerHTML = '';
+    async function processMultipleFilesToDrive(newFiles) {
         DOM.submitBtn.setAttribute('disabled', 'true');
-
         const allowed = ['jpg', 'jpeg', 'png', 'pdf'];
-        if (files.length === 0) return;
 
-        DOM.dropzone.style.display = 'none';
+        // 🟢 FIX B: Dropzone hamesha open rahega retap ke liye, aur list layout badlega
+        DOM.dropzone.style.display = 'block'; 
         DOM.matrixWrapper.style.display = 'block';
         DOM.matrixStatusIcon.textContent = '⏳';
-        DOM.matrixStatusText.textContent = `Verifying ${files.length} sheets...`;
+        DOM.matrixStatusText.textContent = `Processing selected files...`;
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
+        for (let i = 0; i < newFiles.length; i++) {
+            const file = newFiles[i];
             const ext = file.name.split('.').pop().toLowerCase();
-            const cardId = `file-slot-${i}`;
+            
+            // Check max limits parameters
+            if (validationState.fileUploadPayloads.length >= CONFIG.MAX_FILES) {
+                alert(`Maximum ${CONFIG.MAX_FILES} sheets allowed context template limits.`);
+                break;
+            }
+
+            if (!allowed.includes(ext)) {
+                alert(`"${file.name}" is in an invalid format. Only JPG, PNG, PDF allowed.`);
+                continue;
+            }
+
+            // Append new raw file array seamlessly inside state arrays tracking matrix
+            validationState.fileUploadPayloads.push(file);
+
+            const dynamicIndex = validationState.fileUploadPayloads.length - 1;
+            const cardId = `file-slot-${dynamicIndex}`;
             
             DOM.matrixGrid.insertAdjacentHTML('beforeend', `
                 <div class="matrix-card" id="${cardId}">
                     <span class="file-icon">${ext === 'pdf' ? '📕' : '🖼️'}</span>
                     <div class="file-info">
                         <p class="name">${file.name}</p>
-                        <p class="meta" id="${cardId}-status">Ready</p>
+                        <p class="meta" id="${cardId}-status" style="color: var(--accent-success); font-weight:700;">Verified</p>
                     </div>
                 </div>`);
-            
-            const slotStatusText = document.getElementById(`${cardId}-status`);
-            if (!allowed.includes(ext)) {
-                slotStatusText.textContent = "Invalid Format";
-                slotStatusText.style.color = "var(--accent-danger)";
-                return;
-            }
-
-            validationState.fileUploadPayloads.push(file);
-            slotStatusText.textContent = "Verified";
-            slotStatusText.style.color = "var(--accent-success)";
         }
 
-        validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length === files.length);
+        // Clean file input reference path string token
+        DOM.fileInput.value = '';
+
+        validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length > 0);
         DOM.matrixStatusIcon.textContent = '✅';
-        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets verified. Ready to submit.`;
+        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets loaded. Tap area again to add more documents.`;
         evaluateGlobalFormValidity();
     }
 
     function clearFileMatrixSystem(e) {
-        if (e) e.stopPropagation();
-        validationState.filesReadyToUpload = false; validationState.fileUploadPayloads = []; DOM.fileInput.value = '';
-        DOM.matrixGrid.innerHTML = ''; DOM.matrixWrapper.style.display = 'none'; DOM.dropzone.style.display = 'block'; 
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        validationState.filesReadyToUpload = false; 
+        validationState.fileUploadPayloads = []; 
+        if (DOM.fileInput) DOM.fileInput.value = '';
+        DOM.matrixGrid.innerHTML = ''; 
+        DOM.matrixWrapper.style.display = 'none'; 
+        DOM.dropzone.style.display = 'block'; 
         evaluateGlobalFormValidity();
     }
 
@@ -147,10 +204,9 @@
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
 
-        // 🔒 UI LOCK: Button ko disable karke loading status text badalna
         DOM.submitBtn.setAttribute('disabled', 'true');
         if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Connecting to Secure Sheet Network...";
+        DOM.btnText.textContent = "Logging text answers in spreadsheet...";
         
         const userName = sessionStorage.getItem('tara_user_name') || "Anonymous FBO";
         const userEmail = sessionStorage.getItem('tara_user_email') || "No Email";
@@ -175,8 +231,6 @@
             });
 
             // B. Push files straight to Discord via Webhook Multipart Form Data
-            DOM.btnText.textContent = `Streaming 1 of ${validationState.fileUploadPayloads.length} Sheets to Discord...`;
-            
             const formData = new FormData();
             const embedPayload = {
                 title: "📝 New Notes Verification Packet",
@@ -192,8 +246,9 @@
 
             formData.append("payload_json", JSON.stringify({ embeds: [embedPayload] }));
 
-            for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
-                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
+            const totalFiles = validationState.fileUploadPayloads.length;
+            for (let i = 0; i < totalFiles; i++) {
+                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${totalFiles}...`;
                 formData.append(`file${i}`, validationState.fileUploadPayloads[i]);
             }
 
