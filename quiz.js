@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Streamlined Split Edition)
+ * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition)
  */
 
 (function () {
@@ -11,6 +11,9 @@
         window.location.replace('index.html');
         return; 
     }
+
+    // 🟢 DISCORD AUTH COORDINATE
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1523754029174227106/2ENRAQQG8UvH3QV44D26HWxp_zaTP87fi3HxaMcalB7x2SbQnJgAw0oPyATe9quWMbp9"; 
 
     const CONFIG = {
         API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
@@ -41,7 +44,6 @@
         counterQ3: document.getElementById('counter-q3'),
         counterQ4: document.getElementById('counter-q4'),
         ratingOutput: document.getElementById('rating-output'),
-        
         matrixWrapper: document.getElementById('file-upload-matrix'),
         matrixGrid: document.getElementById('file-preview-grid'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
@@ -95,57 +97,37 @@
         DOM.dropzone.style.display = 'none';
         DOM.matrixWrapper.style.display = 'block';
         DOM.matrixStatusIcon.textContent = '⏳';
-        DOM.matrixStatusText.textContent = `Processing ${files.length} sheets...`;
+        DOM.matrixStatusText.textContent = `Verifying ${files.length} sheets...`;
 
-        const userEmail = sessionStorage.getItem('tara_user_email') || 'anonymous_fbo';
-        const todayDate = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-        
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const ext = file.name.split('.').pop().toLowerCase();
-            
             const cardId = `file-slot-${i}`;
-            const fileSlotHtml = `
+            
+            DOM.matrixGrid.insertAdjacentHTML('beforeend', `
                 <div class="matrix-card" id="${cardId}">
                     <span class="file-icon">${ext === 'pdf' ? '📕' : '🖼️'}</span>
                     <div class="file-info">
                         <p class="name">${file.name}</p>
                         <p class="meta" id="${cardId}-status">Ready</p>
                     </div>
-                </div>`;
-            DOM.matrixGrid.insertAdjacentHTML('beforeend', fileSlotHtml);
+                </div>`);
+            
             const slotStatusText = document.getElementById(`${cardId}-status`);
-
             if (!allowed.includes(ext)) {
-                slotStatusText.textContent = "Error: Invalid Format";
+                slotStatusText.textContent = "Invalid Format";
                 slotStatusText.style.color = "var(--accent-danger)";
                 return;
             }
 
-            try {
-                const base64String = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                    reader.onerror = () => reject(reader.error);
-                    reader.readAsDataURL(file);
-                });
-
-                validationState.fileUploadPayloads.push({
-                    fileName: `${userEmail}_${todayDate}_sheet_${i + 1}.${ext}`,
-                    mimeType: file.type,
-                    base64Data: base64String
-                });
-                slotStatusText.textContent = "Verified";
-                slotStatusText.style.color = "var(--accent-success)";
-            } catch (error) {
-                console.error(error);
-                return;
-            }
+            validationState.fileUploadPayloads.push(file);
+            slotStatusText.textContent = "Verified";
+            slotStatusText.style.color = "var(--accent-success)";
         }
 
         validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length === files.length);
         DOM.matrixStatusIcon.textContent = '✅';
-        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets verified. Complete your submission below.`;
+        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets verified. Ready to submit.`;
         evaluateGlobalFormValidity();
     }
 
@@ -167,54 +149,63 @@
 
         DOM.submitBtn.setAttribute('disabled', 'true');
         DOM.btnSpinner.style.display = 'inline-block';
+        DOM.btnText.textContent = "Logging text answers in spreadsheet...";
         
+        const userName = sessionStorage.getItem('tara_user_name') || "Anonymous FBO";
         const userEmail = sessionStorage.getItem('tara_user_email') || "No Email";
 
+        const textualPayload = {
+            userName: userName,
+            userEmail: userEmail,
+            watchConfirm: DOM.form.watch_confirm.value,
+            biggestLearning: DOM.q2TextArea.value.trim(),
+            actionImplementation: DOM.q3TextArea.value.trim(),
+            importantPoints: DOM.q4TextArea.value.trim(),
+            confidenceRating: DOM.confidenceSlider.value,
+            sheetsCount: validationState.fileUploadPayloads.length
+        };
+
         try {
-            // STEP A: Progressive image storage loop via clean text/plain transmission lock
-            for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
-                DOM.btnText.textContent = `Uploading Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
-                
-                const fileItem = validationState.fileUploadPayloads[i];
-                const imagePayload = {
-                    isImage: true, // 🟢 CORE FIX: Inside payload identification parameters
-                    userEmail: userEmail,
-                    fileName: fileItem.fileName,
-                    mimeType: fileItem.mimeType,
-                    base64Data: fileItem.base64Data
-                };
-
-                await fetch(CONFIG.API_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(imagePayload)
-                });
-            }
-
-            // STEP B: Log textual answers safely after files are dumped into Drive folder path
-            DOM.btnText.textContent = "Finalizing sheet response...";
-            const textualPayload = {
-                userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO",
-                userEmail: userEmail,
-                watchConfirm: DOM.form.watch_confirm.value,
-                biggestLearning: DOM.q2TextArea.value.trim(),
-                actionImplementation: DOM.q3TextArea.value.trim(),
-                importantPoints: DOM.q4TextArea.value.trim(),
-                confidenceRating: DOM.confidenceSlider.value,
-                sheetsCount: validationState.fileUploadPayloads.length
-            };
-
+            // A. Log text answers to Google Sheet
             await fetch(CONFIG.API_ENDPOINT, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                 body: JSON.stringify(textualPayload) 
             });
+
+            // B. Push files straight to Discord via Webhook Multipart Form Data
+            DOM.btnText.textContent = "Streaming sheets directly to Discord Server...";
             
+            const formData = new FormData();
+            
+            const embedPayload = {
+                title: "📝 New Notes Verification Packet",
+                color: 5814783,
+                fields: [
+                    { name: "👤 Candidate Name", value: userName, inline: true },
+                    { name: "📧 Email Address", value: userEmail, inline: true },
+                    { name: "📊 Total Attached Sheets", value: `${validationState.fileUploadPayloads.length} Page(s)`, inline: true },
+                    { name: "📅 Date Submitted", value: new Date().toLocaleDateString('en-GB'), inline: true }
+                ],
+                footer: { text: "TARA LMS Security Engine" }
+            };
+
+            formData.append("payload_json", JSON.stringify({ embeds: [embedPayload] }));
+
+            for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
+                formData.append(`file${i}`, validationState.fileUploadPayloads[i]);
+            }
+
+            await fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                body: formData
+            });
+
             sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         } catch (error) {
-            console.error("Submission failed:", error);
-            alert("Network timeout. Please retry submission.");
+            console.error(error);
+            alert("Discord server connection sync dropped. Retrying...");
             DOM.submitBtn.removeAttribute('disabled'); DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
         }
     }
@@ -222,8 +213,7 @@
     function transitionToSuccessCard() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         DOM.formContainer.style.display = 'none'; DOM.successContainer.style.display = 'block';
-        DOM.verificationStatus.textContent = "Status: Verified & Processed";
-        DOM.verificationStatus.style.borderColor = "var(--accent-success)"; DOM.verificationStatus.style.color = "var(--accent-success)";
+        DOM.verificationStatus.textContent = "Status: Processed & Discord Synced";
     }
 
     document.addEventListener('DOMContentLoaded', init);
