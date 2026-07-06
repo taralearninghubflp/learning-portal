@@ -1,7 +1,6 @@
-
-
 /**
  * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with Dynamic UI Theme Engine)
+ * Final Refined Production Build
  */
 
 (function () {
@@ -14,6 +13,7 @@
         return; 
     }
 
+    // 🟢 DISCORD AUTH COORDINATE
     const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1523754029174227106/2ENRAQQG8UvH3QV44D26HWxp_zaTP87fi3HxaMcalB7x2SbQnJgAw0oPyATe9quWMbp9"; 
 
     const CONFIG = {
@@ -116,7 +116,11 @@
         ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
         ['dragleave', 'drop'].forEach(name => { DOM.dropzone.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false);
         DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processMultipleFilesToDrive(Array.from(e.dataTransfer.files)); });
-        DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
+        
+        // FIXED: Clear All option binding mapping cleanly safely
+        if (DOM.clearAllBtn) {
+            DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
+        }
     }
 
     async function processMultipleFilesToDrive(files) {
@@ -166,9 +170,16 @@
     }
 
     function clearFileMatrixSystem(e) {
-        if (e) e.stopPropagation();
-        validationState.filesReadyToUpload = false; validationState.fileUploadPayloads = []; DOM.fileInput.value = '';
-        DOM.matrixGrid.innerHTML = ''; DOM.matrixWrapper.style.display = 'none'; DOM.dropzone.style.display = 'block'; 
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        validationState.filesReadyToUpload = false; 
+        validationState.fileUploadPayloads = []; 
+        if (DOM.fileInput) DOM.fileInput.value = '';
+        DOM.matrixGrid.innerHTML = ''; 
+        DOM.matrixWrapper.style.display = 'none'; 
+        DOM.dropzone.style.display = 'block'; 
         evaluateGlobalFormValidity();
     }
 
@@ -200,14 +211,14 @@
         };
 
         try {
+            // A. Log text answers to Google Sheet
             await fetch(CONFIG.API_ENDPOINT, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                 body: JSON.stringify(textualPayload) 
             });
 
-            DOM.btnText.textContent = `Streaming 1 of ${validationState.fileUploadPayloads.length} Sheets to Discord...`;
-            
+            // B. Push files straight to Discord via Webhook Multipart Form Data
             const formData = new FormData();
             const embedPayload = {
                 title: "📝 New Notes Verification Packet",
@@ -223,8 +234,10 @@
 
             formData.append("payload_json", JSON.stringify({ embeds: [embedPayload] }));
 
-            for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
-                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
+            // FIXED: Sequential text loader visual layout rendering updates mapping
+            const totalFiles = validationState.fileUploadPayloads.length;
+            for (let i = 0; i < totalFiles; i++) {
+                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${totalFiles}...`;
                 formData.append(`file${i}`, validationState.fileUploadPayloads[i]);
             }
 
