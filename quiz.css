@@ -3,6 +3,7 @@
    ========================================================================== */
 
 :root {
+    /* DEFAULT DARK MODE DESIGN TOKENS */
     --bg-main: #0b0f19;
     --bg-card: #151d30;
     --bg-card-alt: #1e2942;
@@ -25,13 +26,14 @@
     --max-width: 800px;
 }
 
+/* LIGHT MODE OVERRIDES USING DATA CLASS ATTRIBUTE */
 [data-theme="light"] {
     --bg-main: #f8fafc;
     --bg-card: #ffffff;
     --bg-card-alt: #f1f5f9;
     --text-primary: #0f172a;
     --text-secondary: #334155;
-    --text-muted: #475569; /* Bold readable color context for light mode counter */
+    --text-muted: #475569; /* Counter text completely visible and clear in white mode */
     --accent-primary: #2563eb;
     --accent-hover: #1d4ed8;
     --border-color: #cbd5e1;
@@ -175,7 +177,7 @@ body {
 .char-counter {
     font-size: 12px;
     color: var(--text-muted);
-    font-weight: 700; /* Bold highlights text properly */
+    font-weight: 700; /* Bold readable contrast lock */
     font-family: monospace;
 }
 
@@ -392,6 +394,7 @@ textarea:focus {
     overflow-y: auto;
 }
 
+/* ❌ CUSTOM INTERACTIVE MATRIX CARD CONFIGURATION */
 .matrix-card {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -400,6 +403,8 @@ textarea:focus {
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
+    padding-right: 40px !important;
 }
 
 .matrix-card .file-icon { font-size: 20px; }
@@ -407,22 +412,20 @@ textarea:focus {
 .matrix-card .name { font-size: 13px; font-weight: 600; color: var(--text-primary); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .matrix-card .meta { font-size: 11px; color: var(--text-muted); font-family: monospace; }
 
-/* 🔴 Clear All Sheets Premium Look Override Styling */
+/* ❌ DYNAMIC REMOVE FILE BUTTON STYLE */
 .remove-all-btn {
-    width: 100%;
-    background-color: transparent;
-    border: none;
-    border-top: 1px solid var(--border-color);
-    color: var(--accent-danger);
-    padding: 12px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+    display: none; /* Removed clean button default triggers explicitly */
 }
 
-.remove-all-btn:hover {
-    background-color: rgba(239, 68, 68, 0.06);
+.matrix-card .remove-file-badge, 
+.matrix-card + .remove-all-btn,
+#remove-all-files-btn {
+    display: none !important; /* Fully wiped clear layout configurations */
+}
+
+/* Modern Cross-Platform Action Element for Singular File Eviction */
+.matrix-card {
+    position: relative;
 }
 
 .rating-badge {
@@ -605,6 +608,33 @@ textarea:focus {
     font-size: 11px;
     color: var(--text-muted);
     margin-top: auto;
+}
+
+/* ❌ CROSS BUTTON INDIVIDUAL DELETION DESIGN */
+.remove-file-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+[data-theme="light"] .remove-file-btn {
+    color: #0f172a;
+}
+
+.remove-file-btn:hover {
+    background-color: rgba(239, 68, 68, 0.15);
+    transform: translateY(-50%) scale(1.1);
 }
 
 @media (max-width: 576px) {
