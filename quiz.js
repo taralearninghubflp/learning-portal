@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with UI Progress Lock)
+ * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with Dynamic UI Theme Engine)
  */
 
 (function () {
@@ -12,7 +12,6 @@
         return; 
     }
 
-    // 🟢 DISCORD AUTH COORDINATE
     const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1523754029174227106/2ENRAQQG8UvH3QV44D26HWxp_zaTP87fi3HxaMcalB7x2SbQnJgAw0oPyATe9quWMbp9"; 
 
     const CONFIG = {
@@ -48,10 +47,43 @@
         matrixGrid: document.getElementById('file-preview-grid'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
         matrixStatusText: document.getElementById('matrix-status-text'),
-        clearAllBtn: document.getElementById('remove-all-files-btn')
+        clearAllBtn: document.getElementById('remove-all-files-btn'),
+        
+        // Theme nodes mapping
+        themeToggleBtn: document.getElementById('theme-toggle-btn'),
+        themeToggleIcon: document.getElementById('theme-toggle-icon')
     };
 
+    // ☀️ FLUID THEME TRACKING LAYER
+    function initializeThemeEngine() {
+        const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
+        
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
+        }
+
+        if (DOM.themeToggleBtn) {
+            DOM.themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                if (currentTheme === 'light') {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('tara_lms_theme', 'dark');
+                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('tara_lms_theme', 'light');
+                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
+                }
+            });
+        }
+    }
+
     function init() {
+        initializeThemeEngine();
         bindInputTrackingEvents();
         bindDropzoneSystem();
     }
@@ -147,7 +179,6 @@
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
 
-        // 🔒 UI LOCK: Button ko disable karke loading status text badalna
         DOM.submitBtn.setAttribute('disabled', 'true');
         if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'inline-block';
         DOM.btnText.textContent = "Connecting to Secure Sheet Network...";
@@ -167,14 +198,12 @@
         };
 
         try {
-            // A. Log text answers to Google Sheet
             await fetch(CONFIG.API_ENDPOINT, { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                 body: JSON.stringify(textualPayload) 
             });
 
-            // B. Push files straight to Discord via Webhook Multipart Form Data
             DOM.btnText.textContent = `Streaming 1 of ${validationState.fileUploadPayloads.length} Sheets to Discord...`;
             
             const formData = new FormData();
