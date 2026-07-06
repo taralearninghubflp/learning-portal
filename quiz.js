@@ -1,6 +1,5 @@
 /**
- * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with Dynamic UI Theme Engine)
- * Final Refined Production Build
+ * TARA LMS - Quiz Engine (Discord Matrix Delivery Edition with UI Progress Lock)
  */
 
 (function () {
@@ -49,43 +48,10 @@
         matrixGrid: document.getElementById('file-preview-grid'),
         matrixStatusIcon: document.getElementById('matrix-status-icon'),
         matrixStatusText: document.getElementById('matrix-status-text'),
-        clearAllBtn: document.getElementById('remove-all-files-btn'),
-        
-        // Theme nodes mapping
-        themeToggleBtn: document.getElementById('theme-toggle-btn'),
-        themeToggleIcon: document.getElementById('theme-toggle-icon')
+        clearAllBtn: document.getElementById('remove-all-files-btn')
     };
 
-    // ☀️ FLUID THEME TRACKING LAYER
-    function initializeThemeEngine() {
-        const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
-        
-        if (savedTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
-        }
-
-        if (DOM.themeToggleBtn) {
-            DOM.themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                if (currentTheme === 'light') {
-                    document.documentElement.removeAttribute('data-theme');
-                    localStorage.setItem('tara_lms_theme', 'dark');
-                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
-                } else {
-                    document.documentElement.setAttribute('data-theme', 'light');
-                    localStorage.setItem('tara_lms_theme', 'light');
-                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
-                }
-            });
-        }
-    }
-
     function init() {
-        initializeThemeEngine();
         bindInputTrackingEvents();
         bindDropzoneSystem();
     }
@@ -116,11 +82,7 @@
         ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
         ['dragleave', 'drop'].forEach(name => { DOM.dropzone.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false);
         DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processMultipleFilesToDrive(Array.from(e.dataTransfer.files)); });
-        
-        // FIXED: Clear All option binding mapping cleanly safely
-        if (DOM.clearAllBtn) {
-            DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
-        }
+        DOM.clearAllBtn.addEventListener('click', clearFileMatrixSystem);
     }
 
     async function processMultipleFilesToDrive(files) {
@@ -170,16 +132,9 @@
     }
 
     function clearFileMatrixSystem(e) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        validationState.filesReadyToUpload = false; 
-        validationState.fileUploadPayloads = []; 
-        if (DOM.fileInput) DOM.fileInput.value = '';
-        DOM.matrixGrid.innerHTML = ''; 
-        DOM.matrixWrapper.style.display = 'none'; 
-        DOM.dropzone.style.display = 'block'; 
+        if (e) e.stopPropagation();
+        validationState.filesReadyToUpload = false; validationState.fileUploadPayloads = []; DOM.fileInput.value = '';
+        DOM.matrixGrid.innerHTML = ''; DOM.matrixWrapper.style.display = 'none'; DOM.dropzone.style.display = 'block'; 
         evaluateGlobalFormValidity();
     }
 
@@ -192,6 +147,7 @@
         e.preventDefault();
         if (DOM.submitBtn.hasAttribute('disabled')) return;
 
+        // 🔒 UI LOCK: Button ko disable karke loading status text badalna
         DOM.submitBtn.setAttribute('disabled', 'true');
         if(DOM.btnSpinner) DOM.btnSpinner.style.display = 'inline-block';
         DOM.btnText.textContent = "Connecting to Secure Sheet Network...";
@@ -219,6 +175,8 @@
             });
 
             // B. Push files straight to Discord via Webhook Multipart Form Data
+            DOM.btnText.textContent = `Streaming 1 of ${validationState.fileUploadPayloads.length} Sheets to Discord...`;
+            
             const formData = new FormData();
             const embedPayload = {
                 title: "📝 New Notes Verification Packet",
@@ -234,10 +192,8 @@
 
             formData.append("payload_json", JSON.stringify({ embeds: [embedPayload] }));
 
-            // FIXED: Sequential text loader visual layout rendering updates mapping
-            const totalFiles = validationState.fileUploadPayloads.length;
-            for (let i = 0; i < totalFiles; i++) {
-                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${totalFiles}...`;
+            for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
+                DOM.btnText.textContent = `Uploading Notes Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
                 formData.append(`file${i}`, validationState.fileUploadPayloads[i]);
             }
 
