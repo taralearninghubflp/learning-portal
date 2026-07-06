@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Quiz & Verification Module Engine Controller (Streamlined Split Edition)
+ * TARA LMS - Quiz & Verification Module Engine Controller (Streamlined Edition)
  */
 
 (function () {
@@ -98,6 +98,7 @@
         DOM.matrixStatusText.textContent = `Processing ${files.length} sheets...`;
 
         const userEmail = sessionStorage.getItem('tara_user_email') || 'anonymous_fbo';
+        const todayDate = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -129,8 +130,9 @@
                     reader.readAsDataURL(file);
                 });
 
+                // Unique Identifier Naming Setup
                 validationState.fileUploadPayloads.push({
-                    fileName: `${userEmail}_sheet_${Date.now()}_${i+1}.${ext}`,
+                    fileName: `${userEmail}_${todayDate}_sheet_${i + 1}.${ext}`,
                     mimeType: file.type,
                     base64Data: base64String
                 });
@@ -144,7 +146,7 @@
 
         validationState.filesReadyToUpload = (validationState.fileUploadPayloads.length === files.length);
         DOM.matrixStatusIcon.textContent = '✅';
-        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets ready. Please complete the form questions.`;
+        DOM.matrixStatusText.textContent = `${validationState.fileUploadPayloads.length} Sheets verified. Complete your submission below.`;
         evaluateGlobalFormValidity();
     }
 
@@ -166,31 +168,11 @@
 
         DOM.submitBtn.setAttribute('disabled', 'true');
         DOM.btnSpinner.style.display = 'inline-block';
-        DOM.btnText.textContent = "Saving Responses to Log Sheet...";
-
+        
         const userEmail = sessionStorage.getItem('tara_user_email') || "No Email";
 
-        const textualPayload = {
-            userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO",
-            userEmail: userEmail,
-            watchConfirm: DOM.form.watch_confirm.value,
-            biggestLearning: DOM.q2TextArea.value.trim(),
-            actionImplementation: DOM.q3TextArea.value.trim(),
-            importantPoints: DOM.q4TextArea.value.trim(),
-            confidenceRating: DOM.confidenceSlider.value,
-            sheetsCount: validationState.fileUploadPayloads.length
-        };
-
         try {
-            // STEP A: Log the text parameters first to guarantee spreadsheet entry
-            await fetch(CONFIG.API_ENDPOINT, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                body: JSON.stringify(textualPayload) 
-            });
-
-            // STEP B: Progressively push images one-by-one to safely prevent timeouts
-            DOM.btnText.textContent = "Uploading Sheets to Secure Drive...";
+            // STEP A: Progressively push images one-by-one BEFORE refreshing page
             for (let i = 0; i < validationState.fileUploadPayloads.length; i++) {
                 DOM.btnText.textContent = `Uploading Sheet ${i + 1}/${validationState.fileUploadPayloads.length}...`;
                 
@@ -208,12 +190,31 @@
                     body: JSON.stringify(imagePayload)
                 });
             }
+
+            // STEP B: Log text answers only AFTER images are 100% saved in Drive
+            DOM.btnText.textContent = "Finalizing sheet response...";
+            const textualPayload = {
+                userName: sessionStorage.getItem('tara_user_name') || "Anonymous FBO",
+                userEmail: userEmail,
+                watchConfirm: DOM.form.watch_confirm.value,
+                biggestLearning: DOM.q2TextArea.value.trim(),
+                actionImplementation: DOM.q3TextArea.value.trim(),
+                importantPoints: DOM.q4TextArea.value.trim(),
+                confidenceRating: DOM.confidenceSlider.value,
+                sheetsCount: validationState.fileUploadPayloads.length
+            };
+
+            await fetch(CONFIG.API_ENDPOINT, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                body: JSON.stringify(textualPayload) 
+            });
             
             sessionStorage.removeItem('tara_quiz_access_granted');
             transitionToSuccessCard();
         } catch (error) {
             console.error("Submission failed:", error);
-            alert("Network routing sync failed. Text or image packets were restricted. Please re-submit.");
+            alert("Network timeout. Please retry submission.");
             DOM.submitBtn.removeAttribute('disabled'); DOM.btnSpinner.style.display = 'none'; DOM.btnText.textContent = "Complete Today's Learning";
         }
     }
