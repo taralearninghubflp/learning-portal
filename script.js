@@ -12,8 +12,8 @@
         QUIZ_COUNTDOWN_DURATION: 120,
         TICK_RATE_MS: 1000,
         MAINTENANCE: {
-            START_HOUR: null, // Real timing: Raat ke 11:00 baje lock hoga
-            END_HOUR: null     // Real timing: Raat ke 12:00 baje (Midnight) wapas khulega
+            START_HOUR: 23, // Real timing: Raat ke 11:00 baje lock hoga
+            END_HOUR: 0     // Real timing: Raat ke 12:00 baje (Midnight) wapas khulega
         }
     };
 
