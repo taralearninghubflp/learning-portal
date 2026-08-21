@@ -1,402 +1,139 @@
-/**
- * TARA LMS - Core Stream Engine Controller (Production Edition)
- * Features:
- * 1. Persistent Reload Protection (Active during Video & 2-Min Unlock Window)
- * 2. Direct Safe-Bypass on Valid Form Navigation
- * 3. Active Tab Tracking (Auto-Holds on Tab Switch / Minimize)
- * 4. 5-Minute Pre-Unlock Warning Badge
- * 5. 2-Minute Expiry Countdown (Synchronized on Page & Modal)
- * 6. Permanent Modal State with Action Locking on Expiry
- */
-
-(function () {
-    'use strict';
-
-    const CONFIG = {
-        API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
-        QUIZ_COUNTDOWN_DURATION: 120, // 2 Minutes
-        TICK_RATE_MS: 1000,
-        MAINTENANCE: {
-            START_HOUR: 23,
-            END_HOUR: 0
-        }
-    };
-
-    let state = {
-        lessonNumber: null, 
-        videoUrl: null, 
-        targetDuration: 0, 
-        elapsedSeconds: 0,
-        countdownRemaining: CONFIG.QUIZ_COUNTDOWN_DURATION, 
-        durationTimerId: null, 
-        countdownTimerId: null, 
-        isUnlocked: false,
-        isNavigatingSafely: false // Flag to bypass reload warning on legitimate button click
-    };
-
-    const DOM = {
-        loginContainer: document.getElementById('login-container'),
-        portalContent: document.getElementById('portal-content'),
-        loginForm: document.getElementById('login-form'),
-        loginEmail: document.getElementById('login-email'),
-        loginCode: document.getElementById('login-code'),
-        loginBtn: document.getElementById('login-btn'),
-        userDisplayBadge: document.getElementById('user-display-badge'),
-        videoWrapper: document.getElementById('video-wrapper'),
-        loadingSpinner: document.getElementById('loading-spinner'),
-        lockStatusPill: document.getElementById('lock-status-pill'),
-        instructionText: document.getElementById('instruction-text'),
-        countdownWrapper: document.getElementById('countdown-wrapper'),
-        timerDigits: document.getElementById('timer-digits'),
-        popupTimerDigits: document.getElementById('popup-timer-digits'),
-        popupActionBtn: document.getElementById('popup-action-btn'),
-        popupDismissBtn: document.getElementById('popup-dismiss-btn'),
-        popupTickerBox: document.getElementById('popup-ticker-box'),
-        popupTickerSub: document.getElementById('popup-ticker-sub'),
-        quizBtn: document.getElementById('quiz-btn'),
-        btnText: document.getElementById('btn-text'),
-        fiveMinAlert: document.getElementById('five-min-alert'),
-        formPopupModal: document.getElementById('form-popup-modal'),
-        themeToggleBtn: document.getElementById('theme-toggle-btn'),
-        themeToggleIcon: document.getElementById('theme-toggle-icon')
-    };
-
-    function checkMaintenanceStatus() {
-        const now = new Date();
-        const currentHour = now.getHours();
-
-        if (currentHour === CONFIG.MAINTENANCE.START_HOUR) {
-            injectMaintenanceUI();
-            return true;
-        }
-        return false;
-    }
-
-    function injectMaintenanceUI() {
-        document.body.innerHTML = `
-            <div style="
-                height: 100vh; 
-                display: flex; 
-                flex-direction: column; 
-                justify-content: center; 
-                align-items: center; 
-                background: linear-gradient(135deg, #0f1626 0%, #070a13 100%); 
-                color: #ffffff; 
-                font-family: 'Segoe UI', -apple-system, sans-serif; 
-                text-align: center; 
-                padding: 20px;
-            ">
-                <div style="font-size: 80px; margin-bottom: 20px;">⚙️</div>
-                <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 10px; color: #3b82f6; letter-spacing: -0.5px;">
-                    Daily Data Sync & Maintenance
-                </h1>
-                <p style="font-size: 15px; max-width: 550px; color: #cbd5e1; line-height: 1.6; margin-bottom: 24px;">
-                    Portal is temporarily offline for daily attendance synchronization and database optimization. 
-                    We will be back live sharp at <b>12:00 AM (Midnight)</b>.
-                </p>
-                <div style="
-                    padding: 10px 24px; 
-                    background: rgba(59, 130, 246, 0.05); 
-                    border: 1px solid rgba(59, 130, 246, 0.2); 
-                    border-radius: 50px; 
-                    font-size: 12px; 
-                    font-weight: 600;
-                    color: #3b82f6;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                ">
-                    Standard Lockout Window: 11:00 PM - 12:00 AM Daily
-                </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TARA LMS - Learning & Verification Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Global Header -->
+        <header class="main-header">
+            <div class="logo-area"><span class="logo-accent">TARA</span> LMS</div>
+            <div class="header-right-actions">
+                <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Interface Theme">
+                    <span id="theme-toggle-icon">🌙</span>
+                </button>
+                <div class="status-badge" id="user-display-badge" style="display: none;">Verified User</div>
             </div>
-        `;
-    }
+        </header>
 
-    function initializeThemeEngine() {
-        const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
-        
-        if (savedTheme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
-        }
+        <!-- Auth Login Container -->
+        <div id="login-container" class="workspace-auth" style="display: block;">
+            <section class="control-card auth-card">
+                <div class="auth-header">
+                    <h1 class="auth-logo"><span class="logo-accent">TARA</span> LMS</h1>
+                    <p class="auth-sub">Identity & Access Management Node</p>
+                </div>
+                <form id="login-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label class="form-label">Registered Email Address</label>
+                        <input type="email" id="login-email" class="input-field" placeholder="name@domain.com" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Secure Passcode</label>
+                        <input type="password" id="login-code" class="input-field" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" id="login-btn" class="action-btn unlocked login-btn-action">Authenticate Credentials</button>
+                </form>
+            </section>
+        </div>
 
-        if (DOM.themeToggleBtn) {
-            DOM.themeToggleBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                if (currentTheme === 'light') {
-                    document.documentElement.removeAttribute('data-theme');
-                    localStorage.setItem('tara_lms_theme', 'dark');
-                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '🌙';
-                } else {
-                    document.documentElement.setAttribute('data-theme', 'light');
-                    localStorage.setItem('tara_lms_theme', 'light');
-                    if (DOM.themeToggleIcon) DOM.themeToggleIcon.textContent = '☀️';
-                }
-            });
-        }
-    }
+        <!-- Portal Workspace -->
+        <div id="portal-content" style="display: none;">
+            <main class="workspace">
+                
+                <!-- Left: Video Player Card -->
+                <section class="video-card">
+                    <div class="video-wrapper" id="video-wrapper">
+                        <div class="spinner-container" id="loading-spinner">
+                            <div class="spinner"></div>
+                            <p class="spinner-text">Loading secure training stream...</p>
+                        </div>
+                    </div>
+                    <div class="video-meta">
+                        <h2 class="video-title" id="video-title">Module Validation Stream</h2>
+                        <div class="meta-pills">
+                            <span class="pill status-pill locked" id="lock-status-pill">Telemetric Tracking Engaged</span>
+                        </div>
+                    </div>
+                </section>
 
-    function init() {
-        if (checkMaintenanceStatus()) return;
+                <!-- Right: Stream Controls & Action Panel -->
+                <section class="control-card">
+                    <div class="control-content">
+                        
+                        <div class="panel-header">
+                            <h3 class="panel-title">Session Telemetry</h3>
+                            <span class="live-dot-badge"><span class="pulse-dot"></span> LIVE</span>
+                        </div>
+                        <p class="panel-instructions" id="instruction-text">Continuous watch verification is active. Maintain focus on this screen to unlock the evaluation matrix.</p>
+                        
+                        <!-- 5-Minute Warning Badge -->
+                        <div id="five-min-alert" class="five-min-alert" style="display: none;">
+                            <span class="alert-icon-mini">⚡</span>
+                            <div>
+                                <strong>Final Minutes Active</strong>
+                                <p>Evaluation form will unlock automatically upon video completion.</p>
+                            </div>
+                        </div>
 
-        initializeThemeEngine();
+                        <!-- 1. PRIMARY ACTION BUTTON (TOP) -->
+                        <div class="main-action-wrapper">
+                            <button id="quiz-btn" class="action-btn locked" disabled>
+                                <span class="btn-icon">🔒</span> <span id="btn-text">Monitoring Stream Telemetry</span>
+                            </button>
+                        </div>
 
-        sessionStorage.removeItem('tara_quiz_access_granted');
-        window.addEventListener('keydown', handleGlobalKeyGuard, true);
+                        <!-- 2. COUNTDOWN EXPIRY BOX -->
+                        <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
+                            <div class="countdown-header-row">
+                                <span class="countdown-tag">⚠️ LIMITED ACCESS WINDOW</span>
+                                <span class="timer-digits-live" id="timer-digits">02:00</span>
+                            </div>
+                            <p class="countdown-desc">Click the button above before timer hits 00:00 to record your attendance.</p>
+                        </div>
 
-        document.addEventListener('fullscreenchange', handleOrientationPipeline);
-        document.addEventListener('webkitfullscreenchange', handleOrientationPipeline);
-        document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
-        document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
+                    </div>
+                </section>
+            </main>
+        </div>
 
-        // ALWAYS-ON RELOAD GUARD LISTENER
-        window.addEventListener('beforeunload', handlePageReloadWarning);
-        setInterval(checkMaintenanceStatus, 15000);
+        <!-- CORPORATE HIGH-CONVERSION POPUP MODAL -->
+        <div id="form-popup-modal" class="popup-overlay" style="display: none;">
+            <div class="popup-card">
+                <div class="popup-icon-badge">🎯</div>
+                <div class="modal-badge">Milestone Reached</div>
+                
+                <h2 class="modal-title">Training Stream Verified!</h2>
+                <p class="modal-sub">
+                    Your viewing duration has been validated. Proceed immediately to the verification form.
+                </p>
 
-        // Bind Direct Action Listeners
-        if (DOM.quizBtn) {
-            DOM.quizBtn.addEventListener('click', executeRedirectToQuiz);
-        }
-        if (DOM.popupActionBtn) {
-            DOM.popupActionBtn.addEventListener('click', executeRedirectToQuiz);
-        }
-        if (DOM.popupDismissBtn) {
-            DOM.popupDismissBtn.addEventListener('click', () => {
-                if (DOM.formPopupModal) DOM.formPopupModal.style.display = 'none';
-            });
-        }
+                <button type="button" id="popup-action-btn" class="modal-highlight-btn">
+                    🚀 Open Evaluation Form & Submit
+                </button>
 
-        const savedName = sessionStorage.getItem('tara_user_name');
-        if (savedName) {
-            launchPortalWorkspace();
-        } else {
-            DOM.loginForm.addEventListener('submit', handleLoginValidation);
-        }
-    }
+                <div class="modal-ticker-box" id="popup-ticker-box">
+                    <div class="ticker-label">⚠️ Access Session Window Active</div>
+                    <div id="popup-timer-digits" class="ticker-digits">02:00</div>
+                    <div id="popup-ticker-sub" class="ticker-sub">
+                        Complete this step before timer hits 00:00
+                    </div>
+                </div>
 
-    /* 🛡️ PERSISTENT RELOAD WARNING (STREAMING + UNLOCKED ACTIVE WINDOW) */
-    function handlePageReloadWarning(e) {
-        // Agar legitimate redirect chal raha hai toh warning na dikhaye
-        if (state.isNavigatingSafely) return;
+                <button type="button" id="popup-dismiss-btn" class="modal-dismiss-btn">
+                    Dismiss Window
+                </button>
+            </div>
+        </div>
 
-        // User logged in hai aur session expire nahi hua hai toh hamesha warning prompt aayega
-        if (sessionStorage.getItem('tara_user_name')) {
-            e.preventDefault();
-            e.returnValue = "Warning: Active training session in progress. Reloading will reset your progress and access privileges.";
-            return e.returnValue;
-        }
-    }
-
-    function handleOrientationPipeline() {
-        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
-        if (isFullscreen) {
-            if (screen.orientation && screen.orientation.lock) { screen.orientation.lock('landscape').catch(function(e){}); }
-        } else {
-            if (screen.orientation && screen.orientation.unlock) { screen.orientation.unlock(); }
-        }
-    }
-
-    function handleGlobalKeyGuard(e) {
-        const blocked = ['ArrowRight', 'ArrowLeft', 'Space', ' '];
-        if (blocked.includes(e.key)) { e.preventDefault(); return false; }
-    }
-
-    async function handleLoginValidation(e) {
-        e.preventDefault();
-        if (checkMaintenanceStatus()) return;
-
-        DOM.loginBtn.setAttribute('disabled', 'true');
-        DOM.loginBtn.textContent = "Verifying Identity...";
-        const email = DOM.loginEmail.value.trim();
-        const code = DOM.loginCode.value.trim();
-
-        try {
-            const response = await fetch(`${CONFIG.API_ENDPOINT}?action=login&email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
-            const data = await response.json();
-            if (data.status === "success") {
-                sessionStorage.setItem('tara_user_name', data.name);
-                sessionStorage.setItem('tara_user_email', data.email);
-                launchPortalWorkspace();
-            } else {
-                alert("Authentication Failed: Invalid credentials.");
-                DOM.loginBtn.removeAttribute('disabled');
-                DOM.loginBtn.textContent = "Authenticate Credentials";
-            }
-        } catch (err) {
-            DOM.loginBtn.removeAttribute('disabled');
-            DOM.loginBtn.textContent = "Authenticate Credentials";
-        }
-    }
-
-    function launchPortalWorkspace() {
-        DOM.loginContainer.style.display = 'none';
-        DOM.portalContent.style.display = 'block';
-        
-        const badge = document.getElementById('user-display-badge');
-        if (badge) {
-            badge.style.display = 'block';
-            badge.textContent = `ID: ${sessionStorage.getItem('tara_user_name')}`;
-        }
-        
-        fetchLessonData();
-    }
-
-    async function fetchLessonData() {
-        try {
-            const response = await fetch(CONFIG.API_ENDPOINT);
-            const data = await response.json();
-            state.lessonNumber = data.no || 1;
-            state.videoUrl = data.video;
-            state.targetDuration = parseInt(data.duration, 10) || 60;
-            renderVideoIframe(state.videoUrl);
-            startStealthProgressTracking();
-        } catch (error) {}
-    }
-
-    function renderVideoIframe(url) {
-        const iframe = document.createElement('iframe');
-        const separator = url.includes('?') ? '&' : '?';
-        iframe.src = `${url}${separator}autoplay=1`;
-        iframe.id = "tara-secure-stream-frame";
-        
-        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock;');
-        iframe.allowFullscreen = true;
-        iframe.webkitAllowFullscreen = true;
-        iframe.mozallowfullscreen = true;
-        
-        iframe.onload = () => { if (DOM.loadingSpinner) DOM.loadingSpinner.style.display = 'none'; };
-        DOM.videoWrapper.appendChild(iframe);
-    }
-
-    /* 🛡️ TAB VISIBILITY PROGRESS TRACKER (HOLD ON MINIMIZE) */
-    function startStealthProgressTracking() {
-        state.durationTimerId = setInterval(() => {
-            if (!document.hidden && !state.isUnlocked) {
-                state.elapsedSeconds++;
-
-                const remaining = state.targetDuration - state.elapsedSeconds;
-                if (remaining > 0 && remaining <= 300) {
-                    if (DOM.fiveMinAlert) DOM.fiveMinAlert.style.display = 'flex';
-                } else {
-                    if (DOM.fiveMinAlert) DOM.fiveMinAlert.style.display = 'none';
-                }
-
-                if (state.elapsedSeconds >= state.targetDuration) {
-                    clearInterval(state.durationTimerId);
-                    if (DOM.fiveMinAlert) DOM.fiveMinAlert.style.display = 'none';
-                    triggerQuizUnlockSequence();
-                }
-            }
-        }, CONFIG.TICK_RATE_MS);
-    }
-
-    function triggerQuizUnlockSequence() {
-        state.isUnlocked = true;
-
-        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-            const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-            if (exitFS) {
-                exitFS.call(document).catch(function(err) {});
-            }
-        }
-
-        if (screen.orientation && screen.orientation.unlock) {
-            screen.orientation.unlock();
-        }
-
-        sessionStorage.setItem('tara_quiz_access_granted', 'true');
-        
-        DOM.lockStatusPill.textContent = "Authorized & Ready";
-        DOM.lockStatusPill.classList.remove('locked');
-        DOM.lockStatusPill.classList.add('unlocked');
-        
-        DOM.quizBtn.removeAttribute('disabled');
-        DOM.quizBtn.classList.remove('locked');
-        DOM.quizBtn.classList.add('unlocked');
-        DOM.quizBtn.querySelector('.btn-icon').textContent = '🚀';
-        DOM.btnText.textContent = "Open Evaluation Form & Complete Module";
-        
-        if (DOM.formPopupModal) {
-            DOM.formPopupModal.style.display = 'flex';
-        }
-
-        initiateExpirationCountdown();
-    }
-
-    /* ⏳ 2-MINUTE EXPIRATION ENGINE */
-    function initiateExpirationCountdown() {
-        if (DOM.countdownWrapper) DOM.countdownWrapper.style.display = 'block';
-        
-        state.countdownTimerId = setInterval(() => {
-            state.countdownRemaining--;
-            
-            const timeStr = formatTime(state.countdownRemaining);
-            if (DOM.timerDigits) DOM.timerDigits.textContent = timeStr;
-            if (DOM.popupTimerDigits) DOM.popupTimerDigits.textContent = timeStr;
-
-            if (state.countdownRemaining <= 0) { 
-                clearInterval(state.countdownTimerId); 
-                enforceRelockSequence(); 
-            }
-        }, CONFIG.TICK_RATE_MS);
-    }
-
-    function enforceRelockSequence() {
-        state.isUnlocked = false;
-        sessionStorage.removeItem('tara_quiz_access_granted');
-        
-        if (DOM.popupActionBtn) {
-            DOM.popupActionBtn.setAttribute('disabled', 'true');
-            DOM.popupActionBtn.innerHTML = "🔒 Access Window Expired";
-            DOM.popupActionBtn.classList.remove('unlocked');
-        }
-
-        if (DOM.popupTickerBox) {
-            DOM.popupTickerBox.style.background = "rgba(239, 68, 68, 0.08)";
-            DOM.popupTickerBox.style.borderColor = "rgba(239, 68, 68, 0.3)";
-        }
-
-        if (DOM.popupTimerDigits) {
-            DOM.popupTimerDigits.textContent = "00:00";
-            DOM.popupTimerDigits.style.color = "var(--accent-danger)";
-        }
-
-        if (DOM.popupTickerSub) {
-            DOM.popupTickerSub.textContent = "Session access window closed. Re-authentication required.";
-            DOM.popupTickerSub.style.color = "var(--accent-danger)";
-        }
-
-        DOM.lockStatusPill.textContent = "Revoked";
-        DOM.lockStatusPill.classList.remove('unlocked');
-        DOM.lockStatusPill.classList.add('locked');
-        
-        DOM.quizBtn.setAttribute('disabled', 'true');
-        DOM.quizBtn.classList.remove('unlocked');
-        DOM.quizBtn.classList.add('locked');
-        DOM.quizBtn.querySelector('.btn-icon').textContent = '🔒';
-        DOM.btnText.textContent = "Session Access Expired";
-
-        if (DOM.timerDigits) {
-            DOM.timerDigits.textContent = "00:00";
-            DOM.timerDigits.style.color = "var(--accent-danger)";
-        }
-    }
-
-    function formatTime(seconds) {
-        return `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
-    }
-
-    function executeRedirectToQuiz() { 
-        if (state.isUnlocked) {
-            // Set flag so safe transition does not trigger beforeunload warning
-            state.isNavigatingSafely = true;
-            window.location.href = 'quiz.html'; 
-        } else {
-            alert("⚠️ Session access has expired. Please re-authenticate.");
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', init);
-})();
+        <footer class="main-footer">
+            <p>&copy; 2026 TARA LMS. Production-Ready Enterprise Architecture. Controlled strictly via Cloud Matrix.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
