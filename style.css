@@ -3,7 +3,6 @@
    ========================================================================== */
 
 :root {
-    /* DEFAULT DARK MODE DESIGN TOKENS */
     --bg-main: #070a13;
     --bg-card: #0f1626;
     --bg-card-alt: #17223b;
@@ -26,7 +25,6 @@
     --max-width: 1240px;
 }
 
-/* LIGHT MODE OVERRIDES */
 [data-theme="light"] {
     --bg-main: #f8fafc;
     --bg-card: #ffffff;
@@ -48,6 +46,12 @@
     padding: 0;
 }
 
+html, body {
+    /* 🛡️ STOPS ACCIDENTAL MOBILE SWIPE-TO-REFRESH */
+    overscroll-behavior-y: contain;
+    touch-action: pan-x pan-y;
+}
+
 body {
     background-color: var(--bg-main);
     color: var(--text-primary);
@@ -67,7 +71,6 @@ body {
     padding: 0 20px;
 }
 
-/* Global Header */
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -123,7 +126,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* Auth Area */
 .workspace-auth {
     flex: 1;
     display: flex;
@@ -200,7 +202,6 @@ body {
     margin-top: 10px;
 }
 
-/* Workspace Layout */
 .workspace {
     flex: 1;
     display: grid;
@@ -279,7 +280,6 @@ body {
     color: var(--accent-success);
 }
 
-/* Control Card Right Side */
 .control-card {
     padding: 24px;
 }
@@ -329,7 +329,6 @@ body {
     line-height: 1.5;
 }
 
-/* 5-Min Alert */
 .five-min-alert {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.06));
     border: 1px solid rgba(245, 158, 11, 0.3);
@@ -352,7 +351,6 @@ body {
     margin-bottom: 18px;
 }
 
-/* Action Buttons */
 .action-btn {
     width: 100%;
     padding: 15px;
@@ -386,7 +384,6 @@ body {
     box-shadow: 0 6px 22px rgba(16, 185, 129, 0.45);
 }
 
-/* Right-Side Countdown Expiry Box */
 .countdown-wrapper {
     background: rgba(245, 158, 11, 0.08);
     border: 1px solid rgba(245, 158, 11, 0.25);
@@ -421,7 +418,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* POPUP MODAL */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -558,7 +554,6 @@ body {
     color: var(--text-primary);
 }
 
-/* Spinner */
 .spinner-container {
     position: absolute;
     top: 0;
@@ -594,7 +589,6 @@ body {
     margin-top: auto;
 }
 
-/* Responsive Mobile Adjustments */
 @media (max-width: 576px) {
     .app-container { padding: 0 14px; }
     .control-card { padding: 18px; }
