@@ -1,5 +1,5 @@
 /**
- * TARA LMS - Core Stream Engine Controller (Production Edition)
+ * TARA LMS - Core Stream Engine Controller (Mobile + Desktop Strict Guard Edition)
  */
 
 (function () {
@@ -131,10 +131,41 @@
         }
     }
 
+    /* 🛡️ MOBILE DUAL-STAGE RELOAD GUARD */
+    function setupMobileStrictReloadGuard() {
+        // 1. Mobile Back-Button / Swipe Lock
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', function (e) {
+            if (!state.isNavigatingSafely && sessionStorage.getItem('tara_user_name')) {
+                window.history.pushState(null, null, window.location.href);
+                alert("⚠️ WARNING: Live training session active! Do not press back or reload.");
+            }
+        });
+
+        // 2. Cross-Device Desktop & Mobile Unload Guard
+        window.addEventListener('beforeunload', handlePageReloadWarning);
+        window.onbeforeunload = handlePageReloadWarning;
+    }
+
+    function handlePageReloadWarning(e) {
+        if (state.isNavigatingSafely) return;
+
+        if (sessionStorage.getItem('tara_user_name')) {
+            const warningMsg = "Warning: Active training session in progress. Reloading will reset your progress.";
+            e = e || window.event;
+            if (e) {
+                e.preventDefault();
+                e.returnValue = warningMsg;
+            }
+            return warningMsg;
+        }
+    }
+
     function init() {
         if (checkMaintenanceStatus()) return;
 
         initializeThemeEngine();
+        setupMobileStrictReloadGuard();
 
         sessionStorage.removeItem('tara_quiz_access_granted');
         window.addEventListener('keydown', handleGlobalKeyGuard, true);
@@ -144,7 +175,6 @@
         document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
         document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
 
-        window.addEventListener('beforeunload', handlePageReloadWarning);
         setInterval(checkMaintenanceStatus, 15000);
 
         if (DOM.quizBtn) DOM.quizBtn.addEventListener('click', executeRedirectToQuiz);
@@ -160,15 +190,6 @@
             launchPortalWorkspace();
         } else {
             DOM.loginForm.addEventListener('submit', handleLoginValidation);
-        }
-    }
-
-    function handlePageReloadWarning(e) {
-        if (state.isNavigatingSafely) return;
-        if (sessionStorage.getItem('tara_user_name')) {
-            e.preventDefault();
-            e.returnValue = "Warning: Active training session in progress. Reloading will reset your progress.";
-            return e.returnValue;
         }
     }
 
@@ -223,6 +244,8 @@
             badge.textContent = `ID: ${sessionStorage.getItem('tara_user_name')}`;
         }
         
+        // Push initial history state on workspace launch
+        window.history.pushState(null, null, window.location.href);
         fetchLessonData();
     }
 
