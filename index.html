@@ -61,6 +61,11 @@
                         <h3 class="panel-title">System Activity Status</h3>
                         <p class="panel-instructions" id="instruction-text">Continuous stream validation active. Complete the viewing duration timeline parameters to unlock validation module gates.</p>
                         
+                        <!-- 5-MINUTE REMAINING ALERT BADGE -->
+                        <div id="five-min-alert" class="five-min-alert" style="display: none;">
+                            ⚡ <b>Final Stage Active:</b> Less than 5 minutes remaining! Evaluation form will unlock shortly.
+                        </div>
+
                         <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
                             <div class="countdown-alert">
                                 <span class="alert-icon">⚠️</span>
@@ -83,6 +88,25 @@
             </main>
         </div>
 
+        <!-- AUTO POPUP MODAL UPON COMPLETION -->
+        <div id="form-popup-modal" class="popup-overlay" style="display: none;">
+            <div class="popup-card">
+                <div style="font-size: 48px; margin-bottom: 12px;">🎉</div>
+                <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Training Stream Completed!</h2>
+                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+                    Your required stream duration has been successfully verified. Please proceed to the evaluation form to record your attendance.
+                </p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button type="button" class="action-btn unlocked" onclick="window.location.href='quiz.html'">
+                        🚀 Open Evaluation Form
+                    </button>
+                    <button type="button" class="dashboard-return-btn" onclick="document.getElementById('form-popup-modal').style.display='none'">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <footer class="main-footer">
             <p>&copy; 2026 TARA LMS. Production-Ready Enterprise Architecture. Controlled strictly via Cloud Matrix.</p>
         </footer>
@@ -90,4 +114,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
