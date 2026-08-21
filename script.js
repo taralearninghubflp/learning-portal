@@ -1,6 +1,10 @@
 /**
- * TARA LMS - Core Stream Engine Controller (Premium Theme & Production Lock Edition)
- * Features: Dark/Light Premium Toggle Logic & 11 PM - 12 AM Automated Maintenance Lockout
+ * TARA LMS - Core Stream Engine Controller (Production Edition)
+ * Features: 
+ * 1. Minimize / Tab-Switch Auto-Hold (Visibility API)
+ * 2. 5-Minute Warning Trigger
+ * 3. Auto-Popup Form Unlock Modal
+ * 4. Accidental Reload Protection
  */
 
 (function () {
@@ -11,14 +15,20 @@
         QUIZ_COUNTDOWN_DURATION: 120,
         TICK_RATE_MS: 1000,
         MAINTENANCE: {
-            START_HOUR: 23, // Real timing: Raat ke 11:00 baje automatic lock hoga
-            END_HOUR: 0     // Real timing: Raat ke 12:00 baje (Midnight) automatic khulega
+            START_HOUR: 23,
+            END_HOUR: 0
         }
     };
 
     let state = {
-        lessonNumber: null, videoUrl: null, targetDuration: 0, elapsedSeconds: 0,
-        countdownRemaining: CONFIG.QUIZ_COUNTDOWN_DURATION, durationTimerId: null, countdownTimerId: null, isUnlocked: false
+        lessonNumber: null, 
+        videoUrl: null, 
+        targetDuration: 0, 
+        elapsedSeconds: 0,
+        countdownRemaining: CONFIG.QUIZ_COUNTDOWN_DURATION, 
+        durationTimerId: null, 
+        countdownTimerId: null, 
+        isUnlocked: false
     };
 
     const DOM = {
@@ -37,18 +47,16 @@
         timerDigits: document.getElementById('timer-digits'),
         quizBtn: document.getElementById('quiz-btn'),
         btnText: document.getElementById('btn-text'),
-        
-        // ☀️ Theme Elements Mapping
+        fiveMinAlert: document.getElementById('five-min-alert'),
+        formPopupModal: document.getElementById('form-popup-modal'),
         themeToggleBtn: document.getElementById('theme-toggle-btn'),
         themeToggleIcon: document.getElementById('theme-toggle-icon')
     };
 
-    // 🔒 REAL MAINTENANCE CHECK ENGINE
     function checkMaintenanceStatus() {
         const now = new Date();
         const currentHour = now.getHours();
 
-        // Agar raat ke 11:00 baje hain (23), toh portal lock screen block actively inject karega
         if (currentHour === CONFIG.MAINTENANCE.START_HOUR) {
             injectMaintenanceUI();
             return true;
@@ -95,7 +103,6 @@
         `;
     }
 
-    // ☀️ THEME MATRIX SYSTEM CONTROL
     function initializeThemeEngine() {
         const savedTheme = localStorage.getItem('tara_lms_theme') || 'dark';
         
@@ -124,7 +131,7 @@
     }
 
     function init() {
-        if (checkMaintenanceStatus()) return; // Lock if time is exactly between 11 PM and 12 AM
+        if (checkMaintenanceStatus()) return;
 
         initializeThemeEngine();
 
@@ -136,7 +143,9 @@
         document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
         document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
 
-        // Continuous real-time loop checking for 11 PM window arrival every 15s
+        // Accidental Reload Warning Guard
+        window.addEventListener('beforeunload', handlePageReloadWarning);
+
         setInterval(checkMaintenanceStatus, 15000);
 
         const savedName = sessionStorage.getItem('tara_user_name');
@@ -144,6 +153,14 @@
             launchPortalWorkspace();
         } else {
             DOM.loginForm.addEventListener('submit', handleLoginValidation);
+        }
+    }
+
+    function handlePageReloadWarning(e) {
+        if (sessionStorage.getItem('tara_user_name') && !state.isUnlocked) {
+            e.preventDefault();
+            e.returnValue = "Warning: Training stream is active. Reloading will reset your viewing progress.";
+            return e.returnValue;
         }
     }
 
@@ -229,12 +246,26 @@
         DOM.videoWrapper.appendChild(iframe);
     }
 
+    /* 🛡️ MINIMIZE / TAB SWITCH AUTO-HOLD TRACKER */
     function startStealthProgressTracking() {
         state.durationTimerId = setInterval(() => {
-            state.elapsedSeconds++;
-            if (state.elapsedSeconds >= state.targetDuration) {
-                clearInterval(state.durationTimerId);
-                triggerQuizUnlockSequence();
+            // Tab visible hone par hi timer aage badhega
+            if (!document.hidden && !state.isUnlocked) {
+                state.elapsedSeconds++;
+
+                // 5-Minute Warning Check (Remaining <= 300 seconds)
+                const remaining = state.targetDuration - state.elapsedSeconds;
+                if (remaining > 0 && remaining <= 300) {
+                    if (DOM.fiveMinAlert) DOM.fiveMinAlert.style.display = 'flex';
+                } else {
+                    if (DOM.fiveMinAlert) DOM.fiveMinAlert.style.display = 'none';
+                }
+
+                if (state.elapsedSeconds >= state.targetDuration) {
+                    clearInterval(state.durationTimerId);
+                    if (DOM.fiveMinAlert) DOM.fiveMinAlert.style.display = 'none';
+                    triggerQuizUnlockSequence();
+                }
             }
         }, CONFIG.TICK_RATE_MS);
     }
@@ -245,9 +276,7 @@
         if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
             const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
             if (exitFS) {
-                exitFS.call(document).catch(function(err) {
-                    console.log("LMS Reset Redirect Restrained:", err);
-                });
+                exitFS.call(document).catch(function(err) {});
             }
         }
 
@@ -264,6 +293,12 @@
         DOM.quizBtn.classList.add('unlocked');
         DOM.quizBtn.querySelector('.btn-icon').textContent = '🚀';
         DOM.btnText.textContent = "Initialize Learning Evaluation Form";
+        
+        // Auto-Popup Form Modal Trigger
+        if (DOM.formPopupModal) {
+            DOM.formPopupModal.style.display = 'flex';
+        }
+
         initiateExpirationCountdown();
     }
 
@@ -272,13 +307,17 @@
         state.countdownTimerId = setInterval(() => {
             state.countdownRemaining--;
             DOM.timerDigits.textContent = formatTime(state.countdownRemaining);
-            if (state.countdownRemaining <= 0) { clearInterval(state.countdownTimerId); enforceRelockSequence(); }
+            if (state.countdownRemaining <= 0) { 
+                clearInterval(state.countdownTimerId); 
+                enforceRelockSequence(); 
+            }
         }, CONFIG.TICK_RATE_MS);
     }
 
     function enforceRelockSequence() {
         state.isUnlocked = false;
         sessionStorage.removeItem('tara_quiz_access_granted');
+        if (DOM.formPopupModal) DOM.formPopupModal.style.display = 'none';
         DOM.lockStatusPill.textContent = "Revoked";
         DOM.lockStatusPill.classList.add('locked');
         DOM.quizBtn.setAttribute('disabled', 'true');
@@ -292,6 +331,9 @@
         return `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
     }
 
+    function handleQuizRedirect() { 
+        if (state.isUnlocked) window.location.href = 'quiz.html'; 
+    }
+
     document.addEventListener('DOMContentLoaded', init);
-    function handleQuizRedirect() { if (state.isUnlocked) window.location.href = 'quiz.html'; }
 })();
