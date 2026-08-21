@@ -20,6 +20,7 @@
             </div>
         </header>
 
+        <!-- Auth Login Container -->
         <div id="login-container" class="workspace-auth" style="display: block;">
             <section class="control-card auth-card">
                 <div style="text-align: center; margin-bottom: 32px;">
@@ -40,6 +41,7 @@
             </section>
         </div>
 
+        <!-- Portal Workspace -->
         <div id="portal-content" style="display: none;">
             <main class="workspace">
                 <section class="video-card">
@@ -66,6 +68,7 @@
                             ⚡ <b>Final Stage Active:</b> Less than 5 minutes remaining! Evaluation form will unlock shortly.
                         </div>
 
+                        <!-- 2-MINUTE EXPIRATION TICKER -->
                         <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
                             <div class="countdown-alert">
                                 <span class="alert-icon">⚠️</span>
@@ -88,22 +91,37 @@
             </main>
         </div>
 
-        <!-- AUTO POPUP MODAL UPON COMPLETION -->
+        <!-- CORPORATE EXECUTIVE POPUP MODAL -->
         <div id="form-popup-modal" class="popup-overlay" style="display: none;">
             <div class="popup-card">
-                <div style="font-size: 48px; margin-bottom: 12px;">🎉</div>
-                <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 8px;">Training Stream Completed!</h2>
-                <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
-                    Your required stream duration has been successfully verified. Please proceed to the evaluation form to record your attendance.
+                <div style="font-size: 42px; margin-bottom: 6px;">🎯</div>
+                <div class="modal-badge">Stream Duration Verified</div>
+                
+                <h2 style="font-size: 22px; font-weight: 800; margin: 10px 0 6px; letter-spacing: -0.3px;">
+                    Training Milestone Completed!
+                </h2>
+                <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+                    Your stream telemetry has been verified. Please proceed to the evaluation form to record your attendance.
                 </p>
-                <div style="display: flex; gap: 12px; justify-content: center;">
-                    <button type="button" class="action-btn unlocked" onclick="window.location.href='quiz.html'">
-                        🚀 Open Evaluation Form
-                    </button>
-                    <button type="button" class="dashboard-return-btn" onclick="document.getElementById('form-popup-modal').style.display='none'">
-                        Dismiss
-                    </button>
+
+                <!-- 1. HIGH-PRIORITY ACTION BUTTON -->
+                <button type="button" id="popup-action-btn" class="action-btn unlocked modal-highlight-btn" onclick="handleQuizRedirect()">
+                    🚀 Open Evaluation Form & Record Attendance
+                </button>
+
+                <!-- 2. LIVE ACCESS EXPIRY TICKER -->
+                <div class="modal-ticker-box" id="popup-ticker-box">
+                    <div class="ticker-label">⚠️ Access Session Window Active</div>
+                    <div id="popup-timer-digits" class="ticker-digits">02:00</div>
+                    <div id="popup-ticker-sub" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                        Complete step before timer hits 00:00
+                    </div>
                 </div>
+
+                <!-- 3. SECONDARY DISMISS BUTTON -->
+                <button type="button" class="modal-dismiss-btn" onclick="document.getElementById('form-popup-modal').style.display='none'">
+                    Dismiss Window
+                </button>
             </div>
         </div>
 
