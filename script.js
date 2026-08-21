@@ -1,10 +1,10 @@
 /**
  * TARA LMS - Core Stream Engine Controller (Production Edition)
- * Features: 
- * 1. Minimize / Tab-Switch Auto-Hold (Visibility API)
+ * Features:
+ * 1. Active Tab Tracking (Minimize Auto-Hold)
  * 2. 5-Minute Warning Trigger
- * 3. Auto-Popup Form Unlock Modal
- * 4. Accidental Reload Protection
+ * 3. Persistent Popup Modal (Locks Button When Expired)
+ * 4. Reload Guard
  */
 
 (function () {
@@ -12,7 +12,7 @@
 
     const CONFIG = {
         API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec',
-        QUIZ_COUNTDOWN_DURATION: 120,
+        QUIZ_COUNTDOWN_DURATION: 120, // 2 Minutes
         TICK_RATE_MS: 1000,
         MAINTENANCE: {
             START_HOUR: 23,
@@ -45,6 +45,10 @@
         instructionText: document.getElementById('instruction-text'),
         countdownWrapper: document.getElementById('countdown-wrapper'),
         timerDigits: document.getElementById('timer-digits'),
+        popupTimerDigits: document.getElementById('popup-timer-digits'),
+        popupActionBtn: document.getElementById('popup-action-btn'),
+        popupTickerBox: document.getElementById('popup-ticker-box'),
+        popupTickerSub: document.getElementById('popup-ticker-sub'),
         quizBtn: document.getElementById('quiz-btn'),
         btnText: document.getElementById('btn-text'),
         fiveMinAlert: document.getElementById('five-min-alert'),
@@ -143,9 +147,7 @@
         document.addEventListener('mozfullscreenchange', handleOrientationPipeline);
         document.addEventListener('MSFullscreenChange', handleOrientationPipeline);
 
-        // Accidental Reload Warning Guard
         window.addEventListener('beforeunload', handlePageReloadWarning);
-
         setInterval(checkMaintenanceStatus, 15000);
 
         const savedName = sessionStorage.getItem('tara_user_name');
@@ -246,14 +248,12 @@
         DOM.videoWrapper.appendChild(iframe);
     }
 
-    /* 🛡️ MINIMIZE / TAB SWITCH AUTO-HOLD TRACKER */
+    /* 🛡️ TAB VISIBILITY PROGRESS TRACKER */
     function startStealthProgressTracking() {
         state.durationTimerId = setInterval(() => {
-            // Tab visible hone par hi timer aage badhega
             if (!document.hidden && !state.isUnlocked) {
                 state.elapsedSeconds++;
 
-                // 5-Minute Warning Check (Remaining <= 300 seconds)
                 const remaining = state.targetDuration - state.elapsedSeconds;
                 if (remaining > 0 && remaining <= 300) {
                     if (DOM.fiveMinAlert) DOM.fiveMinAlert.style.display = 'flex';
@@ -294,7 +294,7 @@
         DOM.quizBtn.querySelector('.btn-icon').textContent = '🚀';
         DOM.btnText.textContent = "Initialize Learning Evaluation Form";
         
-        // Auto-Popup Form Modal Trigger
+        // Show Popup Modal
         if (DOM.formPopupModal) {
             DOM.formPopupModal.style.display = 'flex';
         }
@@ -302,11 +302,16 @@
         initiateExpirationCountdown();
     }
 
+    /* ⏳ 2-MINUTE EXPIRATION ENGINE */
     function initiateExpirationCountdown() {
         DOM.countdownWrapper.style.display = 'block';
         state.countdownTimerId = setInterval(() => {
             state.countdownRemaining--;
-            DOM.timerDigits.textContent = formatTime(state.countdownRemaining);
+            
+            const timeStr = formatTime(state.countdownRemaining);
+            if (DOM.timerDigits) DOM.timerDigits.textContent = timeStr;
+            if (DOM.popupTimerDigits) DOM.popupTimerDigits.textContent = timeStr;
+
             if (state.countdownRemaining <= 0) { 
                 clearInterval(state.countdownTimerId); 
                 enforceRelockSequence(); 
@@ -317,8 +322,31 @@
     function enforceRelockSequence() {
         state.isUnlocked = false;
         sessionStorage.removeItem('tara_quiz_access_granted');
-        if (DOM.formPopupModal) DOM.formPopupModal.style.display = 'none';
+        
+        // Modal remains on screen, but locks actions
+        if (DOM.popupActionBtn) {
+            DOM.popupActionBtn.setAttribute('disabled', 'true');
+            DOM.popupActionBtn.innerHTML = "🔒 Access Window Expired";
+            DOM.popupActionBtn.classList.remove('unlocked');
+        }
+
+        if (DOM.popupTickerBox) {
+            DOM.popupTickerBox.style.background = "rgba(239, 68, 68, 0.08)";
+            DOM.popupTickerBox.style.borderColor = "rgba(239, 68, 68, 0.3)";
+        }
+
+        if (DOM.popupTimerDigits) {
+            DOM.popupTimerDigits.textContent = "00:00";
+            DOM.popupTimerDigits.style.color = "var(--accent-danger)";
+        }
+
+        if (DOM.popupTickerSub) {
+            DOM.popupTickerSub.textContent = "Session access has ended. You must re-authenticate.";
+            DOM.popupTickerSub.style.color = "var(--accent-danger)";
+        }
+
         DOM.lockStatusPill.textContent = "Revoked";
+        DOM.lockStatusPill.classList.remove('unlocked');
         DOM.lockStatusPill.classList.add('locked');
         DOM.quizBtn.setAttribute('disabled', 'true');
         DOM.quizBtn.classList.remove('unlocked');
@@ -331,9 +359,13 @@
         return `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
     }
 
-    function handleQuizRedirect() { 
-        if (state.isUnlocked) window.location.href = 'quiz.html'; 
-    }
+    window.handleQuizRedirect = function() { 
+        if (state.isUnlocked) {
+            window.location.href = 'quiz.html'; 
+        } else {
+            alert("⚠️ Session access expired. Please re-authenticate.");
+        }
+    };
 
     document.addEventListener('DOMContentLoaded', init);
 })();
