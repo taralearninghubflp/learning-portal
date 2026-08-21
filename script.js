@@ -1,12 +1,5 @@
 /**
  * TARA LMS - Core Stream Engine Controller (Production Edition)
- * Features:
- * 1. Direct Event Listener Binding (Fixes Popup Link Redirection)
- * 2. Active Tab Tracking (Auto-Holds on Tab Switch / Minimize)
- * 3. 5-Minute Warning Badge Alert
- * 4. 2-Minute Expiry Countdown (Syncs on Page & Inside Popup)
- * 5. Button Status Locking on Expiry
- * 6. Reload Guard Protection
  */
 
 (function () {
@@ -30,7 +23,8 @@
         countdownRemaining: CONFIG.QUIZ_COUNTDOWN_DURATION, 
         durationTimerId: null, 
         countdownTimerId: null, 
-        isUnlocked: false
+        isUnlocked: false,
+        isNavigatingSafely: false
     };
 
     const DOM = {
@@ -153,13 +147,8 @@
         window.addEventListener('beforeunload', handlePageReloadWarning);
         setInterval(checkMaintenanceStatus, 15000);
 
-        // Bind Direct Action Listeners
-        if (DOM.quizBtn) {
-            DOM.quizBtn.addEventListener('click', executeRedirectToQuiz);
-        }
-        if (DOM.popupActionBtn) {
-            DOM.popupActionBtn.addEventListener('click', executeRedirectToQuiz);
-        }
+        if (DOM.quizBtn) DOM.quizBtn.addEventListener('click', executeRedirectToQuiz);
+        if (DOM.popupActionBtn) DOM.popupActionBtn.addEventListener('click', executeRedirectToQuiz);
         if (DOM.popupDismissBtn) {
             DOM.popupDismissBtn.addEventListener('click', () => {
                 if (DOM.formPopupModal) DOM.formPopupModal.style.display = 'none';
@@ -175,9 +164,10 @@
     }
 
     function handlePageReloadWarning(e) {
-        if (sessionStorage.getItem('tara_user_name') && !state.isUnlocked) {
+        if (state.isNavigatingSafely) return;
+        if (sessionStorage.getItem('tara_user_name')) {
             e.preventDefault();
-            e.returnValue = "Warning: Training stream is active. Reloading will reset your viewing progress.";
+            e.returnValue = "Warning: Active training session in progress. Reloading will reset your progress.";
             return e.returnValue;
         }
     }
@@ -263,7 +253,6 @@
         DOM.videoWrapper.appendChild(iframe);
     }
 
-    /* 🛡️ TAB VISIBILITY PROGRESS TRACKER (HOLD ON MINIMIZE) */
     function startStealthProgressTracking() {
         state.durationTimerId = setInterval(() => {
             if (!document.hidden && !state.isUnlocked) {
@@ -290,9 +279,7 @@
 
         if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
             const exitFS = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-            if (exitFS) {
-                exitFS.call(document).catch(function(err) {});
-            }
+            if (exitFS) exitFS.call(document).catch(function(err) {});
         }
 
         if (screen.orientation && screen.orientation.unlock) {
@@ -301,19 +288,16 @@
 
         sessionStorage.setItem('tara_quiz_access_granted', 'true');
         
-        // Update Video Card Pill
         DOM.lockStatusPill.textContent = "Authorized & Ready";
         DOM.lockStatusPill.classList.remove('locked');
         DOM.lockStatusPill.classList.add('unlocked');
         
-        // Unlock Primary Page Button
         DOM.quizBtn.removeAttribute('disabled');
         DOM.quizBtn.classList.remove('locked');
         DOM.quizBtn.classList.add('unlocked');
         DOM.quizBtn.querySelector('.btn-icon').textContent = '🚀';
         DOM.btnText.textContent = "Open Evaluation Form & Complete Module";
         
-        // Show Popup Modal
         if (DOM.formPopupModal) {
             DOM.formPopupModal.style.display = 'flex';
         }
@@ -321,7 +305,6 @@
         initiateExpirationCountdown();
     }
 
-    /* ⏳ 2-MINUTE EXPIRATION ENGINE */
     function initiateExpirationCountdown() {
         if (DOM.countdownWrapper) DOM.countdownWrapper.style.display = 'block';
         
@@ -343,7 +326,6 @@
         state.isUnlocked = false;
         sessionStorage.removeItem('tara_quiz_access_granted');
         
-        // Lock Popup Modal Elements (Stays visible with expired state)
         if (DOM.popupActionBtn) {
             DOM.popupActionBtn.setAttribute('disabled', 'true');
             DOM.popupActionBtn.innerHTML = "🔒 Access Window Expired";
@@ -365,7 +347,6 @@
             DOM.popupTickerSub.style.color = "var(--accent-danger)";
         }
 
-        // Lock Primary Page Button
         DOM.lockStatusPill.textContent = "Revoked";
         DOM.lockStatusPill.classList.remove('unlocked');
         DOM.lockStatusPill.classList.add('locked');
@@ -388,6 +369,7 @@
 
     function executeRedirectToQuiz() { 
         if (state.isUnlocked) {
+            state.isNavigatingSafely = true;
             window.location.href = 'quiz.html'; 
         } else {
             alert("⚠️ Session access has expired. Please re-authenticate.");
