@@ -119,7 +119,7 @@
 
         DOM.fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) processMultipleFilesToDrive(Array.from(e.target.files)); });
         ['dragenter', 'dragover'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.add('drag-over'); }, false); });
-        ['dragleave', 'drop'].forEach(name => { DOM.dropzone.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false);
+        ['dragleave', 'drop'].forEach(name => { DOM.dropzone.addEventListener(name, (e) => { e.preventDefault(); DOM.dropzone.classList.remove('drag-over'); }, false); });
         DOM.dropzone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length > 0) processMultipleFilesToDrive(Array.from(e.dataTransfer.files)); });
     }
 
@@ -175,7 +175,7 @@
                 <div class="matrix-card" id="${cardId}">
                     <span class="file-icon">${ext === 'pdf' ? '📕' : '🖼️'}</span>
                     <div class="file-info">
-                        <p class="name">${file.name}</p>
+                        <p class="name">${file.name.replace(/[<>&"]/g, "")}</p>
                         <p class="meta" style="color: var(--accent-success); font-weight:700;">Verified</p>
                     </div>
                     <button type="button" class="remove-file-btn" data-index="${i}" title="Remove this file">❌</button>
@@ -257,13 +257,12 @@
                 formData.append(`file${i}`, validationState.fileUploadPayloads[i]);
             }
 
-            await fetch(DISCORD_WEBHOOK_URL, {
-                method: 'POST',
-                body: formData
-            });
+            const dr = await fetch(DISCORD_WEBHOOK_URL, { method: 'POST', body: formData });
+            if (!dr.ok) throw new Error('Discord upload failed: ' + dr.status);
 
             DOM.btnText.textContent = "Verification Complete! Finalizing...";
             sessionStorage.removeItem('tara_quiz_access_granted');
+            try { const d = new Date().toLocaleDateString('en-CA'); localStorage.setItem(`tara_done_${userEmail.toLowerCase()}_${d}`, '1'); } catch (e) {}
             window.scrollTo({ top: 0, behavior: 'smooth' });
             DOM.formContainer.style.display = 'none'; DOM.successContainer.style.display = 'block';
             if(DOM.verificationStatus) DOM.verificationStatus.textContent = "Status: Processed & Discord Synced";
