@@ -30,6 +30,7 @@ input:focus,textarea:focus,.btn:focus-visible{outline:2px solid var(--brand);out
 .cta{margin-top:14px;display:grid;gap:10px}
 .stage{position:relative;aspect-ratio:16/9;background:#000;border-radius:var(--r);overflow:hidden}
 .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.shield{position:absolute;inset:0;z-index:2;clip-path:polygon(0 0,100% 0,100% 84%,78% 84%,78% 100%,0 100%)}
 .hud{padding:12px 2px;font-size:13px;font-weight:700;display:flex;gap:10px;align-items:center}
 .bar{flex:1;height:6px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width 1s linear}
 .ov{position:absolute;inset:0;z-index:5;background:rgba(5,10,12,.9);color:#fff;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:20px}
@@ -62,16 +63,16 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:20px}
  <div class="card"><h2 id="calt"></h2><div class="cal" id="cal"></div></div>
 </div>
 <div class="cta card"><p id="state" class="mute"></p><button class="btn" id="start">Start today's learning</button>
-<p class="mute" style="font-size:12px">Watch the video from start to finish and use the full screen icon on the player for the best view. A presence check appears during playback. After the video ends, you have 2 minutes to open the form.</p></div>
+<p class="mute" style="font-size:12px">Watch the video in one sitting, from start to finish. Leaving the page restarts it. Use the full screen icon on the player for the best view. A presence check appears during playback. After the video ends, you have 2 minutes to open the form.</p></div>
 </section>
 
 <section id="watch" hidden>
-<div class="stage" id="stage"><div id="player"></div>
+<div class="stage" id="stage"><div id="player"></div><div class="shield" id="shield"></div>
  <div class="ov" id="fsgate" hidden><h2>Tip: use full screen</h2><p>Tap the full screen icon at the bottom-right of the video for the best view.</p><button class="btn" id="fsback">Got it</button></div>
  <div class="ov" id="check" hidden><h2>Are you still watching?</h2><p>Tap within 20 seconds or the video restarts.</p><button class="btn" id="here">I'm here ✋</button></div>
 </div>
-<div class="hud"><span>LIVE</span><div class="bar"><i id="pbar"></i></div><span id="pt">00:00</span></div>
-<p class="mute" style="margin-top:4px">Keep this screen in focus. The timer pauses if you switch tabs or apps. The video starts automatically; tap play if it does not.</p>
+<button class="btn ghost" id="noplay" style="margin-top:12px" hidden>Video not starting? Enable player controls</button>
+<p class="mute" style="margin-top:4px">Watch the video in one sitting. The timer pauses if you switch tabs or apps, and leaving this page restarts the video.</p>
 </section>
 
 <form id="qf" class="card" novalidate hidden>
@@ -140,10 +141,10 @@ function drawDash(){const h=hist(),[c,b]=streakCalc(h),n=new Date(),y=n.getFullY
  $('cal').innerHTML=html;$('mon').textContent=cnt;
  const done=h.includes(day()),pass=jget(K('pass')),win=jget(K('win'),0),prog=jget(K('prog'));
  $('start').disabled=done;
- $('state').textContent=done?"Today's learning is complete. See you tomorrow.":pass&&pass.until>Date.now()?'Your form is open. You can submit it directly.':win>Date.now()?'Video complete. Open the form before the timer ends.':prog&&prog.elapsed>0?'Your progress is saved. Resume where you left off.':"Today's learning is pending.";
- $('start').textContent=done?'Completed ✔':pass&&pass.until>Date.now()?'Continue to form':win>Date.now()?'Open form':prog&&prog.elapsed>0?'Resume learning':"Start today's learning"}
+ $('state').textContent=done?"Today's learning is complete. See you tomorrow.":pass&&pass.until>Date.now()?'Your form is open. You can submit it directly.':win>Date.now()?'Video complete. Open the form before the timer ends.':"Today's learning is pending.";
+ $('start').textContent=done?'Completed ✔':pass&&pass.until>Date.now()?'Continue to form':win>Date.now()?'Open form':"Start today's learning"}
 async function getLesson(){if(L)return L;const d=await(await fetch(API)).json();L={no:d.no||1,video:d.video,dur:parseInt(d.duration,10)||60};
- const p=jget(K('prog'));el=p&&p.lesson===L.no?p.elapsed:0;return L}
+ el=0;return L}
 async function launch(){view('dash');$('user').hidden=false;$('user').textContent=sessionStorage.getItem('tara_user_name');drawDash();
  try{await getLesson()}catch(e){toast('Could not load the lesson. Please refresh the page.')}}
 
@@ -155,18 +156,19 @@ function handle(){if(!L)return toast('The lesson is still loading. Please try ag
 function build(){$('player').innerHTML='';const f=document.createElement('iframe'),u=L.video;
  f.src=u+(u.includes('?')?'&':'?')+'autoplay=1';f.setAttribute('allow','autoplay; encrypted-media; fullscreen');f.allowFullscreen=true;$('player').appendChild(f)}
 function mk(){checks=[Math.floor(L.dur*.3),Math.floor(L.dur*.65)].filter(x=>x>el&&x>5)}
-function save(){jset(K('prog'),{lesson:L.no,elapsed:el})}
-function startWatch(){view('watch');watching=true;chk=null;build();mk();clearInterval(timer);timer=setInterval(tick,1000);tick()}
+function save(){}
+function startWatch(){view('watch');watching=true;chk=null;$('shield').hidden=false;$('noplay').hidden=false;build();mk();clearInterval(timer);timer=setInterval(tick,1000);tick()}
 function tick(){
  if(chk){if(Date.now()>chk.dl)fail();return}
  if(document.hidden)return;
- el++;$('pbar').style.width=Math.min(100,el/L.dur*100)+'%';$('pt').textContent=fmt(Math.max(L.dur-el,0))+' left';
- if(el%5===0)save();
+ el++;
+ if(el===25)$('noplay').hidden=true;
  if(!fsEl()&&el>5&&el%75===10){$('fsgate').hidden=false;clearTimeout(fsTipT);fsTipT=setTimeout(()=>{$('fsgate').hidden=true},9000)}
  if(checks.includes(el)){chk={dl:Date.now()+CHK*1000};if(fsEl())exitFS();$('fsgate').hidden=true;$('check').hidden=false}
  if(el>=L.dur)finish()}
 function fail(){chk=null;$('check').hidden=true;el=0;save();mk();build();toast('Presence check missed. The video will restart.')}
 $('here').onclick=()=>{chk=null;$('check').hidden=true};
+$('noplay').onclick=()=>{$('shield').hidden=true;$('noplay').hidden=true};
 $('fsback').onclick=()=>{$('fsgate').hidden=true};
 function finish(){clearInterval(timer);watching=false;exitFS();save();jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
 
