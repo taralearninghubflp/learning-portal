@@ -145,6 +145,7 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 <footer>© 2026 TARA LMS</footer>
 
 <div class="sheet" id="fsModal"><div class="card"><div class="ico">⛶</div><h2>Watch in full screen</h2><p>Rotate your phone and go full screen for the best view of today's session.</p><button class="btn" id="fsGo">Go full screen</button><button class="later" id="fsLater">Not now</button></div></div>
+<div class="modal" id="bkModal" style="z-index:4000" hidden><div class="card"><div style="font-size:46px">⚠️</div><h2>Go back?</h2><p class="mute" id="bkMsg" style="margin:6px 0 18px"></p><button class="btn" id="bkStay">Stay here</button><button class="later" id="bkLeave">Leave</button></div></div>
 <div class="modal" id="modal" hidden><div class="card"><div style="font-size:46px">🎯</div><h2 id="mt">Video complete!</h2><p class="mute" id="ms" style="margin-top:4px">Open the form now. Time left:</p><div class="time" id="mtime">02:00</div><button class="btn go" id="mgo">Open form</button></div></div>
 
 <script>
@@ -295,6 +296,21 @@ const Form=(()=>{
  return {open}})();
 $('back').onclick=()=>{drawDash();view('dash')};
 
+/* ===== accidental Back-button guard (video + form) ===== */
+const guarded=()=>watching||!$('qf').hidden;
+function leaveToDash(){
+ if(watching){clearInterval(timer);watching=false;chk=null;el=0;try{pj&&pj.pause()}catch(e){}exitFs();$('fsModal').classList.remove('open');$('check').hidden=true}
+ view('dash');drawDash()}
+function askBack(){
+ $('bkMsg').textContent=watching?'If you leave now, today\'s video will restart from the beginning.':'You are on the notes form. Your typed answers are saved, but you will leave this form.';
+ $('bkLeave').textContent=watching?'Leave and restart video':'Leave form';
+ $('bkModal').hidden=false}
+try{history.replaceState({tara:'base'},'');history.pushState({tara:'guard'},'')}catch(e){}
+addEventListener('popstate',()=>{
+ if(guarded()){try{history.pushState({tara:'guard'},'')}catch(e){}askBack()}   // stay on page, show warning
+ else history.back()});                                                         // dashboard/login: normal back
+$('bkStay').onclick=()=>{$('bkModal').hidden=true};
+$('bkLeave').onclick=()=>{$('bkModal').hidden=true;leaveToDash()};
 addEventListener('beforeunload',e=>{if(watching){e.preventDefault();e.returnValue=''}});
 addEventListener('keydown',e=>{if(watching&&['ArrowRight','ArrowLeft',' ','k','K'].includes(e.key))e.preventDefault()},true);
 $('login-form').addEventListener('submit',login);
