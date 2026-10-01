@@ -1,5 +1,52 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TARA LMS</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<title>TARA LMS</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet"><style>
+:root{--bg:#0d1214;--s1:#151c1f;--s2:#1c2629;--ink:#eef3f2;--mute:#8da09c;--line:#26343a;--brand:#2dd4bf;--bi:#04211d;--warn:#fbbf24;--bad:#f87171;--ok:#34d399;--r:16px}
+[data-theme=light]{--bg:#f4f7f6;--s1:#fff;--s2:#eaf1ef;--ink:#10201d;--mute:#5b706b;--line:#d5e2de;--brand:#0f9d8a;--bi:#fff;--warn:#b7791f;--bad:#c53030;--ok:#15803d}
+*{box-sizing:border-box;margin:0;padding:0}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;min-height:100dvh;overscroll-behavior-y:contain}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 40px}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.logo{font-weight:800;font-size:20px}.logo b{color:var(--brand)}
+.row{display:flex;align-items:center;gap:10px}
+.chip,.icon-btn{background:var(--s2);border:1px solid var(--line);color:var(--ink);border-radius:99px;padding:6px 14px;font-size:13px;font-weight:600}
+.icon-btn{width:40px;height:40px;padding:0;cursor:pointer;font-size:16px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+h1{font-size:clamp(24px,5vw,34px);letter-spacing:-.5px;line-height:1.2}h2{font-size:17px;margin-bottom:10px}
+.mute{color:var(--mute);font-size:14px}
+.btn{width:100%;border:0;border-radius:12px;padding:15px;font:700 15px inherit;cursor:pointer;background:var(--brand);color:var(--bi);transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.98)}.btn:disabled{background:var(--s2);color:var(--mute);cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
+input[type=email],input[type=password],textarea{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px;font:inherit}
+input:focus,textarea:focus,.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.auth{max-width:400px;margin:8vh auto 0}
+.grid{display:grid;gap:14px;margin-top:18px}@media(min-width:760px){.grid{grid-template-columns:1fr 1.4fr}}
+.streak{text-align:center}.flame{font-size:44px}.big{font-size:56px;font-weight:800;line-height:1;color:var(--brand)}
+.stats{display:flex;justify-content:space-around;margin-top:14px;font-size:13px;color:var(--mute)}.stats b{display:block;color:var(--ink);font-size:18px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}.cal .h{font-size:11px;color:var(--mute);font-weight:700}
+.d{aspect-ratio:1;display:grid;place-items:center;border-radius:10px;background:var(--s2);font-size:13px;animation:pop .35s both}
+.d.on{background:var(--brand);color:var(--bi);font-weight:800}.d.today{outline:2px solid var(--warn)}.d.e{background:none}
+@keyframes pop{from{opacity:0;transform:scale(.6)}}
+.cta{margin-top:14px;display:grid;gap:10px}
+.stage{position:relative;aspect-ratio:16/9;background:#000;border-radius:var(--r);overflow:hidden}
+.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.shield{position:absolute;inset:0;z-index:2}
+.hud{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:10px 14px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:12px;font-weight:700;display:flex;gap:10px;align-items:center}
+.bar{flex:1;height:5px;background:rgba(255,255,255,.25);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width 1s linear}
+.ov{position:absolute;inset:0;z-index:5;background:rgba(5,10,12,.9);color:#fff;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:20px}
+.ov .btn{width:auto;padding:13px 28px}
+.modal{position:fixed;inset:0;z-index:99;background:rgba(5,10,12,.85);backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px}
+.modal .card{max-width:400px;width:100%;text-align:center;animation:pop .3s both}
+.time{font-size:44px;font-weight:800;color:var(--warn);font-variant-numeric:tabular-nums}.time.bad{color:var(--bad)}
+.sec{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}.sec p.q{font-weight:700;margin-bottom:8px}
+.cnt{font-size:12px;color:var(--mute);float:right}.cnt.ok{color:var(--ok)}
+.opt{display:flex;gap:10px;margin:8px 0;cursor:pointer}.opt input{accent-color:var(--brand);width:18px;height:18px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;cursor:pointer}.drop.over{border-color:var(--brand)}
+.file{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:13px}.file span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file button{background:none;border:0;cursor:pointer;color:var(--bad);font-size:16px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--s2);border:1px solid var(--line);padding:12px 18px;border-radius:12px;z-index:200;font-weight:600;max-width:90vw}
+footer{text-align:center;color:var(--mute);font-size:12px;padding:20px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
 <div class="wrap">
 <header><div class="logo"><b>TARA</b> LMS</div><div class="row"><span class="chip" id="user" hidden></span><button class="icon-btn" id="theme" aria-label="Theme">🌙</button></div></header>
 
@@ -28,8 +75,164 @@
 <p class="mute" style="margin-top:12px">Keep this screen in focus. The timer pauses if you switch tabs or apps.</p>
 </section>
 
+<form id="qf" class="card" novalidate hidden>
+<h1>Verify today's learning</h1><p class="mute">Your answers are saved automatically, even if you switch apps to use the camera.</p>
+<div class="sec"><p class="q">1. Did you watch the complete video?</p>
+<label class="opt"><input type="radio" name="w" value="yes">Yes, I watched it completely without skipping</label>
+<label class="opt"><input type="radio" name="w" value="no">No, I did not watch it completely</label></div>
+<div class="sec"><p class="q">2. What is your biggest learning from today's video? <span class="cnt" id="c2">0 / 50</span></p><textarea id="t2" rows="4" placeholder="Write in your own words..."></textarea></div>
+<div class="sec"><p class="q">3. What one action will you implement today? <span class="cnt" id="c3">0 / 30</span></p><textarea id="t3" rows="3"></textarea></div>
+<div class="sec"><p class="q">4. Write three important points from today's learning <span class="cnt" id="c4">0 / 80</span></p><textarea id="t4" rows="5" placeholder="1.&#10;2.&#10;3."></textarea></div>
+<div class="sec"><p class="q">5. Upload your notes (photo or PDF, up to 5 files)</p>
+<div class="drop" id="drop">📁 Tap to choose files or drag and drop<input type="file" id="fi" accept=".jpg,.jpeg,.png,.pdf" multiple hidden></div><div id="files"></div></div>
+<div class="sec"><p class="q">6. Confidence rating: <b id="rv">5</b>/10</p><input type="range" id="rate" min="1" max="10" value="5" style="width:100%;accent-color:var(--brand)"></div>
+<div class="sec"><label class="opt"><input type="checkbox" id="ok">I personally watched the complete video and these answers are my own.</label></div>
+<div style="margin-top:18px"><button class="btn" id="qsub" disabled>Submit & complete</button></div></form>
+<div class="card" id="done" hidden style="text-align:center"><div style="font-size:56px">🎉</div><h1>Learning complete!</h1><p class="mute" style="margin:8px 0 18px">Your attendance has been recorded.</p><button class="btn" id="back">Back to dashboard</button></div>
+
 <div class="modal" id="modal" hidden><div class="card"><div style="font-size:44px">🎯</div><h2 id="mt">Video complete!</h2>
 <p class="mute" id="ms">Time left to open the form:</p><div class="time" id="mtime">02:00</div>
 <div style="margin-top:16px"><button class="btn" id="mgo">Open form</button></div></div></div>
 <footer>© 2026 TARA LMS</footer></div>
-<script src="script.js"></script></body></html>
+<script>
+(()=>{'use strict';
+const API='https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec';
+const WIN=120,PASS_MIN=60,CHK=20;
+const $=i=>document.getElementById(i);
+const day=()=>new Date().toLocaleDateString('en-CA');
+const em=()=>(sessionStorage.getItem('tara_user_email')||'').toLowerCase();
+const K=n=>`tara_${n}_${em()}_${day()}`;
+const jget=(k,d=null)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const jset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+const root=document.documentElement,fsOK=!!(root.requestFullscreen||root.webkitRequestFullscreen);
+const reqFS=e=>{try{return (e.requestFullscreen||e.webkitRequestFullscreen).call(e)}catch(x){}};
+const exitFS=()=>{try{(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(x){}};
+let L=null,el=0,timer,winT,checks=[],chk=null,watching=false,leaving=false,expired=false;
+const toast=t=>{const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3500)};
+const view=n=>['login','dash','watch','qf','done'].forEach(v=>$(v).hidden=v!==n);
+
+/* theme */
+const setT=t=>{t==='light'?root.setAttribute('data-theme','light'):root.removeAttribute('data-theme');$('theme').textContent=t==='light'?'☀️':'🌙'};
+setT(localStorage.getItem('tara_lms_theme')||'dark');
+$('theme').onclick=()=>{const n=root.getAttribute('data-theme')==='light'?'dark':'light';localStorage.setItem('tara_lms_theme',n);setT(n)};
+
+/* login */
+async function login(e){e.preventDefault();const b=$('lbtn');b.disabled=true;b.textContent='Checking...';
+ try{const d=await(await fetch(`${API}?action=login&email=${encodeURIComponent($('em').value.trim())}&code=${encodeURIComponent($('pw').value.trim())}`)).json();
+  if(d.status==='success'){sessionStorage.setItem('tara_user_name',d.name);sessionStorage.setItem('tara_user_email',d.email);return launch()}
+  toast('Incorrect email or passcode.')}catch(x){toast('Network error. Please try again.')}
+ b.disabled=false;b.textContent='Login'}
+
+/* dashboard */
+const hist=()=>jget(`tara_hist_${em()}`,[]);
+function streakCalc(h){const s=new Set(h);let d=new Date(),c=0;if(!s.has(d.toLocaleDateString('en-CA')))d.setDate(d.getDate()-1);
+ while(s.has(d.toLocaleDateString('en-CA'))){c++;d.setDate(d.getDate()-1)}
+ const a=[...s].sort();let best=0,run=0,p=null;a.forEach(x=>{run=p&&(new Date(x)-new Date(p))===864e5?run+1:1;best=Math.max(best,run);p=x});return[c,best]}
+function drawDash(){const h=hist(),[c,b]=streakCalc(h),n=new Date(),y=n.getFullYear(),m=n.getMonth();
+ $('hi').textContent='Hello, '+(sessionStorage.getItem('tara_user_name')||'');$('streak').textContent=c;$('best').textContent=b;
+ $('calt').textContent=n.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+ let html='SMTWTFS'.split('').map(x=>`<div class="h">${x}</div>`).join('');
+ const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();let cnt=0;
+ for(let i=0;i<first;i++)html+='<div class="d e"></div>';
+ for(let i=1;i<=dim;i++){const k=`${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`,on=h.includes(k);cnt+=on;
+  html+=`<div class="d${on?' on':''}${i===n.getDate()?' today':''}" style="animation-delay:${i*12}ms">${on?'✓':i}</div>`}
+ $('cal').innerHTML=html;$('mon').textContent=cnt;
+ const done=h.includes(day()),pass=jget(K('pass')),win=jget(K('win'),0),prog=jget(K('prog'));
+ $('start').disabled=done;
+ $('state').textContent=done?"Today's learning is complete. See you tomorrow.":pass&&pass.until>Date.now()?'Your form is open. You can submit it directly.':win>Date.now()?'Video complete. Open the form before the timer ends.':prog&&prog.elapsed>0?'Your progress is saved. Resume where you left off.':"Today's learning is pending.";
+ $('start').textContent=done?'Completed ✔':pass&&pass.until>Date.now()?'Continue to form':win>Date.now()?'Open form':prog&&prog.elapsed>0?'Resume learning':"Start today's learning"}
+async function getLesson(){if(L)return L;const d=await(await fetch(API)).json();L={no:d.no||1,video:d.video,dur:parseInt(d.duration,10)||60};
+ const p=jget(K('prog'));el=p&&p.lesson===L.no?p.elapsed:0;return L}
+async function launch(){view('dash');$('user').hidden=false;$('user').textContent=sessionStorage.getItem('tara_user_name');drawDash();
+ try{await getLesson()}catch(e){toast('Could not load the lesson. Please refresh the page.')}}
+
+/* start / resume */
+function handle(){if(!L)return toast('The lesson is still loading. Please try again in a moment.');
+ const pass=jget(K('pass'));if(pass&&pass.lesson===L.no&&pass.until>Date.now()){return Form.open()}
+ if(jget(K('win'),0)>Date.now())return openModal();
+ startWatch()}
+function build(){$('player').innerHTML='';const f=document.createElement('iframe'),u=L.video;
+ f.src=u+(u.includes('?')?'&':'?')+'autoplay=1';f.setAttribute('allow','autoplay; encrypted-media; fullscreen');f.allowFullscreen=true;$('player').appendChild(f)}
+function mk(){checks=[Math.floor(L.dur*.3),Math.floor(L.dur*.65)].filter(x=>x>el&&x>5)}
+function save(){jset(K('prog'),{lesson:L.no,elapsed:el})}
+function startWatch(){view('watch');watching=true;chk=null;reqFS($('stage'));build();mk();clearInterval(timer);timer=setInterval(tick,1000);tick()}
+function tick(){const inFS=!fsOK||!!fsEl();$('fsgate').hidden=inFS||!!chk;
+ if(chk){if(Date.now()>chk.dl)fail();return}
+ if(document.hidden||!inFS)return;
+ el++;$('pbar').style.width=Math.min(100,el/L.dur*100)+'%';$('pt').textContent=fmt(Math.max(L.dur-el,0))+' left';
+ if(el%5===0)save();
+ if(checks.includes(el)){chk={dl:Date.now()+CHK*1000};$('check').hidden=false}
+ if(el>=L.dur)finish()}
+function fail(){chk=null;$('check').hidden=true;el=0;save();mk();build();toast('Presence check missed. The video will restart.')}
+$('here').onclick=()=>{chk=null;$('check').hidden=true};
+$('fsback').onclick=()=>reqFS($('stage'));
+function finish(){clearInterval(timer);watching=false;exitFS();save();jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
+
+/* 2-minute window */
+function openModal(){expired=false;$('modal').hidden=false;$('mt').textContent='Video complete!';$('ms').textContent='Time left to open the form:';$('mgo').textContent='Open form';$('mtime').className='time';
+ clearInterval(winT);const t=()=>{const r=Math.ceil((jget(K('win'),0)-Date.now())/1000);if(r<=0){clearInterval(winT);return expire()}$('mtime').textContent=fmt(r)};t();winT=setInterval(t,500)}
+function expire(){expired=true;localStorage.removeItem(K('win'));el=0;if(L)save();$('mtime').textContent='00:00';$('mtime').className='time bad';
+ $('mt').textContent='Time expired';$('ms').textContent='The form was not opened in time, so you need to watch the video again.';$('mgo').textContent='Watch again'}
+$('mgo').onclick=()=>{if(expired){$('modal').hidden=true;return startWatch()}
+ jset(K('pass'),{lesson:L.no,until:Date.now()+PASS_MIN*60000});localStorage.removeItem(K('win'));clearInterval(winT);$('modal').hidden=true;Form.open()};
+$('start').onclick=handle;
+
+/* ===== Learning verification form ===== */
+const Form=(()=>{'use strict';
+
+const WEBHOOK='PASTE_NEW_DISCORD_WEBHOOK_URL_HERE'; // Replace with a new webhook (the previous one was exposed publicly)
+const API='https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec';
+const MIN={t2:50,t3:30,t4:80},MAXF=5;
+const $=i=>document.getElementById(i);
+let day,email,name,pass;
+const K=n=>`tara_${n}_${email}_${day}`;
+const jget=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+let files=[];
+
+/* Draft autosave: answers survive camera switches, back navigation and reloads */
+const saveDraft=()=>{try{localStorage.setItem(K('draft'),JSON.stringify({w:(document.querySelector('[name=w]:checked')||{}).value||'',t2:$('t2').value,t3:$('t3').value,t4:$('t4').value,r:$('rate').value,ok:$('ok').checked}))}catch(e){}};
+function check(){const v=['t2','t3','t4'].every(k=>$(k).value.trim().length>=MIN[k]);
+ ['t2','t3','t4'].forEach(k=>{const n=$(k).value.trim().length,c=$('c'+k[1]);c.textContent=`${n} / ${MIN[k]}`;c.classList.toggle('ok',n>=MIN[k])});
+ $('rv').textContent=$('rate').value;
+ $('qsub').disabled=!(v&&(document.querySelector('[name=w]:checked')||{}).value==='yes'&&files.length&&$('ok').checked);saveDraft()}
+function restore(){const d=jget(K('draft'));if(d){if(d.w)document.querySelector(`[name=w][value=${d.w}]`).checked=true;$('t2').value=d.t2||'';$('t3').value=d.t3||'';$('t4').value=d.t4||'';$('rate').value=d.r||5;$('ok').checked=!!d.ok}}
+document.querySelectorAll('#qf textarea,#qf input').forEach(e=>e.addEventListener('input',check));
+
+/* files */
+function draw(){const box=$('files');box.innerHTML='';files.forEach((f,i)=>{const r=document.createElement('div');r.className='file';
+ const s=document.createElement('span');s.textContent=(/pdf$/i.test(f.name)?'📕 ':'🖼️ ')+f.name;const b=document.createElement('button');b.type='button';b.textContent='✕';b.setAttribute('aria-label','Remove');
+ b.onclick=e=>{e.stopPropagation();files.splice(i,1);draw()};r.append(s,b);box.appendChild(r)});check()}
+function add(list){for(const f of list){if(files.length>=MAXF){alert('Maximum '+MAXF+' files');break}
+ if(!/\.(jpe?g|png|pdf)$/i.test(f.name)){alert(f.name+': only JPG, PNG and PDF files are allowed.');continue}files.push(f)}$('fi').value='';draw()}
+$('drop').onclick=()=>$('fi').click();$('fi').onclick=e=>e.stopPropagation();$('fi').onchange=e=>add([...e.target.files]);
+['dragenter','dragover'].forEach(n=>$('drop').addEventListener(n,e=>{e.preventDefault();$('drop').classList.add('over')}));
+['dragleave','drop'].forEach(n=>$('drop').addEventListener(n,e=>{e.preventDefault();$('drop').classList.remove('over')}));
+$('drop').addEventListener('drop',e=>add([...e.dataTransfer.files]));
+
+/* submit */
+$('qf').addEventListener('submit',async e=>{e.preventDefault();if($('qsub').disabled)return;$('qsub').disabled=true;$('qsub').textContent='Submitting...';
+ try{
+  await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({userName:name,userEmail:email,watchConfirm:'yes',biggestLearning:$('t2').value.trim(),actionImplementation:$('t3').value.trim(),importantPoints:$('t4').value.trim(),confidenceRating:$('rate').value,sheetsCount:files.length})});
+  const fd=new FormData();fd.append('payload_json',JSON.stringify({embeds:[{title:'📝 New Notes Submission',color:3066993,fields:[{name:'Name',value:name,inline:true},{name:'Email',value:email,inline:true},{name:'Sheets',value:String(files.length),inline:true},{name:'Date',value:day,inline:true}]}]}));
+  files.forEach((f,i)=>fd.append('file'+i,f));
+  const r=await fetch(WEBHOOK,{method:'POST',body:fd});if(!r.ok)throw new Error('upload '+r.status);
+  const h=jget(`tara_hist_${email}`)||[];if(!h.includes(day))h.push(day);localStorage.setItem(`tara_hist_${email}`,JSON.stringify(h));
+  ['pass','draft','win','prog'].forEach(n=>localStorage.removeItem(K(n)));
+  view('done');scrollTo({top:0,behavior:'smooth'});
+ }catch(err){console.error(err);alert('Submission failed. Please check your connection and try again. Your answers are saved.');$('qsub').disabled=false;$('qsub').textContent='Submit & complete'}});
+
+function open(){day=new Date().toLocaleDateString('en-CA');email=(sessionStorage.getItem('tara_user_email')||'').toLowerCase();name=sessionStorage.getItem('tara_user_name')||'Anonymous';pass=jget(K('pass'));if(!pass||pass.until<Date.now()){toast('Form access is not available. Please watch the video first.');return false}files=[];draw();restore();view('qf');scrollTo(0,0);check();return true}
+return {open};
+})();
+$('back').onclick=()=>{drawDash();view('dash')};
+
+addEventListener('beforeunload',e=>{if(watching&&!leaving){save();e.preventDefault();e.returnValue=''}});
+addEventListener('pagehide',()=>{if(L&&watching)save()});
+addEventListener('keydown',e=>{if(watching&&['ArrowRight','ArrowLeft',' ','k','K'].includes(e.key))e.preventDefault()},true);
+$('login-form').addEventListener('submit',login);
+if(sessionStorage.getItem('tara_user_name'))launch();
+
+})();
+</script></body></html>
