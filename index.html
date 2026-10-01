@@ -1,102 +1,155 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TARA LMS</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet"><style>
-:root{--bg:#0d1214;--s1:#151c1f;--s2:#1c2629;--ink:#eef3f2;--mute:#8da09c;--line:#26343a;--brand:#2dd4bf;--bi:#04211d;--warn:#fbbf24;--bad:#f87171;--ok:#34d399;--r:16px}
-[data-theme=light]{--bg:#f4f7f6;--s1:#fff;--s2:#eaf1ef;--ink:#10201d;--mute:#5b706b;--line:#d5e2de;--brand:#0f9d8a;--bi:#fff;--warn:#b7791f;--bad:#c53030;--ok:#15803d}
-*{box-sizing:border-box;margin:0;padding:0}[hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font:15px/1.55 'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;min-height:100dvh;overscroll-behavior-y:contain}
-.wrap{max-width:980px;margin:0 auto;padding:0 16px 40px}
-header{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
-.logo{font-weight:800;font-size:20px}.logo b{color:var(--brand)}
-.row{display:flex;align-items:center;gap:10px}
-.chip,.icon-btn{background:var(--s2);border:1px solid var(--line);color:var(--ink);border-radius:99px;padding:6px 14px;font-size:13px;font-weight:600}
-.icon-btn{width:40px;height:40px;padding:0;cursor:pointer;font-size:16px}
-.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:20px}
-h1{font-size:clamp(24px,5vw,34px);letter-spacing:-.5px;line-height:1.2}h2{font-size:17px;margin-bottom:10px}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TARA LMS · Daily Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://assets.mediadelivery.net/playerjs/player-0.1.0.min.js"></script>
+<style>
+:root{--bg:#F3F5FA;--card:#fff;--ink:#0F1B33;--mute:#5B6B88;--line:#E3E8F1;--pri:#2F54EB;--pi:#fff;--soft:#EEF2FF;--ok:#16A34A;--warn:#F59E0B;--bad:#EF4444;--sh:0 1px 2px rgba(15,27,51,.06),0 10px 30px rgba(15,27,51,.07);--r:18px;--sb:env(safe-area-inset-bottom,0px)}
+[data-theme=dark]{--bg:#0A1020;--card:#111A30;--ink:#E8EEFB;--mute:#8FA0C2;--line:#1E2A47;--pri:#6C8BFF;--pi:#0A1020;--soft:#16213F;--sh:0 10px 30px rgba(0,0,0,.4)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;min-height:100dvh;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
+button,input,textarea{font:inherit;color:inherit}:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.tr{max-width:1000px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.logo{font-weight:800;font-size:18px;letter-spacing:-.3px}.logo b{color:var(--pri)}
+.row{display:flex;gap:10px;align-items:center}
+.chip{font-size:12.5px;font-weight:700;padding:6px 12px;border:1px solid var(--line);border-radius:99px;color:var(--mute);max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:17px;transition:transform .2s}.ib:hover{transform:rotate(18deg)}
+.wrap{max-width:1000px;margin:auto;padding:18px 16px calc(40px + var(--sb))}
+h1{font-size:clamp(24px,5vw,34px);letter-spacing:-.03em;line-height:1.15;font-weight:800}h2{font-size:18px;font-weight:800}
 .mute{color:var(--mute);font-size:14px}
-.btn{width:100%;border:0;border-radius:12px;padding:15px;font:700 15px inherit;cursor:pointer;background:var(--brand);color:var(--bi);transition:transform .15s,opacity .2s}
-.btn:active{transform:scale(.98)}.btn:disabled{background:var(--s2);color:var(--mute);cursor:not-allowed}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
-label.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
-input[type=email],input[type=password],textarea{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:13px;font:inherit}
-input:focus,textarea:focus,.btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.auth{max-width:400px;margin:8vh auto 0}
-.grid{display:grid;gap:14px;margin-top:18px}@media(min-width:760px){.grid{grid-template-columns:1fr 1.4fr}}
-.streak{text-align:center}.flame{font-size:44px}.big{font-size:56px;font-weight:800;line-height:1;color:var(--brand)}
-.stats{display:flex;justify-content:space-around;margin-top:14px;font-size:13px;color:var(--mute)}.stats b{display:block;color:var(--ink);font-size:18px}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}.cal .h{font-size:11px;color:var(--mute);font-weight:700}
-.d{aspect-ratio:1;display:grid;place-items:center;border-radius:10px;background:var(--s2);font-size:13px;animation:pop .35s both}
-.d.on{background:var(--brand);color:var(--bi);font-weight:800}.d.today{outline:2px solid var(--warn)}.d.e{background:none}
-@keyframes pop{from{opacity:0;transform:scale(.6)}}
-.cta{margin-top:14px;display:grid;gap:10px}
-.stage{position:relative;aspect-ratio:16/9;background:#000;border-radius:var(--r);overflow:hidden}
-.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.shield{position:absolute;inset:0;z-index:2;clip-path:polygon(0 0,100% 0,100% 84%,78% 84%,78% 100%,0 100%)}
-.hud{padding:12px 2px;font-size:13px;font-weight:700;display:flex;gap:10px;align-items:center}
-.bar{flex:1;height:6px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width 1s linear}
-.ov{position:absolute;inset:0;z-index:5;background:rgba(5,10,12,.9);color:#fff;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:20px}
-.ov .btn{width:auto;padding:13px 28px}
-.modal{position:fixed;inset:0;z-index:99;background:rgba(5,10,12,.85);backdrop-filter:blur(6px);display:grid;place-items:center;padding:18px}
-.modal .card{max-width:400px;width:100%;text-align:center;animation:pop .3s both}
-.time{font-size:44px;font-weight:800;color:var(--warn);font-variant-numeric:tabular-nums}.time.bad{color:var(--bad)}
-.sec{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px}.sec p.q{font-weight:700;margin-bottom:8px}
-.cnt{font-size:12px;color:var(--mute);float:right}.cnt.ok{color:var(--ok)}
-.opt{display:flex;gap:10px;margin:8px 0;cursor:pointer}.opt input{accent-color:var(--brand);width:18px;height:18px}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;cursor:pointer}.drop.over{border-color:var(--brand)}
-.file{display:flex;align-items:center;gap:8px;background:var(--s2);border-radius:10px;padding:8px 12px;margin-top:8px;font-size:13px}.file span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file button{background:none;border:0;cursor:pointer;color:var(--bad);font-size:16px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--s2);border:1px solid var(--line);padding:12px 18px;border-radius:12px;z-index:200;font-weight:600;max-width:90vw}
-footer{text-align:center;color:var(--mute);font-size:12px;padding:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
+.btn{width:100%;height:56px;border:0;border-radius:14px;background:var(--pri);color:var(--pi);font-weight:800;font-size:16px;cursor:pointer;transition:transform .15s,box-shadow .2s,opacity .2s;box-shadow:0 8px 20px color-mix(in srgb,var(--pri) 35%,transparent)}
+.btn:hover:not(:disabled){transform:translateY(-2px)}.btn:active:not(:disabled){transform:scale(.98)}
+.btn:disabled{background:var(--soft);color:var(--mute);box-shadow:none;cursor:not-allowed}
+.btn.go{background:linear-gradient(135deg,#16A34A,#0EA5A4);color:#fff;animation:glow 2s infinite}
+@keyframes glow{50%{box-shadow:0 8px 34px rgba(22,163,74,.55)}}
+/* login */
+.login{display:grid;gap:16px;max-width:900px;margin:2vh auto 0}@media(min-width:820px){.login{grid-template-columns:1.1fr 1fr;align-items:stretch}}
+.hero{position:relative;overflow:hidden;border-radius:24px;background:#0B1635;color:#fff;padding:32px 24px;min-height:220px}
+.hero:before,.hero:after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(70px);opacity:.6;animation:drift 12s ease-in-out infinite alternate}
+.hero:before{background:#2F54EB;top:-110px;right:-70px}.hero:after{background:#0EA5A4;bottom:-160px;left:-90px;animation-delay:-5s}
+@keyframes drift{to{transform:translate(-40px,30px) scale(1.15)}}.hero>*{position:relative;z-index:1}
+.hero h2{font-size:26px;line-height:1.2;margin:14px 0 8px}.hero p{opacity:.8;font-size:14px}
+.badge{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#fff;color:#2F54EB;font-weight:800;font-size:20px}
+.f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
+.in{width:100%;height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);padding:0 16px;font-size:16px;transition:.2s}
+textarea.in{height:auto;padding:12px 14px;resize:vertical}.in:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px color-mix(in srgb,var(--pri) 18%,transparent)}
+.pw{position:relative}.pw button{position:absolute;right:6px;top:6px;height:40px;padding:0 12px;border:0;background:none;color:var(--pri);font-weight:700;cursor:pointer}
+.rise{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}@keyframes rise{from{opacity:0;transform:translateY(22px)}}
+/* steps */
+.steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0 6px;text-align:center;font-size:12.5px;font-weight:700;color:var(--mute)}
+.steps:before,.steps:after{content:"";position:absolute;top:15px;left:16.67%;height:3px;border-radius:9px}.steps:before{right:16.67%;background:var(--line)}
+.steps:after{width:calc(66.66% * var(--p,0));background:var(--pri);transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.st b{position:relative;z-index:1;display:grid;place-items:center;width:32px;height:32px;margin:0 auto 6px;border-radius:50%;background:var(--card);border:2px solid var(--line);font-size:13px;transition:.4s}
+.st.on{color:var(--ink)}.st.on b{background:var(--pri);border-color:var(--pri);color:var(--pi)}.st.cur b{border-color:var(--pri);color:var(--pri);background:var(--card);animation:ring 1.8s infinite}
+@keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--pri) 45%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
+/* dash */
+.hero2{position:relative;overflow:hidden}.hero2 .btn{margin-top:14px}
+.lm{display:inline-flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;font-weight:700;background:var(--soft);padding:6px 12px;border-radius:99px}
+.rules{display:grid;gap:12px;margin-top:16px}@media(min-width:700px){.rules{grid-template-columns:repeat(4,1fr)}}
+.rule{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;transition:transform .25s,border-color .25s;cursor:default}.rule:hover{transform:translateY(-4px);border-color:var(--pri)}
+.rule span{font-size:26px;display:block;margin-bottom:6px}.rule b{display:block;font-size:14px}.rule p{font-size:12.5px;color:var(--mute);margin-top:2px}
+/* watch */
+.wbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:800}
+.live{display:inline-flex;gap:7px;align-items:center;font-size:12px;font-weight:800;color:var(--bad);background:rgba(239,68,68,.1);padding:6px 11px;border-radius:99px}.live i{width:7px;height:7px;border-radius:50%;background:var(--bad);animation:bl 1.2s infinite}@keyframes bl{50%{opacity:.25}}
+.stage{position:relative;background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;box-shadow:var(--sh)}
+.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}#player{position:absolute;inset:0}
+.stage.pseudo{position:fixed;inset:0;z-index:1500;border-radius:0;aspect-ratio:auto}
+@media(orientation:portrait){.stage.pseudo{inset:auto;top:0;left:0;width:100vh;height:100vw;transform-origin:0 0;transform:rotate(90deg) translateY(-100%)}}
+.ov{position:absolute;inset:0;z-index:5;background:rgba(6,12,28,.92);color:#fff;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:20px;animation:rise .3s both}
+.ov .btn{width:auto;padding:0 30px}.unmute{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;border:0;border-radius:99px;padding:10px 16px;background:#fff;color:#0F1B33;font-weight:800;font-size:13px;cursor:pointer}
+/* sheet + modal */
+.sheet{position:fixed;inset:0;z-index:2000;background:rgba(6,12,28,.55);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;padding:16px}.sheet.open{display:flex}
+.sheet .card{width:100%;max-width:420px;text-align:center;margin-bottom:var(--sb);animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+.sheet .ico{font-size:34px;width:68px;height:68px;margin:0 auto 12px;border-radius:20px;background:var(--soft);display:grid;place-items:center;animation:spin 2.4s ease-in-out infinite}@keyframes spin{40%,60%{transform:rotate(90deg)}}
+.sheet p{margin:6px 0 16px;color:var(--mute);font-size:14px}.later{width:100%;height:44px;border:0;background:none;color:var(--mute);font-weight:700;margin-top:6px;cursor:pointer}
+.modal{position:fixed;inset:0;z-index:3000;background:rgba(6,12,28,.8);backdrop-filter:blur(8px);display:grid;place-items:center;padding:18px}
+.modal .card{max-width:400px;width:100%;text-align:center;animation:rise .4s both}
+.time{font-size:46px;font-weight:800;color:var(--warn);font-variant-numeric:tabular-nums;margin:6px 0 14px}.time.bad{color:var(--bad)}
+/* form */
+.fp{position:sticky;top:61px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:14px;box-shadow:var(--sh)}
+.fp div.t{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:6px}.bar{height:8px;border-radius:9px;background:var(--soft);overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--pri),#0EA5A4);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.sec{position:relative;border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;background:var(--card);transition:border-color .3s}
+.sec.ok{border-color:var(--ok)}.sec.ok:after{content:"✓";position:absolute;top:-11px;right:14px;width:24px;height:24px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800;animation:pop .4s cubic-bezier(.2,1.6,.4,1)}@keyframes pop{from{transform:scale(0)}}
+.q{font-weight:700;margin-bottom:10px}.cnt{float:right;font-size:12px;color:var(--mute);font-weight:700}.cnt.ok{color:var(--ok)}
+.opt{display:flex;gap:10px;align-items:flex-start;margin:8px 0;cursor:pointer;font-size:14px}.opt input{accent-color:var(--pri);width:20px;height:20px;flex:none}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;transition:.2s;color:var(--mute);font-weight:600}.drop:hover,.drop.over{border-color:var(--pri);background:var(--soft)}
+.file{display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:12px;padding:9px 12px;margin-top:8px;font-size:13px;font-weight:600;animation:rise .3s both}.file span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file button{background:none;border:0;cursor:pointer;color:var(--bad);font-size:16px}
+.rate{font-size:30px;text-align:center;margin:4px 0}input[type=range]{width:100%;accent-color:var(--pri);height:28px}
+.done{text-align:center;padding:36px 20px}.done .ck{width:84px;height:84px;margin:0 auto 14px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:40px;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+.cf{position:fixed;top:-14px;width:9px;height:14px;z-index:4000;animation:fall linear forwards;pointer-events:none}@keyframes fall{to{transform:translateY(108vh) rotate(720deg)}}
+.toast{position:fixed;left:50%;bottom:calc(24px + var(--sb));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;z-index:5000;font-weight:700;font-size:14px;max-width:90vw;animation:rise .3s both}
+.maint{position:fixed;inset:0;z-index:9000;background:#0B1635;color:#fff;display:grid;place-items:center;text-align:center;padding:24px}
+footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style></head><body>
-<div class="wrap">
-<header><div class="logo"><b>TARA</b> LMS</div><div class="row"><span class="chip" id="user" hidden></span><button class="icon-btn" id="theme" aria-label="Theme">🌙</button></div></header>
+</style>
+</head>
+<body>
+<div class="maint" id="maint" hidden><div><div style="font-size:64px">⚙️</div><h2 style="margin:10px 0">Daily data sync in progress</h2><p style="max-width:420px;opacity:.8">The portal is offline from 11:00 PM to 12:00 AM. Please come back after midnight.</p></div></div>
 
-<section id="login" class="card auth"><h1>Welcome back</h1><p class="mute">Sign in to start today's learning.</p>
-<form id="login-form"><label class="f" for="em">Email</label><input type="email" id="em" required autocomplete="email">
-<label class="f" for="pw">Passcode</label><input type="password" id="pw" required autocomplete="current-password">
-<div style="margin-top:18px"><button class="btn" id="lbtn">Sign in</button></div></form></section>
+<header class="top"><div class="tr"><div class="logo"><b>TARA</b> LMS</div><div class="row"><span class="chip" id="user" hidden></span><button class="ib" id="theme" aria-label="Toggle theme">🌙</button></div></div></header>
+
+<main class="wrap">
+<section id="login" class="login rise">
+ <div class="hero"><div class="badge">T</div><h2>Learn daily.<br>Verified every day.</h2><p>Watch today's session, submit your notes, and keep your learning on record.</p></div>
+ <form id="login-form" class="card"><h2>Sign in</h2><p class="mute">Use your registered email and passcode.</p>
+  <label class="f" for="em">Email address</label><input class="in" type="email" id="em" required autocomplete="email" placeholder="name@domain.com">
+  <label class="f" for="pw">Passcode</label><div class="pw"><input class="in" type="password" id="pw" required autocomplete="current-password" placeholder="Enter passcode"><button type="button" id="eye">Show</button></div>
+  <div style="margin-top:20px"><button class="btn" id="lbtn">Sign in</button></div></form>
+</section>
 
 <section id="dash" hidden>
-<h1 id="hi">Hello</h1><p class="mute" id="sub"></p>
-<div class="grid">
- <div class="card streak"><div class="flame">🔥</div><div class="big" id="streak">0</div><p class="mute">day streak</p>
- <div class="stats"><div><b id="best">0</b>best</div><div><b id="mon">0</b>this month</div></div></div>
- <div class="card"><h2 id="calt"></h2><div class="cal" id="cal"></div></div>
-</div>
-<div class="cta card"><p id="state" class="mute"></p><button class="btn" id="start">Start today's learning</button>
-<p class="mute" style="font-size:12px">Watch the video in one sitting, from start to finish. Leaving the page restarts it. Use the full screen icon on the player for the best view. A presence check appears during playback. After the video ends, you have 2 minutes to open the form.</p></div>
+ <div class="card hero2 rise"><h1 id="hi">Hello</h1><p class="mute" id="state" style="margin-top:6px"></p><div class="lm" id="lmeta" hidden></div>
+  <div class="steps"><div class="st"><b>1</b>Watch video</div><div class="st"><b>2</b>Open form</div><div class="st"><b>3</b>Submit notes</div></div>
+  <button class="btn" id="start">Start today's learning</button></div>
+ <div class="rules">
+  <div class="rule rise"><span>🎬</span><b>One sitting</b><p>Watch the full video without leaving. Leaving restarts it.</p></div>
+  <div class="rule rise" style="animation-delay:.08s"><span>📱</span><b>Stay on screen</b><p>The timer pauses when you switch tabs or apps.</p></div>
+  <div class="rule rise" style="animation-delay:.16s"><span>✋</span><b>Presence checks</b><p>Two quick taps confirm you are watching.</p></div>
+  <div class="rule rise" style="animation-delay:.24s"><span>⏱️</span><b>2-minute window</b><p>Open the form within 2 minutes of the video ending.</p></div>
+ </div>
 </section>
 
 <section id="watch" hidden>
-<div class="stage" id="stage"><div id="player"></div><div class="shield" id="shield"></div>
- <div class="ov" id="fsgate" hidden><h2>Tip: use full screen</h2><p>Tap the full screen icon at the bottom-right of the video for the best view.</p><button class="btn" id="fsback">Got it</button></div>
- <div class="ov" id="check" hidden><h2>Are you still watching?</h2><p>Tap within 20 seconds or the video restarts.</p><button class="btn" id="here">I'm here ✋</button></div>
-</div>
-<button class="btn ghost" id="noplay" style="margin-top:12px" hidden>Video not starting? Enable player controls</button>
-<p class="mute" style="margin-top:4px">Watch the video in one sitting. The timer pauses if you switch tabs or apps, and leaving this page restarts the video.</p>
+ <div class="wbar"><span id="wl">Today's lesson</span><span class="live"><i></i>Live tracking</span></div>
+ <div class="stage" id="stage"><div id="player"></div><button class="unmute" id="unmute" hidden>🔊 Tap to unmute</button>
+  <div class="ov" id="check" hidden><h2>Are you still watching?</h2><p style="opacity:.8">Tap within 20 seconds or the video restarts.</p><button class="btn" id="here">I'm here ✋</button></div></div>
+ <div class="card" style="margin-top:14px"><div class="steps" style="margin:0"><div class="st"><b>1</b>Watch video</div><div class="st"><b>2</b>Open form</div><div class="st"><b>3</b>Submit notes</div></div>
+ <p class="mute" style="margin-top:12px;text-align:center">The form link appears automatically when the video ends. Do not close this page.</p></div>
 </section>
 
-<form id="qf" class="card" novalidate hidden>
-<h1>Verify today's learning</h1><p class="mute">Your answers are saved automatically, even if you switch apps to use the camera.</p>
-<div class="sec"><p class="q">1. Did you watch the complete video?</p>
-<label class="opt"><input type="radio" name="w" value="yes">Yes, I watched it completely without skipping</label>
-<label class="opt"><input type="radio" name="w" value="no">No, I did not watch it completely</label></div>
-<div class="sec"><p class="q">2. What is your biggest learning from today's video? <span class="cnt" id="c2">0 / 50</span></p><textarea id="t2" rows="4" placeholder="Write in your own words..."></textarea></div>
-<div class="sec"><p class="q">3. What one action will you implement today? <span class="cnt" id="c3">0 / 30</span></p><textarea id="t3" rows="3"></textarea></div>
-<div class="sec"><p class="q">4. Write three important points from today's learning <span class="cnt" id="c4">0 / 80</span></p><textarea id="t4" rows="5" placeholder="1.&#10;2.&#10;3."></textarea></div>
-<div class="sec"><p class="q">5. Upload your notes (photo or PDF, up to 5 files)</p>
-<div class="drop" id="drop">📁 Tap to choose files or drag and drop<input type="file" id="fi" accept=".jpg,.jpeg,.png,.pdf" multiple hidden></div><div id="files"></div></div>
-<div class="sec"><p class="q">6. Confidence rating: <b id="rv">5</b>/10</p><input type="range" id="rate" min="1" max="10" value="5" style="width:100%;accent-color:var(--brand)"></div>
-<div class="sec"><label class="opt"><input type="checkbox" id="ok">I personally watched the complete video and these answers are my own.</label></div>
-<div style="margin-top:18px"><button class="btn" id="qsub" disabled>Submit & complete</button></div></form>
-<div class="card" id="done" hidden style="text-align:center"><div style="font-size:56px">🎉</div><h1>Learning complete!</h1><p class="mute" style="margin:8px 0 18px">Your attendance has been recorded.</p><button class="btn" id="back">Back to dashboard</button></div>
+<form id="qf" novalidate hidden>
+ <div class="fp"><div class="t"><span>Learning verification</span><span id="fpt">0 of 6 completed</span></div><div class="bar"><i id="fpb"></i></div></div>
+ <p class="mute">Your answers save automatically, even if you switch apps to use the camera.</p>
+ <div class="sec" id="s1"><p class="q">1. Did you watch the complete video?</p>
+  <label class="opt"><input type="radio" name="w" value="yes">Yes, I watched it completely without skipping</label>
+  <label class="opt"><input type="radio" name="w" value="no">No, I did not watch it completely</label></div>
+ <div class="sec" id="s2"><p class="q">2. What is your biggest learning from today's video? <span class="cnt" id="c2">0 / 50</span></p><textarea class="in" id="t2" rows="4" placeholder="Write in your own words..."></textarea></div>
+ <div class="sec" id="s3"><p class="q">3. What one action will you implement today? <span class="cnt" id="c3">0 / 30</span></p><textarea class="in" id="t3" rows="3"></textarea></div>
+ <div class="sec" id="s4"><p class="q">4. Write three important points from today's learning <span class="cnt" id="c4">0 / 80</span></p><textarea class="in" id="t4" rows="5" placeholder="1.&#10;2.&#10;3."></textarea></div>
+ <div class="sec" id="s5"><p class="q">5. Upload your notes (photo or PDF, up to 5 files)</p>
+  <div class="drop" id="drop">📁 Tap to choose files or drag and drop<input type="file" id="fi" accept=".jpg,.jpeg,.png,.pdf" multiple hidden></div><div id="files"></div></div>
+ <div class="sec"><p class="q">6. How confident do you feel about today's learning?</p><div class="rate" id="rv">🙂 5</div><input type="range" id="rate" min="1" max="10" value="5"></div>
+ <div class="sec" id="s6"><label class="opt"><input type="checkbox" id="ok">I personally watched the complete video and these answers are my own.</label></div>
+ <div style="margin-top:18px"><button class="btn" id="qsub" disabled>Submit and complete</button></div>
+</form>
 
-<div class="modal" id="modal" hidden><div class="card"><div style="font-size:44px">🎯</div><h2 id="mt">Video complete!</h2>
-<p class="mute" id="ms">Time left to open the form:</p><div class="time" id="mtime">02:00</div>
-<div style="margin-top:16px"><button class="btn" id="mgo">Open form</button></div></div></div>
-<footer>© 2026 TARA LMS</footer></div>
+<section id="done" class="card done" hidden><div class="ck">✓</div><h1>Learning complete</h1><p class="mute" style="margin:8px 0 20px">Your attendance has been recorded. See you tomorrow.</p><button class="btn" id="back">Back to dashboard</button></section>
+</main>
+<footer>© 2026 TARA LMS</footer>
+
+<div class="sheet" id="fsModal"><div class="card"><div class="ico">⛶</div><h2>Watch in full screen</h2><p>Rotate your phone and go full screen for the best view of today's session.</p><button class="btn" id="fsGo">Go full screen</button><button class="later" id="fsLater">Not now</button></div></div>
+<div class="modal" id="modal" hidden><div class="card"><div style="font-size:46px">🎯</div><h2 id="mt">Video complete!</h2><p class="mute" id="ms" style="margin-top:4px">Open the form now. Time left:</p><div class="time" id="mtime">02:00</div><button class="btn go" id="mgo">Open form</button></div></div>
+
 <script>
 (()=>{'use strict';
 const API='https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec';
+const WEBHOOK='PASTE_NEW_DISCORD_WEBHOOK_URL_HERE'; // replace with a NEW webhook (the old one was public)
 const WIN=120,PASS_MIN=60,CHK=20;
 const $=i=>document.getElementById(i);
 const day=()=>new Date().toLocaleDateString('en-CA');
@@ -105,136 +158,145 @@ const K=n=>`tara_${n}_${em()}_${day()}`;
 const jget=(k,d=null)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
 const jset=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
-const root=document.documentElement,fsOK=!!(root.requestFullscreen||root.webkitRequestFullscreen);
-const reqFS=e=>{try{return (e.requestFullscreen||e.webkitRequestFullscreen).call(e)}catch(x){}};
-const exitFS=()=>{try{(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(x){}};
-let fsTipT,L=null,el=0,timer,winT,checks=[],chk=null,watching=false,leaving=false,expired=false;
-const toast=t=>{const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3500)};
-const view=n=>['login','dash','watch','qf','done'].forEach(v=>$(v).hidden=v!==n);
+const toast=t=>{const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3800)};
+const view=n=>{['login','dash','watch','qf','done'].forEach(v=>$(v).hidden=v!==n);scrollTo(0,0)};
+const steps=n=>document.querySelectorAll('.steps').forEach(s=>{s.style.setProperty('--p',Math.min(n,2)/2);s.querySelectorAll('.st').forEach((x,i)=>{x.classList.toggle('on',i<n);x.classList.toggle('cur',i===n)})});
+const hist=()=>jget(`tara_hist_${em()}`,[]);
+function confetti(){const c=['#2F54EB','#0EA5A4','#F59E0B','#16A34A','#EF4444'];for(let i=0;i<44;i++){const d=document.createElement('i');d.className='cf';d.style.cssText=`left:${Math.random()*100}vw;background:${c[i%5]};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;document.body.appendChild(d);setTimeout(()=>d.remove(),5000)}}
 
 /* theme */
-const setT=t=>{t==='light'?root.setAttribute('data-theme','light'):root.removeAttribute('data-theme');$('theme').textContent=t==='light'?'☀️':'🌙'};
-setT(localStorage.getItem('tara_lms_theme')||'dark');
-$('theme').onclick=()=>{const n=root.getAttribute('data-theme')==='light'?'dark':'light';localStorage.setItem('tara_lms_theme',n);setT(n)};
+const root=document.documentElement,setT=t=>{root.setAttribute('data-theme',t);$('theme').textContent=t==='dark'?'☀️':'🌙'};
+setT(localStorage.getItem('tara_lms_theme')||'light');
+$('theme').onclick=()=>{const n=root.getAttribute('data-theme')==='dark'?'light':'dark';localStorage.setItem('tara_lms_theme',n);setT(n)};
+$('eye').onclick=()=>{const p=$('pw');p.type=p.type==='password'?'text':'password';$('eye').textContent=p.type==='password'?'Show':'Hide'};
+
+/* maintenance window 11 PM - 12 AM */
+const maint=()=>{const on=new Date().getHours()===23;$('maint').hidden=!on;return on};
 
 /* login */
-async function login(e){e.preventDefault();const b=$('lbtn');b.disabled=true;b.textContent='Checking...';
+async function login(e){e.preventDefault();if(maint())return;const b=$('lbtn');b.disabled=true;b.textContent='Verifying...';
  try{const d=await(await fetch(`${API}?action=login&email=${encodeURIComponent($('em').value.trim())}&code=${encodeURIComponent($('pw').value.trim())}`)).json();
   if(d.status==='success'){sessionStorage.setItem('tara_user_name',d.name);sessionStorage.setItem('tara_user_email',d.email);return launch()}
   toast('Incorrect email or passcode.')}catch(x){toast('Network error. Please try again.')}
- b.disabled=false;b.textContent='Login'}
+ b.disabled=false;b.textContent='Sign in'}
 
 /* dashboard */
-const hist=()=>jget(`tara_hist_${em()}`,[]);
-function streakCalc(h){const s=new Set(h);let d=new Date(),c=0;if(!s.has(d.toLocaleDateString('en-CA')))d.setDate(d.getDate()-1);
- while(s.has(d.toLocaleDateString('en-CA'))){c++;d.setDate(d.getDate()-1)}
- const a=[...s].sort();let best=0,run=0,p=null;a.forEach(x=>{run=p&&(new Date(x)-new Date(p))===864e5?run+1:1;best=Math.max(best,run);p=x});return[c,best]}
-function drawDash(){const h=hist(),[c,b]=streakCalc(h),n=new Date(),y=n.getFullYear(),m=n.getMonth();
- $('hi').textContent='Hello, '+(sessionStorage.getItem('tara_user_name')||'');$('streak').textContent=c;$('best').textContent=b;
- $('calt').textContent=n.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
- let html='SMTWTFS'.split('').map(x=>`<div class="h">${x}</div>`).join('');
- const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate();let cnt=0;
- for(let i=0;i<first;i++)html+='<div class="d e"></div>';
- for(let i=1;i<=dim;i++){const k=`${y}-${String(m+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`,on=h.includes(k);cnt+=on;
-  html+=`<div class="d${on?' on':''}${i===n.getDate()?' today':''}" style="animation-delay:${i*12}ms">${on?'✓':i}</div>`}
- $('cal').innerHTML=html;$('mon').textContent=cnt;
- const done=h.includes(day()),pass=jget(K('pass')),win=jget(K('win'),0),prog=jget(K('prog'));
- $('start').disabled=done;
- $('state').textContent=done?"Today's learning is complete. See you tomorrow.":pass&&pass.until>Date.now()?'Your form is open. You can submit it directly.':win>Date.now()?'Video complete. Open the form before the timer ends.':"Today's learning is pending.";
- $('start').textContent=done?'Completed ✔':pass&&pass.until>Date.now()?'Continue to form':win>Date.now()?'Open form':"Start today's learning"}
-async function getLesson(){if(L)return L;const d=await(await fetch(API)).json();L={no:d.no||1,video:d.video,dur:parseInt(d.duration,10)||60};
- el=0;return L}
-async function launch(){view('dash');$('user').hidden=false;$('user').textContent=sessionStorage.getItem('tara_user_name');drawDash();
- try{await getLesson()}catch(e){toast('Could not load the lesson. Please refresh the page.')}}
+let L=null;
+function drawDash(){const done=hist().includes(day()),pass=jget(K('pass')),win=jget(K('win'),0),pOk=pass&&pass.until>Date.now();
+ $('hi').textContent='Hello, '+(sessionStorage.getItem('tara_user_name')||'');
+ const st=done?3:pOk?2:win>Date.now()?1:0;steps(st);
+ $('start').disabled=done;$('start').className='btn'+((pOk||win>Date.now())&&!done?' go':'');
+ $('state').textContent=done?"Today's learning is complete. See you tomorrow.":pOk?'Your form is open. You can submit it directly.':win>Date.now()?'Video complete. Open the form before the timer ends.':"Today's learning is pending.";
+ $('start').textContent=done?'Completed ✔':pOk?'Continue to form':win>Date.now()?'Open form':"Start today's learning";
+ if(L){$('lmeta').hidden=false;$('lmeta').textContent=`📚 Lesson ${L.no} · ${Math.max(1,Math.round(L.dur/60))} min`;$('wl').textContent='Lesson '+L.no}}
+async function getLesson(){if(L)return L;const d=await(await fetch(API)).json();L={no:d.no||1,video:d.video,dur:parseInt(d.duration,10)||60};drawDash();return L}
+async function launch(){view('dash');$('user').hidden=false;$('user').textContent=sessionStorage.getItem('tara_user_name');drawDash();try{await getLesson()}catch(e){toast('Could not load the lesson. Please refresh.')}}
 
-/* start / resume */
 function handle(){if(!L)return toast('The lesson is still loading. Please try again in a moment.');
- const pass=jget(K('pass'));if(pass&&pass.lesson===L.no&&pass.until>Date.now()){return Form.open()}
+ const pass=jget(K('pass'));if(pass&&pass.lesson===L.no&&pass.until>Date.now())return Form.open();
  if(jget(K('win'),0)>Date.now())return openModal();
  startWatch()}
-function build(){$('player').innerHTML='';const f=document.createElement('iframe'),u=L.video;
- f.src=u+(u.includes('?')?'&':'?')+'autoplay=1';f.setAttribute('allow','autoplay; encrypted-media; fullscreen');f.allowFullscreen=true;$('player').appendChild(f)}
-function mk(){checks=[Math.floor(L.dur*.3),Math.floor(L.dur*.65)].filter(x=>x>el&&x>5)}
-function save(){}
-function startWatch(){view('watch');watching=true;chk=null;$('shield').hidden=false;$('noplay').hidden=false;build();mk();clearInterval(timer);timer=setInterval(tick,1000);tick()}
-function tick(){
- if(chk){if(Date.now()>chk.dl)fail();return}
- if(document.hidden)return;
- el++;
- if(el===25)$('noplay').hidden=true;
- if(!fsEl()&&el>5&&el%75===10){$('fsgate').hidden=false;clearTimeout(fsTipT);fsTipT=setTimeout(()=>{$('fsgate').hidden=true},9000)}
- if(checks.includes(el)){chk={dl:Date.now()+CHK*1000};if(fsEl())exitFS();$('fsgate').hidden=true;$('check').hidden=false}
- if(el>=L.dur)finish()}
-function fail(){chk=null;$('check').hidden=true;el=0;save();mk();build();toast('Presence check missed. The video will restart.')}
-$('here').onclick=()=>{chk=null;$('check').hidden=true};
-$('noplay').onclick=()=>{$('shield').hidden=true;$('noplay').hidden=true};
-$('fsback').onclick=()=>{$('fsgate').hidden=true};
-function finish(){clearInterval(timer);watching=false;exitFS();save();jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
 
-/* 2-minute window */
-function openModal(){expired=false;$('modal').hidden=false;$('mt').textContent='Video complete!';$('ms').textContent='Time left to open the form:';$('mgo').textContent='Open form';$('mtime').className='time';
+/* ===== fullscreen (native -> stage -> pseudo + landscape rotation) ===== */
+const fsOn=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+const inFs=()=>fsOn()||$('stage').classList.contains('pseudo');
+function enterFs(){const f=document.querySelector('#player iframe'),st=$('stage');
+ const pseudo=()=>{st.classList.add('pseudo');document.body.style.overflow='hidden'};
+ const tryEl=(el,next)=>{const r=el.requestFullscreen||el.webkitRequestFullscreen;if(!r)return next();try{Promise.resolve(r.call(el)).catch(next)}catch(e){next()}};
+ f?tryEl(f,()=>tryEl(st,pseudo)):tryEl(st,pseudo)}
+function exitFs(){$('stage').classList.remove('pseudo');document.body.style.overflow='';
+ try{if(document.fullscreenElement)document.exitFullscreen();else if(document.webkitFullscreenElement)document.webkitExitFullscreen()}catch(e){}
+ try{screen.orientation.unlock()}catch(e){}}
+['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{
+ try{fsOn()?screen.orientation.lock('landscape').catch(()=>{}):screen.orientation.unlock()}catch(e){}
+ if(!fsOn()&&watching)fsAt=el+120}));
+$('fsGo').onclick=()=>{$('fsModal').classList.remove('open');enterFs()};
+$('fsLater').onclick=()=>{$('fsModal').classList.remove('open');fsAt=el+150};
+
+/* ===== video: autoplay + resume-on-pause guard (playerjs), single-sitting tracking ===== */
+let el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=15,winT,expired=false;
+const mk=()=>{checks=[Math.floor(L.dur*.3),Math.floor(L.dur*.65)].filter(x=>x>5)};
+function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT);$('unmute').hidden=true;
+ const f=document.createElement('iframe');let u=L.video;
+ if(!/[?&]autoplay=/.test(u))u+=(u.includes('?')?'&':'?')+'autoplay=true&preload=true&playsinline=true';
+ f.src=u;f.title='Training video';f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock');f.allowFullscreen=true;
+ $('player').innerHTML='';$('player').appendChild(f);
+ rdyT=setTimeout(()=>{if(!pjReady)playing=true},9000); // non-playerjs fallback: time based
+ if(!window.playerjs)return;
+ try{pj=new playerjs.Player(f);
+  pj.on('ready',()=>{pjReady=true;pj.play();pj.getDuration(d=>{if(d)vd=d});
+   setTimeout(()=>pj.getPaused(p=>{if(p){pj.mute();pj.play();$('unmute').hidden=false}}),2500)});
+  pj.on('play',()=>{playing=true});
+  pj.on('pause',()=>{playing=false;if(watching&&!document.hidden)setTimeout(()=>{try{pj.play()}catch(e){}},250)});
+  pj.on('timeupdate',d=>{vt=d.seconds||0;if(d.duration)vd=d.duration;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')});
+  pj.on('ended',onEnded)}catch(e){console.error(e)}}
+$('unmute').onclick=()=>{try{pj.unmute()}catch(e){}$('unmute').hidden=true};
+function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=15;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
+function tick(){
+ if(chk){if(Date.now()>chk.dl)fail('Presence check missed. The video will restart.');return}
+ if(document.hidden||!playing)return;               // timer only runs while the video is playing on screen
+ el++;
+ if(checks.includes(el)){chk={dl:Date.now()+CHK*1000};if(fsOn())exitFs();$('fsModal').classList.remove('open');$('check').hidden=false;return}
+ if((!pj||!pjReady)&&el>=L.dur)return finish();
+ if(!inFs()&&el>=fsAt&&!$('fsModal').classList.contains('open'))$('fsModal').classList.add('open')}
+$('here').onclick=()=>{chk=null;$('check').hidden=true};
+document.addEventListener('visibilitychange',()=>{if(!watching||!pj||!pjReady)return;try{document.hidden?pj.pause():pj.play()}catch(e){}});
+function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=15;exitFs();build();toast(msg)}
+function onEnded(){if(!watching)return;if(el<(vd||L.dur)*.85)return fail('The video was skipped. It will restart.');finish()}
+function finish(){clearInterval(timer);watching=false;chk=null;exitFs();$('fsModal').classList.remove('open');$('check').hidden=true;
+ jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
+
+/* ===== 2-minute window to open the form ===== */
+function openModal(){expired=false;$('modal').hidden=false;$('mt').textContent='Video complete!';$('ms').textContent='Open the form now. Time left:';$('mgo').textContent='Open form';$('mgo').className='btn go';$('mtime').className='time';
  clearInterval(winT);const t=()=>{const r=Math.ceil((jget(K('win'),0)-Date.now())/1000);if(r<=0){clearInterval(winT);return expire()}$('mtime').textContent=fmt(r)};t();winT=setInterval(t,500)}
-function expire(){expired=true;localStorage.removeItem(K('win'));el=0;if(L)save();$('mtime').textContent='00:00';$('mtime').className='time bad';
- $('mt').textContent='Time expired';$('ms').textContent='The form was not opened in time, so you need to watch the video again.';$('mgo').textContent='Watch again'}
-$('mgo').onclick=()=>{if(expired){$('modal').hidden=true;return startWatch()}
- jset(K('pass'),{lesson:L.no,until:Date.now()+PASS_MIN*60000});localStorage.removeItem(K('win'));clearInterval(winT);$('modal').hidden=true;Form.open()};
+function expire(){expired=true;localStorage.removeItem(K('win'));drawDash();$('mtime').textContent='00:00';$('mtime').className='time bad';
+ $('mt').textContent='Time expired';$('ms').textContent='The form was not opened in time, so you need to watch the video again.';$('mgo').textContent='Watch again';$('mgo').className='btn'}
+$('mgo').onclick=()=>{clearInterval(winT);$('modal').hidden=true;if(expired)return startWatch();
+ jset(K('pass'),{lesson:L.no,until:Date.now()+PASS_MIN*60000});localStorage.removeItem(K('win'));Form.open()};
 $('start').onclick=handle;
 
-/* ===== Learning verification form ===== */
-const Form=(()=>{'use strict';
-
-const WEBHOOK='PASTE_NEW_DISCORD_WEBHOOK_URL_HERE'; // Replace with a new webhook (the previous one was exposed publicly)
-const API='https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec';
-const MIN={t2:50,t3:30,t4:80},MAXF=5;
-const $=i=>document.getElementById(i);
-let day,email,name,pass;
-const K=n=>`tara_${n}_${email}_${day}`;
-const jget=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
-let files=[];
-
-/* Draft autosave: answers survive camera switches, back navigation and reloads */
-const saveDraft=()=>{try{localStorage.setItem(K('draft'),JSON.stringify({w:(document.querySelector('[name=w]:checked')||{}).value||'',t2:$('t2').value,t3:$('t3').value,t4:$('t4').value,r:$('rate').value,ok:$('ok').checked}))}catch(e){}};
-function check(){const v=['t2','t3','t4'].every(k=>$(k).value.trim().length>=MIN[k]);
- ['t2','t3','t4'].forEach(k=>{const n=$(k).value.trim().length,c=$('c'+k[1]);c.textContent=`${n} / ${MIN[k]}`;c.classList.toggle('ok',n>=MIN[k])});
- $('rv').textContent=$('rate').value;
- $('qsub').disabled=!(v&&(document.querySelector('[name=w]:checked')||{}).value==='yes'&&files.length&&$('ok').checked);saveDraft()}
-function restore(){const d=jget(K('draft'));if(d){if(d.w)document.querySelector(`[name=w][value=${d.w}]`).checked=true;$('t2').value=d.t2||'';$('t3').value=d.t3||'';$('t4').value=d.t4||'';$('rate').value=d.r||5;$('ok').checked=!!d.ok}}
-document.querySelectorAll('#qf textarea,#qf input').forEach(e=>e.addEventListener('input',check));
-
-/* files */
-function draw(){const box=$('files');box.innerHTML='';files.forEach((f,i)=>{const r=document.createElement('div');r.className='file';
- const s=document.createElement('span');s.textContent=(/pdf$/i.test(f.name)?'📕 ':'🖼️ ')+f.name;const b=document.createElement('button');b.type='button';b.textContent='✕';b.setAttribute('aria-label','Remove');
- b.onclick=e=>{e.stopPropagation();files.splice(i,1);draw()};r.append(s,b);box.appendChild(r)});check()}
-function add(list){for(const f of list){if(files.length>=MAXF){alert('Maximum '+MAXF+' files');break}
- if(!/\.(jpe?g|png|pdf)$/i.test(f.name)){alert(f.name+': only JPG, PNG and PDF files are allowed.');continue}files.push(f)}$('fi').value='';draw()}
-$('drop').onclick=()=>$('fi').click();$('fi').onclick=e=>e.stopPropagation();$('fi').onchange=e=>add([...e.target.files]);
-['dragenter','dragover'].forEach(n=>$('drop').addEventListener(n,e=>{e.preventDefault();$('drop').classList.add('over')}));
-['dragleave','drop'].forEach(n=>$('drop').addEventListener(n,e=>{e.preventDefault();$('drop').classList.remove('over')}));
-$('drop').addEventListener('drop',e=>add([...e.dataTransfer.files]));
-
-/* submit */
-$('qf').addEventListener('submit',async e=>{e.preventDefault();if($('qsub').disabled)return;$('qsub').disabled=true;$('qsub').textContent='Submitting...';
- try{
-  await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({userName:name,userEmail:email,watchConfirm:'yes',biggestLearning:$('t2').value.trim(),actionImplementation:$('t3').value.trim(),importantPoints:$('t4').value.trim(),confidenceRating:$('rate').value,sheetsCount:files.length})});
-  const fd=new FormData();fd.append('payload_json',JSON.stringify({embeds:[{title:'📝 New Notes Submission',color:3066993,fields:[{name:'Name',value:name,inline:true},{name:'Email',value:email,inline:true},{name:'Sheets',value:String(files.length),inline:true},{name:'Date',value:day,inline:true}]}]}));
-  files.forEach((f,i)=>fd.append('file'+i,f));
-  const r=await fetch(WEBHOOK,{method:'POST',body:fd});if(!r.ok)throw new Error('upload '+r.status);
-  const h=jget(`tara_hist_${email}`)||[];if(!h.includes(day))h.push(day);localStorage.setItem(`tara_hist_${email}`,JSON.stringify(h));
-  ['pass','draft','win','prog'].forEach(n=>localStorage.removeItem(K(n)));
-  view('done');scrollTo({top:0,behavior:'smooth'});
- }catch(err){console.error(err);alert('Submission failed. Please check your connection and try again. Your answers are saved.');$('qsub').disabled=false;$('qsub').textContent='Submit & complete'}});
-
-function open(){day=new Date().toLocaleDateString('en-CA');email=(sessionStorage.getItem('tara_user_email')||'').toLowerCase();name=sessionStorage.getItem('tara_user_name')||'Anonymous';pass=jget(K('pass'));if(!pass||pass.until<Date.now()){toast('Form access is not available. Please watch the video first.');return false}files=[];draw();restore();view('qf');scrollTo(0,0);check();return true}
-return {open};
-})();
+/* ===== verification form ===== */
+const Form=(()=>{
+ const MIN={t2:50,t3:30,t4:80},MAXF=5;let files=[];
+ const q1=()=>(document.querySelector('[name=w]:checked')||{}).value;
+ const len=k=>$(k).value.trim().length;
+ const saveD=()=>jset(K('draft'),{w:q1()||'',t2:$('t2').value,t3:$('t3').value,t4:$('t4').value,r:$('rate').value,ok:$('ok').checked});
+ function check(){['t2','t3','t4'].forEach(k=>{const c=$('c'+k[1]);c.textContent=`${len(k)} / ${MIN[k]}`;c.classList.toggle('ok',len(k)>=MIN[k])});
+  const v=[q1()==='yes',len('t2')>=MIN.t2,len('t3')>=MIN.t3,len('t4')>=MIN.t4,files.length>0,$('ok').checked];
+  ['s1','s2','s3','s4','s5','s6'].forEach((id,i)=>$(id).classList.toggle('ok',v[i]));
+  const n=v.filter(Boolean).length;$('fpt').textContent=`${n} of 6 completed`;$('fpb').style.width=(n/6*100)+'%';
+  $('rv').textContent=['😕','😕','🙁','😐','🙂','🙂','😀','😀','🤩','🤩'][$('rate').value-1]+' '+$('rate').value;
+  $('qsub').disabled=n<6;saveD()}
+ function restore(){const d=jget(K('draft'));if(!d)return;if(d.w)document.querySelector(`[name=w][value=${d.w}]`).checked=true;$('t2').value=d.t2||'';$('t3').value=d.t3||'';$('t4').value=d.t4||'';$('rate').value=d.r||5;$('ok').checked=!!d.ok}
+ function draw(){const box=$('files');box.innerHTML='';files.forEach((f,i)=>{const r=document.createElement('div');r.className='file';const s=document.createElement('span');s.textContent=(/pdf$/i.test(f.name)?'📕 ':'🖼️ ')+f.name;
+  const b=document.createElement('button');b.type='button';b.textContent='✕';b.setAttribute('aria-label','Remove file');b.onclick=e=>{e.stopPropagation();files.splice(i,1);draw()};r.append(s,b);box.appendChild(r)});check()}
+ function add(list){for(const f of list){if(files.length>=MAXF){toast('Maximum '+MAXF+' files allowed.');break}if(!/\.(jpe?g|png|pdf)$/i.test(f.name)){toast(f.name+': only JPG, PNG and PDF are allowed.');continue}files.push(f)}$('fi').value='';draw()}
+ $('drop').onclick=()=>$('fi').click();$('fi').onclick=e=>e.stopPropagation();$('fi').onchange=e=>add([...e.target.files]);
+ ['dragenter','dragover'].forEach(n=>$('drop').addEventListener(n,e=>{e.preventDefault();$('drop').classList.add('over')}));
+ ['dragleave','drop'].forEach(n=>$('drop').addEventListener(n,e=>{e.preventDefault();$('drop').classList.remove('over')}));
+ $('drop').addEventListener('drop',e=>add([...e.dataTransfer.files]));
+ document.querySelectorAll('#qf textarea,#qf input').forEach(e=>e.addEventListener('input',check));
+ $('qf').addEventListener('submit',async e=>{e.preventDefault();if($('qsub').disabled)return;$('qsub').disabled=true;$('qsub').textContent='Submitting...';
+  const name=sessionStorage.getItem('tara_user_name')||'Anonymous',email=em(),d=day();
+  try{
+   await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({userName:name,userEmail:email,watchConfirm:'yes',biggestLearning:$('t2').value.trim(),actionImplementation:$('t3').value.trim(),importantPoints:$('t4').value.trim(),confidenceRating:$('rate').value,sheetsCount:files.length})});
+   const fd=new FormData();fd.append('payload_json',JSON.stringify({embeds:[{title:'📝 New Notes Submission',color:3066993,fields:[{name:'Name',value:name,inline:true},{name:'Email',value:email,inline:true},{name:'Sheets',value:String(files.length),inline:true},{name:'Date',value:d,inline:true}]}]}));
+   files.forEach((f,i)=>fd.append('file'+i,f));
+   const r=await fetch(WEBHOOK,{method:'POST',body:fd});if(!r.ok)throw new Error('upload '+r.status);
+   const h=hist();if(!h.includes(d))h.push(d);jset(`tara_hist_${email}`,h);['pass','draft','win','prog'].forEach(n=>localStorage.removeItem(K(n)));
+   steps(3);view('done');confetti();
+  }catch(err){console.error(err);toast('Submission failed. Check your connection and try again. Your answers are saved.');$('qsub').disabled=false;$('qsub').textContent='Submit and complete'}});
+ function open(){const p=jget(K('pass'));if(!p||p.until<Date.now()){toast('Form access is not available. Please watch the video first.');return false}
+  files=[];draw();restore();view('qf');check();return true}
+ return {open}})();
 $('back').onclick=()=>{drawDash();view('dash')};
 
-addEventListener('beforeunload',e=>{if(watching&&!leaving){save();e.preventDefault();e.returnValue=''}});
-addEventListener('pagehide',()=>{if(L&&watching)save()});
+addEventListener('beforeunload',e=>{if(watching){e.preventDefault();e.returnValue=''}});
 addEventListener('keydown',e=>{if(watching&&['ArrowRight','ArrowLeft',' ','k','K'].includes(e.key))e.preventDefault()},true);
 $('login-form').addEventListener('submit',login);
-if(sessionStorage.getItem('tara_user_name'))launch();
-
+if(!maint()&&sessionStorage.getItem('tara_user_name'))launch();
+setInterval(maint,15000);
 })();
-</script></body></html>
+</script>
+</body>
+</html>
