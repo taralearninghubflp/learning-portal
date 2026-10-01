@@ -1,139 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TARA LMS - Learning & Verification Hub</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="app-container">
-        
-        <!-- Global Header -->
-        <header class="main-header">
-            <div class="logo-area"><span class="logo-accent">TARA</span> LMS</div>
-            <div class="header-right-actions">
-                <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Interface Theme">
-                    <span id="theme-toggle-icon">🌙</span>
-                </button>
-                <div class="status-badge" id="user-display-badge" style="display: none;">Verified User</div>
-            </div>
-        </header>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TARA LMS</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<div class="wrap">
+<header><div class="logo"><b>TARA</b> LMS</div><div class="row"><span class="chip" id="user" hidden></span><button class="icon-btn" id="theme" aria-label="Theme">🌙</button></div></header>
 
-        <!-- Auth Login Container -->
-        <div id="login-container" class="workspace-auth" style="display: block;">
-            <section class="control-card auth-card">
-                <div class="auth-header">
-                    <h1 class="auth-logo"><span class="logo-accent">TARA</span> LMS</h1>
-                    <p class="auth-sub">Identity & Access Management Node</p>
-                </div>
-                <form id="login-form" onsubmit="return false;">
-                    <div class="form-group">
-                        <label class="form-label">Registered Email Address</label>
-                        <input type="email" id="login-email" class="input-field" placeholder="name@domain.com" required autocomplete="email">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Secure Passcode</label>
-                        <input type="password" id="login-code" class="input-field" placeholder="••••••••" required autocomplete="current-password">
-                    </div>
-                    <button type="submit" id="login-btn" class="action-btn unlocked login-btn-action">Authenticate Credentials</button>
-                </form>
-            </section>
-        </div>
+<section id="login" class="card auth"><h1>Welcome back</h1><p class="mute">Sign in to start today's learning.</p>
+<form id="login-form"><label class="f" for="em">Email</label><input type="email" id="em" required autocomplete="email">
+<label class="f" for="pw">Passcode</label><input type="password" id="pw" required autocomplete="current-password">
+<div style="margin-top:18px"><button class="btn" id="lbtn">Sign in</button></div></form></section>
 
-        <!-- Portal Workspace -->
-        <div id="portal-content" style="display: none;">
-            <main class="workspace">
-                
-                <!-- Left: Video Player Card -->
-                <section class="video-card">
-                    <div class="video-wrapper" id="video-wrapper">
-                        <div class="spinner-container" id="loading-spinner">
-                            <div class="spinner"></div>
-                            <p class="spinner-text">Loading secure training stream...</p>
-                        </div>
-                    </div>
-                    <div class="video-meta">
-                        <h2 class="video-title" id="video-title">Module Validation Stream</h2>
-                        <div class="meta-pills">
-                            <span class="pill status-pill locked" id="lock-status-pill">Telemetric Tracking Engaged</span>
-                        </div>
-                    </div>
-                </section>
+<section id="dash" hidden>
+<h1 id="hi">Hello</h1><p class="mute" id="sub"></p>
+<div class="grid">
+ <div class="card streak"><div class="flame">🔥</div><div class="big" id="streak">0</div><p class="mute">day streak</p>
+ <div class="stats"><div><b id="best">0</b>best</div><div><b id="mon">0</b>this month</div></div></div>
+ <div class="card"><h2 id="calt"></h2><div class="cal" id="cal"></div></div>
+</div>
+<div class="cta card"><p id="state" class="mute"></p><button class="btn" id="start">Start today's learning</button>
+<p class="mute" style="font-size:12px">The video plays in full screen and cannot be paused. A presence check appears during playback. After the video ends, you have 2 minutes to open the form.</p></div>
+</section>
 
-                <!-- Right: Stream Controls & Action Panel -->
-                <section class="control-card">
-                    <div class="control-content">
-                        
-                        <div class="panel-header">
-                            <h3 class="panel-title">Session Telemetry</h3>
-                            <span class="live-dot-badge"><span class="pulse-dot"></span> LIVE</span>
-                        </div>
-                        <p class="panel-instructions" id="instruction-text">Continuous watch verification is active. Maintain focus on this screen to unlock the evaluation matrix.</p>
-                        
-                        <!-- 5-Minute Warning Badge -->
-                        <div id="five-min-alert" class="five-min-alert" style="display: none;">
-                            <span class="alert-icon-mini">⚡</span>
-                            <div>
-                                <strong>Final Minutes Active</strong>
-                                <p>Evaluation form will unlock automatically upon video completion.</p>
-                            </div>
-                        </div>
+<section id="watch" hidden>
+<div class="stage" id="stage"><div id="player"></div><div class="shield"></div>
+ <div class="hud"><span>LIVE</span><div class="bar"><i id="pbar"></i></div><span id="pt">00:00</span></div>
+ <div class="ov" id="fsgate" hidden><h2>Return to full screen</h2><p>Watch time only counts in full screen.</p><button class="btn" id="fsback">Enter full screen</button></div>
+ <div class="ov" id="check" hidden><h2>Are you still watching?</h2><p>Tap within 20 seconds or the video restarts.</p><button class="btn" id="here">I'm here ✋</button></div>
+</div>
+<p class="mute" style="margin-top:12px">Keep this screen in focus. The timer pauses if you switch tabs or apps.</p>
+</section>
 
-                        <!-- 1. PRIMARY ACTION BUTTON (TOP) -->
-                        <div class="main-action-wrapper">
-                            <button id="quiz-btn" class="action-btn locked" disabled>
-                                <span class="btn-icon">🔒</span> <span id="btn-text">Monitoring Stream Telemetry</span>
-                            </button>
-                        </div>
-
-                        <!-- 2. COUNTDOWN EXPIRY BOX -->
-                        <div class="countdown-wrapper" id="countdown-wrapper" style="display: none;">
-                            <div class="countdown-header-row">
-                                <span class="countdown-tag">⚠️ LIMITED ACCESS WINDOW</span>
-                                <span class="timer-digits-live" id="timer-digits">02:00</span>
-                            </div>
-                            <p class="countdown-desc">Click the button above before timer hits 00:00 to record your attendance.</p>
-                        </div>
-
-                    </div>
-                </section>
-            </main>
-        </div>
-
-        <!-- CORPORATE HIGH-CONVERSION POPUP MODAL -->
-        <div id="form-popup-modal" class="popup-overlay" style="display: none;">
-            <div class="popup-card">
-                <div class="popup-icon-badge">🎯</div>
-                <div class="modal-badge">Milestone Reached</div>
-                
-                <h2 class="modal-title">Training Stream Verified!</h2>
-                <p class="modal-sub">
-                    Your viewing duration has been validated. Proceed immediately to the verification form.
-                </p>
-
-                <button type="button" id="popup-action-btn" class="modal-highlight-btn">
-                    🚀 Open Evaluation Form & Submit
-                </button>
-
-                <div class="modal-ticker-box" id="popup-ticker-box">
-                    <div class="ticker-label">⚠️ Access Session Window Active</div>
-                    <div id="popup-timer-digits" class="ticker-digits">02:00</div>
-                    <div id="popup-ticker-sub" class="ticker-sub">
-                        Complete this step before timer hits 00:00
-                    </div>
-                </div>
-
-                <button type="button" id="popup-dismiss-btn" class="modal-dismiss-btn">
-                    Dismiss Window
-                </button>
-            </div>
-        </div>
-
-        <footer class="main-footer">
-            <p>&copy; 2026 TARA LMS. Production-Ready Enterprise Architecture. Controlled strictly via Cloud Matrix.</p>
-        </footer>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+<div class="modal" id="modal" hidden><div class="card"><div style="font-size:44px">🎯</div><h2 id="mt">Video complete!</h2>
+<p class="mute" id="ms">Time left to open the form:</p><div class="time" id="mtime">02:00</div>
+<div style="margin-top:16px"><button class="btn" id="mgo">Open form</button></div></div></div>
+<footer>© 2026 TARA LMS</footer></div>
+<script src="script.js"></script></body></html>
