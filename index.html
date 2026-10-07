@@ -111,6 +111,32 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 #login-form{border-radius:24px;box-shadow:0 20px 50px rgba(15,27,51,.10)}#login-form>h2{font-size:24px;letter-spacing:-.02em}
 @media(max-width:819px){.hero{min-height:0!important;padding:24px 20px;align-items:flex-start}.pills{margin-top:14px}}
 @media(max-width:520px){.hero p,.pills{display:none}.badge{width:56px;height:56px;padding:7px;border-radius:16px}.hero h2{font-size:24px;margin:14px 0 0}.login{gap:12px;min-height:0}}
+/* v4 */
+.fshint{position:absolute;top:12px;left:12px;z-index:6;max-width:calc(100% - 76px);display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:99px;background:rgba(10,16,32,.74);backdrop-filter:blur(10px);color:#fff;font-size:13px;font-weight:700;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.35s cubic-bezier(.2,.8,.2,1)}
+.fshint.open{opacity:1;transform:none;pointer-events:auto}.fshint button{border:0;border-radius:99px;height:30px;padding:0 12px;font-weight:800;cursor:pointer}
+#fsGo{background:#fff;color:#0F1B33}#fsLater{background:transparent;color:#fff;padding:0 8px}
+#playbtn{bottom:auto;top:50%;transform:translate(-50%,-50%);z-index:8;padding:14px 24px;font-size:15px}
+.hero:before,.hero:after{display:none}
+.hero{background:#070D1F;border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:clamp(24px,5vw,44px);color:#fff}
+.hero>.aur{position:absolute;inset:0;overflow:hidden;z-index:0}
+.aur i{position:absolute;width:60%;aspect-ratio:1;border-radius:50%;filter:blur(70px);opacity:.55;animation:aur 22s ease-in-out infinite alternate}
+.aur i:nth-child(1){background:#4F46E5;top:-22%;left:-12%}.aur i:nth-child(2){background:#06B6D4;bottom:-28%;right:-12%;animation-delay:-8s}.aur i:nth-child(3){background:#A855F7;top:32%;left:38%;opacity:.3;animation-delay:-14s}
+@keyframes aur{to{transform:translate(12%,10%) scale(1.15)}}
+.aur:after{content:"";position:absolute;inset:0;background:radial-gradient(rgba(255,255,255,.11) 1px,transparent 1px) 0 0/24px 24px;-webkit-mask-image:radial-gradient(ellipse at 30% 30%,#000,transparent 75%);mask-image:radial-gradient(ellipse at 30% 30%,#000,transparent 75%)}
+.hero>.hc{position:relative;z-index:1}.badge{animation:none!important;border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.tag{display:inline-flex;gap:8px;align-items:center;margin-top:18px;padding:6px 13px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);font-size:12.5px;font-weight:700;backdrop-filter:blur(8px)}
+.tag i{width:7px;height:7px;border-radius:50%;background:#34D399;animation:ping 2s infinite}@keyframes ping{0%{box-shadow:0 0 0 0 rgba(52,211,153,.6)}70%,100%{box-shadow:0 0 0 9px transparent}}
+.hero h2{font-size:clamp(28px,5.4vw,46px);line-height:1.08;letter-spacing:-.035em;margin:16px 0 10px}
+.gt{background:linear-gradient(90deg,#93C5FD,#67E8F9,#C4B5FD,#93C5FD);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 9s linear infinite}@keyframes sh{to{background-position:200% center}}
+.mini{margin-top:24px;max-width:340px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(14px)}
+.mh{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:6px}.mh span:last-child{opacity:.6;font-weight:600}
+.mrow{display:flex;align-items:center;gap:10px;font-size:13px;padding:5px 0;animation:in .5s both}.mrow:nth-of-type(1){animation-delay:.5s}.mrow:nth-of-type(2){animation-delay:1s}.mrow:nth-of-type(3){animation-delay:1.5s}@keyframes in{from{opacity:0;transform:translateX(-10px)}}
+.d{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.35);display:grid;place-items:center;font-size:10px;font-style:normal;flex:none}.d.on{background:#34D399;border-color:#34D399;color:#042}.d.on:after{content:"✓";font-weight:800}
+.mbar{height:5px;border-radius:9px;background:rgba(255,255,255,.12);margin-top:10px;overflow:hidden}.mbar i{display:block;height:100%;width:66%;border-radius:9px;background:linear-gradient(90deg,#34D399,#22D3EE);transform-origin:left;animation:grow 1.8s .4s cubic-bezier(.2,.8,.2,1) both}@keyframes grow{from{transform:scaleX(0)}}
+#login-form{position:relative;border:0;border-radius:26px;padding:clamp(24px,5vw,36px);box-shadow:0 30px 70px rgba(15,27,51,.14)}
+#login-form:before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(135deg,#6366F1,#06B6D4,#A855F7,#6366F1);background-size:300% 300%;animation:bd 8s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}@keyframes bd{to{background-position:300% 0}}
+#login-form>h2{font-size:26px;letter-spacing:-.02em}#lbtn{background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#fff;box-shadow:0 10px 26px rgba(79,70,229,.4)}
+@media(max-width:520px){.hero p,.mini{display:none}.hero h2{font-size:26px}.tag{margin-top:14px}}
 </style>
 </head>
 <body>
@@ -120,7 +146,12 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 
 <main class="wrap">
 <section id="login" class="login rise">
- <div class="hero"><div class="badge"><img src="https://lh3.googleusercontent.com/d/1gAwBqDUpuhKTTrRKgl-DozInsUQPip6N" alt="TARA logo" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='https://drive.google.com/thumbnail?id=1gAwBqDUpuhKTTrRKgl-DozInsUQPip6N&sz=w200'}else{this.style.display='none'}"></div><h2>Learn daily.<br>Grow every day.</h2><p>Watch today's session, submit your notes and keep your learning on record.</p><div class="pills"><span>🎬 Daily video</span><span>📝 Quick notes</span><span>✅ Verified</span></div></div>
+ <div class="hero"><div class="aur"><i></i><i></i><i></i></div><div class="hc"><div class="badge"><img src="https://lh3.googleusercontent.com/d/1gAwBqDUpuhKTTrRKgl-DozInsUQPip6N" alt="TARA logo" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='https://drive.google.com/thumbnail?id=1gAwBqDUpuhKTTrRKgl-DozInsUQPip6N&sz=w200'}else{this.style.display='none'}"></div>
+  <span class="tag"><i></i>TARA Learning Portal</span>
+  <h2>Learn daily.<br><span class="gt">Grow every day.</span></h2>
+  <p>Watch today's session, submit your notes and keep your learning on record.</p>
+  <div class="mini"><div class="mh"><span>Today's learning</span><span>3 steps</span></div>
+   <div class="mrow"><i class="d on"></i>Watch the video</div><div class="mrow"><i class="d on"></i>Quick presence checks</div><div class="mrow"><i class="d"></i>Submit your notes</div><div class="mbar"><i></i></div></div></div></div>
  <form id="login-form" class="card"><h2>Sign in</h2><p class="mute">Use your registered email and passcode.</p>
   <label class="f" for="em">Email address</label><input class="in" type="email" id="em" required autocomplete="email" placeholder="name@domain.com">
   <label class="f" for="pw">Passcode</label><div class="pw"><input class="in" type="password" id="pw" required autocomplete="current-password" placeholder="Enter passcode"><button type="button" id="eye">Show</button></div>
@@ -141,7 +172,7 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 
 <section id="watch" hidden>
  <div class="wbar"><span id="wl">Today's lesson</span><span class="live"><i></i>Live tracking</span></div>
- <div class="stage" id="stage"><div id="player"></div><div class="shield" id="shield" hidden></div><button class="fsb" id="fsb" hidden aria-label="Full screen">⛶</button><button class="unmute" id="unmute" hidden>🔊 Tap to unmute</button>
+ <div class="stage" id="stage"><div id="player"></div><div class="shield" id="shield" hidden></div><div class="fshint" id="fsModal"><span>⛶ Full screen view</span><button id="fsGo">Enter</button><button id="fsLater" aria-label="Dismiss">✕</button></div><button class="unmute" id="playbtn" hidden>▶ Tap to play</button><button class="fsb" id="fsb" hidden aria-label="Full screen">⛶</button><button class="unmute" id="unmute" hidden>🔊 Tap to unmute</button>
   <div class="ov" id="check" hidden><div class="chk"><svg viewBox="0 0 120 120"><circle class="rb" cx="60" cy="60" r="52"/><circle class="rf" id="rf" cx="60" cy="60" r="52"/></svg><div class="wave">👋</div></div><h2>Still with us?</h2><p>Tap to confirm you are watching.<br>The video restarts if you miss it.</p><button class="btn" id="here">Yes, I'm here!</button><small id="cnt">20s</small></div></div>
  <div class="card" style="margin-top:14px"><div class="steps" style="margin:0"><div class="st"><b>1</b>Watch video</div><div class="st"><b>2</b>Open form</div><div class="st"><b>3</b>Submit notes</div></div>
  <p class="mute" style="margin-top:12px;text-align:center">The form link appears automatically when the video ends. Do not close this page.</p></div>
@@ -167,7 +198,6 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 </main>
 <footer>© 2026 TARA LMS</footer>
 
-<div class="sheet" id="fsModal"><div class="card"><div class="ico">⛶</div><h2>Continue in full screen</h2><p>Today's session plays in full screen so you can stay focused. Rotate your phone if you like, then tap below.</p><button class="btn" id="fsGo">Go full screen</button></div></div>
 <div class="modal" id="modal" hidden><div class="card"><div style="font-size:46px">🎯</div><h2 id="mt">Video complete!</h2><p class="mute" id="ms" style="margin-top:4px">Open the form now. Time left:</p><div class="time" id="mtime">02:00</div><button class="btn go" id="mgo">Open form</button></div></div>
 
 <script>
@@ -240,11 +270,12 @@ function exitFs(){$('stage').classList.remove('pseudo');document.body.style.over
  try{screen.orientation.unlock()}catch(e){}}
 ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{
  try{fsOn()?screen.orientation.lock('landscape').catch(()=>{}):screen.orientation.unlock()}catch(e){}
- if(!fsOn()&&watching&&!$('stage').classList.contains('pseudo'))fsAt=el+2}));
-$('fsGo').onclick=()=>{$('fsModal').classList.remove('open');enterFs();setTimeout(resume,150)};
+ if(!fsOn()&&watching&&!$('stage').classList.contains('pseudo'))fsAt=el+90}));
+$('fsGo').onclick=()=>{$('fsModal').classList.remove('open');enterFs()};
+$('fsLater').onclick=()=>$('fsModal').classList.remove('open');
 
 /* ===== video: autoplay + resume-on-pause guard (playerjs), single-sitting tracking ===== */
-let yt=null,ytPoll,el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=3,winT,expired=false;
+let yt=null,ytPoll,el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=12,winT,expired=false;
 /* Presence checks: 2-4 per session at RANDOM moments (new random set on every attempt) */
 function mk(){const n=L.dur<300?2:L.dur<900?3:4,lo=Math.max(8,Math.floor(L.dur*.08)),hi=Math.min(Math.floor(L.dur*.92),L.dur-10),gap=Math.max(15,Math.floor(L.dur/(n*3))),a=[];
  if(hi>lo){let g=0;while(a.length<n&&g++<300){const t=lo+Math.floor(Math.random()*(hi-lo+1));if(a.every(x=>Math.abs(x-t)>=gap))a.push(t)}}
@@ -254,7 +285,7 @@ function loadYT(cb){if(window.YT&&YT.Player)return cb();const p=window.onYouTube
 function buildYT(id){$('player').innerHTML='<div id="ytp"></div>';$('shield').hidden=false;$('fsb').hidden=false;
  loadYT(()=>{yt=new YT.Player('ytp',{videoId:id,width:'100%',height:'100%',playerVars:{autoplay:1,controls:0,disablekb:1,rel:0,playsinline:1,modestbranding:1,fs:0,iv_load_policy:3},events:{
   onReady:e=>{pjReady=true;vd=e.target.getDuration()||0;e.target.playVideo();setTimeout(()=>{try{if(yt.getPlayerState()!==1){yt.mute();yt.playVideo();$('unmute').hidden=false}}catch(x){}},2500)},
-  onStateChange:e=>{const s=e.data;if(s===1)playing=true;else if(s===2){playing=false;if(watching&&!gate()&&!document.hidden)setTimeout(()=>{try{yt.playVideo()}catch(x){}},250)}else if(s===0){playing=false;onEnded()}},
+  onStateChange:e=>{const s=e.data;if(s===1)playing=true;else if(s===2){playing=false;if(watching&&!gate()&&!document.hidden)autoRes(()=>{try{yt.playVideo()}catch(x){}})}else if(s===0){playing=false;onEnded()}},
   onError:()=>toast('This video cannot be played. Check that embedding is allowed.')}});
   clearInterval(ytPoll);ytPoll=setInterval(()=>{try{vt=yt.getCurrentTime();const d=yt.getDuration();if(d)vd=d;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')}catch(e){}},500)})}
 function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT);$('unmute').hidden=true;clearInterval(ytPoll);try{yt&&yt.destroy()}catch(e){}yt=null;$('shield').hidden=true;$('fsb').hidden=false;{const id=ytId(L.video);if(id)return buildYT(id)}
@@ -268,27 +299,30 @@ function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT
   pj.on('ready',()=>{pjReady=true;pj.play();pj.getDuration(d=>{if(d)vd=d});
    setTimeout(()=>pj.getPaused(p=>{if(p){pj.mute();pj.play();$('unmute').hidden=false}}),2500)});
   pj.on('play',()=>{playing=true});
-  pj.on('pause',()=>{playing=false;if(watching&&!gate()&&!document.hidden)setTimeout(()=>{try{pj.play()}catch(e){}},250)});
+  pj.on('pause',()=>{playing=false;if(watching&&!gate()&&!document.hidden)autoRes(()=>{try{pj.play()}catch(e){}})});
   pj.on('timeupdate',d=>{vt=d.seconds||0;if(d.duration)vd=d.duration;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')});
   pj.on('ended',onEnded)}catch(e){console.error(e)}}
 $('unmute').onclick=()=>{try{pj&&pj.unmute();yt&&yt.unMute()}catch(e){}$('unmute').hidden=true};
-function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=3;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
+function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=12;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
 function tick(){
  if(chk){if(Date.now()>chk.dl)fail('Presence check missed. The video will restart.');else chkUI();return}
+ if(playing&&!$('playbtn').hidden){$('playbtn').hidden=true;rc=[]}
+ if(!playing&&!document.hidden&&pjReady){if(++stall>=4)$('playbtn').hidden=false}else stall=0
  if(document.hidden||!playing)return;               // timer only runs while the video is playing on screen
  el++;
  if(checks.includes(el)){const fe=document.fullscreenElement||document.webkitFullscreenElement,nat=!!fe&&fe!==$('stage');   // only the player's own fullscreen hides our popup
   chk={dl:Date.now()+CHK*1000,re:nat};if(nat)exitFs();halt();$('fsModal').classList.remove('open');$('check').hidden=false;
   $('check').classList.remove('shake');void $('check').offsetWidth;$('check').classList.add('shake');try{navigator.vibrate&&navigator.vibrate([180,90,180])}catch(e){}chkUI();return}
  if((!(pj||yt)||!pjReady)&&el>=L.dur)return finish();
- if(!inFs()&&el>=fsAt&&!$('fsModal').classList.contains('open'))$('fsModal').classList.add('open');halt()}
+ if(!inFs()&&el>=fsAt&&!$('fsModal').classList.contains('open'))$('fsModal').classList.add('open');fsAt=el+240;setTimeout(()=>$('fsModal').classList.remove('open'),10000)}
 $('fsb').onclick=enterFs;
-const halt=()=>{try{yt?yt.pauseVideo():pj&&pj.pause()}catch(e){}},resume=()=>{try{yt?yt.playVideo():pj&&pj.play()}catch(e){}},gate=()=>chk||$('fsModal').classList.contains('open');
+$('playbtn').onclick=()=>{rc=[];stall=0;$('playbtn').hidden=true;resume();try{yt&&yt.unMute();pj&&pj.unmute()}catch(e){}};
+const halt=()=>{try{yt?yt.pauseVideo():pj&&pj.pause()}catch(e){}},resume=()=>{try{yt?yt.playVideo():pj&&pj.play()}catch(e){}},gate=()=>chk,rc=[],stall=0,autoRes=f=>{const n=Date.now();rc=rc.filter(t=>n-t<4000);rc.push(n);if(rc.length>4)return $('playbtn').hidden=false;setTimeout(f,250)};
 function leaveNat(){const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe&&fe!==$('stage'))exitFs()}
 function chkUI(){if(!chk)return;const r=Math.max(0,Math.ceil((chk.dl-Date.now())/1000));$('cnt').textContent=r+'s';$('rf').style.strokeDashoffset=327*(1-r/CHK)}
 $('here').onclick=()=>{const re=chk&&chk.re;chk=null;$('check').hidden=true;if(re)enterFs();resume()};   // returns to full screen if we had to leave it
 document.addEventListener('visibilitychange',()=>{if(!watching||!pjReady)return;document.hidden?halt():gate()||resume()});
-function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=3;leaveNat();build();toast(msg)}
+function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=12;leaveNat();build();toast(msg)}
 function onEnded(){if(!watching)return;if(el<(vd||L.dur)*.85)return fail('The video was skipped. It will restart.');finish()}
 function finish(){clearInterval(timer);clearInterval(ytPoll);try{yt&&yt.pauseVideo()}catch(e){}watching=false;chk=null;exitFs();$('fsModal').classList.remove('open');$('check').hidden=true;
  jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
