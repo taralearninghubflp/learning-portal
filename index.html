@@ -101,6 +101,16 @@ textarea.in{height:auto;padding:12px 14px;resize:vertical}.in:focus{outline:none
 .maint{position:fixed;inset:0;z-index:9000;background:#0B1635;color:#fff;display:grid;place-items:center;text-align:center;padding:24px}
 footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* v3: calm login + presence check that fits every screen */
+#check{position:fixed;inset:0;z-index:2500}
+.hero:before,.hero:after{animation:none!important}.badge,.pills span{animation:none!important}
+.hero:after{display:none}
+.hero:before{inset:0;top:0;right:0;width:auto;height:auto;border-radius:0;filter:none;opacity:1;background:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1px) 0 0/22px 22px}
+.hero{background:radial-gradient(110% 90% at 0% 0%,#1E3A8A 0%,transparent 60%),radial-gradient(90% 80% at 100% 100%,#0E7490 0%,transparent 60%),#0A1330;border:1px solid rgba(255,255,255,.08)}
+.badge{box-shadow:0 6px 18px rgba(0,0,0,.28)}.pills span{background:rgba(255,255,255,.08)}
+#login-form{border-radius:24px;box-shadow:0 20px 50px rgba(15,27,51,.10)}#login-form>h2{font-size:24px;letter-spacing:-.02em}
+@media(max-width:819px){.hero{min-height:0!important;padding:24px 20px;align-items:flex-start}.pills{margin-top:14px}}
+@media(max-width:520px){.hero p,.pills{display:none}.badge{width:56px;height:56px;padding:7px;border-radius:16px}.hero h2{font-size:24px;margin:14px 0 0}.login{gap:12px;min-height:0}}
 </style>
 </head>
 <body>
@@ -157,7 +167,7 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 </main>
 <footer>© 2026 TARA LMS</footer>
 
-<div class="sheet" id="fsModal"><div class="card"><div class="ico">⛶</div><h2>Watch in full screen</h2><p>Rotate your phone and go full screen for the best view of today's session.</p><button class="btn" id="fsGo">Go full screen</button><button class="later" id="fsLater">Not now</button></div></div>
+<div class="sheet" id="fsModal"><div class="card"><div class="ico">⛶</div><h2>Continue in full screen</h2><p>Today's session plays in full screen so you can stay focused. Rotate your phone if you like, then tap below.</p><button class="btn" id="fsGo">Go full screen</button></div></div>
 <div class="modal" id="modal" hidden><div class="card"><div style="font-size:46px">🎯</div><h2 id="mt">Video complete!</h2><p class="mute" id="ms" style="margin-top:4px">Open the form now. Time left:</p><div class="time" id="mtime">02:00</div><button class="btn go" id="mgo">Open form</button></div></div>
 
 <script>
@@ -230,12 +240,11 @@ function exitFs(){$('stage').classList.remove('pseudo');document.body.style.over
  try{screen.orientation.unlock()}catch(e){}}
 ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{
  try{fsOn()?screen.orientation.lock('landscape').catch(()=>{}):screen.orientation.unlock()}catch(e){}
- if(!fsOn()&&watching)fsAt=el+120}));
-$('fsGo').onclick=()=>{$('fsModal').classList.remove('open');enterFs()};
-$('fsLater').onclick=()=>{$('fsModal').classList.remove('open');fsAt=el+150};
+ if(!fsOn()&&watching&&!$('stage').classList.contains('pseudo'))fsAt=el+2}));
+$('fsGo').onclick=()=>{$('fsModal').classList.remove('open');enterFs();setTimeout(resume,150)};
 
 /* ===== video: autoplay + resume-on-pause guard (playerjs), single-sitting tracking ===== */
-let yt=null,ytPoll,el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=15,winT,expired=false;
+let yt=null,ytPoll,el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=3,winT,expired=false;
 /* Presence checks: 2-4 per session at RANDOM moments (new random set on every attempt) */
 function mk(){const n=L.dur<300?2:L.dur<900?3:4,lo=Math.max(8,Math.floor(L.dur*.08)),hi=Math.min(Math.floor(L.dur*.92),L.dur-10),gap=Math.max(15,Math.floor(L.dur/(n*3))),a=[];
  if(hi>lo){let g=0;while(a.length<n&&g++<300){const t=lo+Math.floor(Math.random()*(hi-lo+1));if(a.every(x=>Math.abs(x-t)>=gap))a.push(t)}}
@@ -245,7 +254,7 @@ function loadYT(cb){if(window.YT&&YT.Player)return cb();const p=window.onYouTube
 function buildYT(id){$('player').innerHTML='<div id="ytp"></div>';$('shield').hidden=false;$('fsb').hidden=false;
  loadYT(()=>{yt=new YT.Player('ytp',{videoId:id,width:'100%',height:'100%',playerVars:{autoplay:1,controls:0,disablekb:1,rel:0,playsinline:1,modestbranding:1,fs:0,iv_load_policy:3},events:{
   onReady:e=>{pjReady=true;vd=e.target.getDuration()||0;e.target.playVideo();setTimeout(()=>{try{if(yt.getPlayerState()!==1){yt.mute();yt.playVideo();$('unmute').hidden=false}}catch(x){}},2500)},
-  onStateChange:e=>{const s=e.data;if(s===1)playing=true;else if(s===2){playing=false;if(watching&&!document.hidden)setTimeout(()=>{try{yt.playVideo()}catch(x){}},250)}else if(s===0){playing=false;onEnded()}},
+  onStateChange:e=>{const s=e.data;if(s===1)playing=true;else if(s===2){playing=false;if(watching&&!gate()&&!document.hidden)setTimeout(()=>{try{yt.playVideo()}catch(x){}},250)}else if(s===0){playing=false;onEnded()}},
   onError:()=>toast('This video cannot be played. Check that embedding is allowed.')}});
   clearInterval(ytPoll);ytPoll=setInterval(()=>{try{vt=yt.getCurrentTime();const d=yt.getDuration();if(d)vd=d;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')}catch(e){}},500)})}
 function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT);$('unmute').hidden=true;clearInterval(ytPoll);try{yt&&yt.destroy()}catch(e){}yt=null;$('shield').hidden=true;$('fsb').hidden=false;{const id=ytId(L.video);if(id)return buildYT(id)}
@@ -259,25 +268,27 @@ function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT
   pj.on('ready',()=>{pjReady=true;pj.play();pj.getDuration(d=>{if(d)vd=d});
    setTimeout(()=>pj.getPaused(p=>{if(p){pj.mute();pj.play();$('unmute').hidden=false}}),2500)});
   pj.on('play',()=>{playing=true});
-  pj.on('pause',()=>{playing=false;if(watching&&!document.hidden)setTimeout(()=>{try{pj.play()}catch(e){}},250)});
+  pj.on('pause',()=>{playing=false;if(watching&&!gate()&&!document.hidden)setTimeout(()=>{try{pj.play()}catch(e){}},250)});
   pj.on('timeupdate',d=>{vt=d.seconds||0;if(d.duration)vd=d.duration;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')});
   pj.on('ended',onEnded)}catch(e){console.error(e)}}
 $('unmute').onclick=()=>{try{pj&&pj.unmute();yt&&yt.unMute()}catch(e){}$('unmute').hidden=true};
-function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=15;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
+function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=3;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
 function tick(){
  if(chk){if(Date.now()>chk.dl)fail('Presence check missed. The video will restart.');else chkUI();return}
  if(document.hidden||!playing)return;               // timer only runs while the video is playing on screen
  el++;
  if(checks.includes(el)){const fe=document.fullscreenElement||document.webkitFullscreenElement,nat=!!fe&&fe!==$('stage');   // only the player's own fullscreen hides our popup
-  chk={dl:Date.now()+CHK*1000,re:nat};if(nat)exitFs();$('fsModal').classList.remove('open');$('check').hidden=false;
+  chk={dl:Date.now()+CHK*1000,re:nat};if(nat)exitFs();halt();$('fsModal').classList.remove('open');$('check').hidden=false;
   $('check').classList.remove('shake');void $('check').offsetWidth;$('check').classList.add('shake');try{navigator.vibrate&&navigator.vibrate([180,90,180])}catch(e){}chkUI();return}
  if((!(pj||yt)||!pjReady)&&el>=L.dur)return finish();
- if(!inFs()&&el>=fsAt&&!$('fsModal').classList.contains('open'))$('fsModal').classList.add('open')}
-$('fsb').onclick=()=>inFs()?exitFs():enterFs();
+ if(!inFs()&&el>=fsAt&&!$('fsModal').classList.contains('open'))$('fsModal').classList.add('open');halt()}
+$('fsb').onclick=enterFs;
+const halt=()=>{try{yt?yt.pauseVideo():pj&&pj.pause()}catch(e){}},resume=()=>{try{yt?yt.playVideo():pj&&pj.play()}catch(e){}},gate=()=>chk||$('fsModal').classList.contains('open');
+function leaveNat(){const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe&&fe!==$('stage'))exitFs()}
 function chkUI(){if(!chk)return;const r=Math.max(0,Math.ceil((chk.dl-Date.now())/1000));$('cnt').textContent=r+'s';$('rf').style.strokeDashoffset=327*(1-r/CHK)}
-$('here').onclick=()=>{const re=chk&&chk.re;chk=null;$('check').hidden=true;if(re)enterFs()};   // returns to full screen if we had to leave it
-document.addEventListener('visibilitychange',()=>{if(!watching||!pjReady)return;try{if(yt)document.hidden?yt.pauseVideo():yt.playVideo();else if(pj)document.hidden?pj.pause():pj.play()}catch(e){}});
-function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=15;exitFs();build();toast(msg)}
+$('here').onclick=()=>{const re=chk&&chk.re;chk=null;$('check').hidden=true;if(re)enterFs();resume()};   // returns to full screen if we had to leave it
+document.addEventListener('visibilitychange',()=>{if(!watching||!pjReady)return;document.hidden?halt():gate()||resume()});
+function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=3;leaveNat();build();toast(msg)}
 function onEnded(){if(!watching)return;if(el<(vd||L.dur)*.85)return fail('The video was skipped. It will restart.');finish()}
 function finish(){clearInterval(timer);clearInterval(ytPoll);try{yt&&yt.pauseVideo()}catch(e){}watching=false;chk=null;exitFs();$('fsModal').classList.remove('open');$('check').hidden=true;
  jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
