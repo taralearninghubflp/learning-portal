@@ -29,63 +29,49 @@ h1{font-size:clamp(24px,5vw,34px);letter-spacing:-.03em;line-height:1.15;font-we
 .btn:disabled{background:var(--soft);color:var(--mute);box-shadow:none;cursor:not-allowed}
 .btn.go{background:linear-gradient(135deg,#16A34A,#0EA5A4);color:#fff;animation:glow 2s infinite}
 @keyframes glow{50%{box-shadow:0 8px 34px rgba(22,163,74,.55)}}
-/* login */
 .login{display:grid;gap:16px;max-width:900px;margin:2vh auto 0}@media(min-width:820px){.login{grid-template-columns:1.1fr 1fr;align-items:stretch}}
 .hero{position:relative;overflow:hidden;border-radius:24px;background:#0B1635;color:#fff;padding:32px 24px;min-height:220px}
-.hero:before,.hero:after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(70px);opacity:.6;animation:drift 12s ease-in-out infinite alternate}
-.hero:before{background:#2F54EB;top:-110px;right:-70px}.hero:after{background:#0EA5A4;bottom:-160px;left:-90px;animation-delay:-5s}
-@keyframes drift{to{transform:translate(-40px,30px) scale(1.15)}}.hero>*{position:relative;z-index:1}
 .hero h2{font-size:clamp(26px,6vw,38px);line-height:1.12;margin:18px 0 10px;letter-spacing:-.03em}.hero p{opacity:.8;font-size:14px}
-.badge{display:grid;place-items:center;width:clamp(64px,16vw,92px);aspect-ratio:1;border-radius:24px;background:#fff;padding:10px;box-shadow:0 14px 34px rgba(0,0,0,.35);animation:flt 4s ease-in-out infinite}
+.badge{display:grid;place-items:center;width:clamp(64px,16vw,92px);aspect-ratio:1;border-radius:24px;background:#fff;padding:10px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
 .f{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}
 .in{width:100%;height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);padding:0 16px;font-size:16px;transition:.2s}
 textarea.in{height:auto;padding:12px 14px;resize:vertical}.in:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px color-mix(in srgb,var(--pri) 18%,transparent)}
 .pw{position:relative}.pw button{position:absolute;right:6px;top:6px;height:40px;padding:0 12px;border:0;background:none;color:var(--pri);font-weight:700;cursor:pointer}
 .rise{animation:rise .6s cubic-bezier(.2,.8,.2,1) both}@keyframes rise{from{opacity:0;transform:translateY(22px)}}
-/* steps */
 .steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0 6px;text-align:center;font-size:12.5px;font-weight:700;color:var(--mute)}
 .steps:before,.steps:after{content:"";position:absolute;top:15px;left:16.67%;height:3px;border-radius:9px}.steps:before{right:16.67%;background:var(--line)}
 .steps:after{width:calc(66.66% * var(--p,0));background:var(--pri);transition:width .7s cubic-bezier(.2,.8,.2,1)}
 .st b{position:relative;z-index:1;display:grid;place-items:center;width:32px;height:32px;margin:0 auto 6px;border-radius:50%;background:var(--card);border:2px solid var(--line);font-size:13px;transition:.4s}
 .st.on{color:var(--ink)}.st.on b{background:var(--pri);border-color:var(--pri);color:var(--pi)}.st.cur b{border-color:var(--pri);color:var(--pri);background:var(--card);animation:ring 1.8s infinite}
 @keyframes ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--pri) 45%,transparent)}100%{box-shadow:0 0 0 12px transparent}}
-/* dash */
 .hero2{position:relative;overflow:hidden}.hero2 .btn{margin-top:14px}
 .lm{display:inline-flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;font-weight:700;background:var(--soft);padding:6px 12px;border-radius:99px}
 .rules{display:grid;gap:12px;margin-top:16px}@media(min-width:700px){.rules{grid-template-columns:repeat(4,1fr)}}
 .rule{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;transition:transform .25s,border-color .25s;cursor:default}.rule:hover{transform:translateY(-4px);border-color:var(--pri)}
 .rule span{font-size:26px;display:block;margin-bottom:6px}.rule b{display:block;font-size:14px}.rule p{font-size:12.5px;color:var(--mute);margin-top:2px}
-/* watch */
 .wbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:800}
 .live{display:inline-flex;gap:7px;align-items:center;font-size:12px;font-weight:800;color:var(--bad);background:rgba(239,68,68,.1);padding:6px 11px;border-radius:99px}.live i{width:7px;height:7px;border-radius:50%;background:var(--bad);animation:bl 1.2s infinite}@keyframes bl{50%{opacity:.25}}
 .stage{position:relative;background:#000;border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;box-shadow:var(--sh)}
 .stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}#player{position:absolute;inset:0}
 .stage.pseudo{position:fixed;inset:0;z-index:1500;border-radius:0;aspect-ratio:auto}
 @media(orientation:portrait){.stage.pseudo{inset:auto;top:0;left:0;width:100vh;height:100vw;transform-origin:0 0;transform:rotate(90deg) translateY(-100%)}}
-.ov{position:absolute;inset:0;z-index:5;background:rgba(6,12,28,.92);color:#fff;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:20px;animation:rise .3s both}
+.ov{position:absolute;inset:0;z-index:9;background:rgba(6,12,28,.92);color:#fff;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:20px;animation:rise .3s both}
 .ov .btn{width:auto;padding:0 30px}.unmute{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;border:0;border-radius:99px;padding:10px 16px;background:#fff;color:#0F1B33;font-weight:800;font-size:13px;cursor:pointer}
-.shield{position:absolute;inset:0;z-index:2}.fsb{position:absolute;right:10px;top:10px;z-index:6;width:42px;height:42px;border-radius:12px;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:20px;cursor:pointer}
+.shield{position:absolute;inset:0;z-index:2}.fsb{position:absolute;right:10px;top:10px;z-index:7;width:42px;height:42px;border-radius:12px;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:20px;cursor:pointer}
 .stage:fullscreen{border-radius:0;aspect-ratio:auto}.stage:-webkit-full-screen{border-radius:0;aspect-ratio:auto}
 @keyframes flt{50%{transform:translateY(-8px)}}
 .login{max-width:980px;min-height:calc(100dvh - 130px);align-content:center}@media(min-width:820px){.login{grid-template-columns:1.15fr 1fr}.hero{padding:44px 36px;min-height:460px;display:flex;flex-direction:column;justify-content:center}}
-.hero p{max-width:380px}.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.pills span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(6px);padding:7px 13px;border-radius:99px;font-size:13px;font-weight:700;animation:flt 5s ease-in-out infinite}.pills span:nth-child(2){animation-delay:-1.6s}.pills span:nth-child(3){animation-delay:-3.2s}
+.hero p{max-width:380px}
 #login-form{align-self:center;padding:26px 22px}@media(min-width:820px){#login-form{padding:34px 30px}}
-/* presence check */
 .chk{position:relative;width:128px;height:128px;display:grid;place-items:center}.chk svg{position:absolute;inset:0;transform:rotate(-90deg)}
 .chk circle{fill:none;stroke-width:7}.rb{stroke:rgba(255,255,255,.15)}.rf{stroke:#2DD4BF;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear}
 .wave{font-size:54px;transform-origin:70% 80%;animation:wv 1.4s ease-in-out infinite}@keyframes wv{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(16deg)}20%,40%{transform:rotate(-12deg)}50%{transform:rotate(8deg)}}
 #check h2{font-size:clamp(22px,5vw,30px)}#check p{opacity:.8;font-size:14px}#check .btn{min-width:min(280px,80%);animation:glow 1.6s infinite;background:linear-gradient(135deg,#16A34A,#0EA5A4);color:#fff}#check small{opacity:.7;font-weight:700}
 #check.shake{animation:shk .55s}@keyframes shk{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
 @media(max-height:430px){.chk{width:84px;height:84px}.wave{font-size:34px}#check{gap:6px}#check p{display:none}}
-/* sheet + modal */
-.sheet{position:fixed;inset:0;z-index:2000;background:rgba(6,12,28,.55);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;padding:16px}.sheet.open{display:flex}
-.sheet .card{width:100%;max-width:420px;text-align:center;margin-bottom:var(--sb);animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
-.sheet .ico{font-size:34px;width:68px;height:68px;margin:0 auto 12px;border-radius:20px;background:var(--soft);display:grid;place-items:center;animation:spin 2.4s ease-in-out infinite}@keyframes spin{40%,60%{transform:rotate(90deg)}}
-.sheet p{margin:6px 0 16px;color:var(--mute);font-size:14px}.later{width:100%;height:44px;border:0;background:none;color:var(--mute);font-weight:700;margin-top:6px;cursor:pointer}
 .modal{position:fixed;inset:0;z-index:3000;background:rgba(6,12,28,.8);backdrop-filter:blur(8px);display:grid;place-items:center;padding:18px}
 .modal .card{max-width:400px;width:100%;text-align:center;animation:rise .4s both}
 .time{font-size:46px;font-weight:800;color:var(--warn);font-variant-numeric:tabular-nums;margin:6px 0 14px}.time.bad{color:var(--bad)}
-/* form */
 .fp{position:sticky;top:61px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:14px;box-shadow:var(--sh)}
 .fp div.t{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:6px}.bar{height:8px;border-radius:9px;background:var(--soft);overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--pri),#0EA5A4);transition:width .5s cubic-bezier(.2,.8,.2,1)}
 .sec{position:relative;border:1.5px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;background:var(--card);transition:border-color .3s}
@@ -101,29 +87,19 @@ textarea.in{height:auto;padding:12px 14px;resize:vertical}.in:focus{outline:none
 .maint{position:fixed;inset:0;z-index:9000;background:#0B1635;color:#fff;display:grid;place-items:center;text-align:center;padding:24px}
 footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-/* v3: calm login + presence check that fits every screen */
 #check{position:fixed;inset:0;z-index:2500}
-.hero:before,.hero:after{animation:none!important}.badge,.pills span{animation:none!important}
-.hero:after{display:none}
-.hero:before{inset:0;top:0;right:0;width:auto;height:auto;border-radius:0;filter:none;opacity:1;background:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1px) 0 0/22px 22px}
-.hero{background:radial-gradient(110% 90% at 0% 0%,#1E3A8A 0%,transparent 60%),radial-gradient(90% 80% at 100% 100%,#0E7490 0%,transparent 60%),#0A1330;border:1px solid rgba(255,255,255,.08)}
-.badge{box-shadow:0 6px 18px rgba(0,0,0,.28)}.pills span{background:rgba(255,255,255,.08)}
-#login-form{border-radius:24px;box-shadow:0 20px 50px rgba(15,27,51,.10)}#login-form>h2{font-size:24px;letter-spacing:-.02em}
-@media(max-width:819px){.hero{min-height:0!important;padding:24px 20px;align-items:flex-start}.pills{margin-top:14px}}
-@media(max-width:520px){.hero p,.pills{display:none}.badge{width:56px;height:56px;padding:7px;border-radius:16px}.hero h2{font-size:24px;margin:14px 0 0}.login{gap:12px;min-height:0}}
-/* v4 */
+.stage #check{position:absolute;inset:0}
 .fshint{position:absolute;top:12px;left:12px;z-index:6;max-width:calc(100% - 76px);display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;border-radius:99px;background:rgba(10,16,32,.74);backdrop-filter:blur(10px);color:#fff;font-size:13px;font-weight:700;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.35s cubic-bezier(.2,.8,.2,1)}
 .fshint.open{opacity:1;transform:none;pointer-events:auto}.fshint button{border:0;border-radius:99px;height:30px;padding:0 12px;font-weight:800;cursor:pointer}
 #fsGo{background:#fff;color:#0F1B33}#fsLater{background:transparent;color:#fff;padding:0 8px}
 #playbtn{bottom:auto;top:50%;transform:translate(-50%,-50%);z-index:8;padding:14px 24px;font-size:15px}
-.hero:before,.hero:after{display:none}
 .hero{background:#070D1F;border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:clamp(24px,5vw,44px);color:#fff}
 .hero>.aur{position:absolute;inset:0;overflow:hidden;z-index:0}
 .aur i{position:absolute;width:60%;aspect-ratio:1;border-radius:50%;filter:blur(70px);opacity:.55;animation:aur 22s ease-in-out infinite alternate}
 .aur i:nth-child(1){background:#4F46E5;top:-22%;left:-12%}.aur i:nth-child(2){background:#06B6D4;bottom:-28%;right:-12%;animation-delay:-8s}.aur i:nth-child(3){background:#A855F7;top:32%;left:38%;opacity:.3;animation-delay:-14s}
 @keyframes aur{to{transform:translate(12%,10%) scale(1.15)}}
 .aur:after{content:"";position:absolute;inset:0;background:radial-gradient(rgba(255,255,255,.11) 1px,transparent 1px) 0 0/24px 24px;-webkit-mask-image:radial-gradient(ellipse at 30% 30%,#000,transparent 75%);mask-image:radial-gradient(ellipse at 30% 30%,#000,transparent 75%)}
-.hero>.hc{position:relative;z-index:1}.badge{animation:none!important;border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.hero>.hc{position:relative;z-index:1}.badge{border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .tag{display:inline-flex;gap:8px;align-items:center;margin-top:18px;padding:6px 13px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);font-size:12.5px;font-weight:700;backdrop-filter:blur(8px)}
 .tag i{width:7px;height:7px;border-radius:50%;background:#34D399;animation:ping 2s infinite}@keyframes ping{0%{box-shadow:0 0 0 0 rgba(52,211,153,.6)}70%,100%{box-shadow:0 0 0 9px transparent}}
 .hero h2{font-size:clamp(28px,5.4vw,46px);line-height:1.08;letter-spacing:-.035em;margin:16px 0 10px}
@@ -136,7 +112,8 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 #login-form{position:relative;border:0;border-radius:26px;padding:clamp(24px,5vw,36px);box-shadow:0 30px 70px rgba(15,27,51,.14)}
 #login-form:before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(135deg,#6366F1,#06B6D4,#A855F7,#6366F1);background-size:300% 300%;animation:bd 8s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}@keyframes bd{to{background-position:300% 0}}
 #login-form>h2{font-size:26px;letter-spacing:-.02em}#lbtn{background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#fff;box-shadow:0 10px 26px rgba(79,70,229,.4)}
-@media(max-width:520px){.hero p,.mini{display:none}.hero h2{font-size:26px}.tag{margin-top:14px}}
+@media(max-width:819px){.hero{min-height:0!important;align-items:flex-start}}
+@media(max-width:520px){.hero p,.mini{display:none}.hero h2{font-size:26px}.tag{margin-top:14px}.badge{width:56px;height:56px;padding:7px;border-radius:16px}.login{gap:12px;min-height:0}}
 </style>
 </head>
 <body>
@@ -163,16 +140,16 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
   <div class="steps"><div class="st"><b>1</b>Watch video</div><div class="st"><b>2</b>Open form</div><div class="st"><b>3</b>Submit notes</div></div>
   <button class="btn" id="start">Start today's learning</button></div>
  <div class="rules">
-  <div class="rule rise"><span>🎬</span><b>One sitting</b><p>Watch the full video without leaving. Leaving restarts it.</p></div>
+  <div class="rule rise"><span>🎬</span><b>One sitting</b><p>Watch the full video without leaving.</p></div>
   <div class="rule rise" style="animation-delay:.08s"><span>📱</span><b>Stay on screen</b><p>The timer pauses when you switch tabs or apps.</p></div>
-  <div class="rule rise" style="animation-delay:.16s"><span>✋</span><b>Presence checks</b>Quick taps at random moments confirm you are watching.</div>
+  <div class="rule rise" style="animation-delay:.16s"><span>✋</span><b>Presence checks</b><p>Quick taps at random moments confirm you are watching.</p></div>
   <div class="rule rise" style="animation-delay:.24s"><span>⏱️</span><b>2-minute window</b><p>Open the form within 2 minutes of the video ending.</p></div>
  </div>
 </section>
 
 <section id="watch" hidden>
  <div class="wbar"><span id="wl">Today's lesson</span><span class="live"><i></i>Live tracking</span></div>
- <div class="stage" id="stage"><div id="player"></div><div class="shield" id="shield" hidden></div><div class="fshint" id="fsModal"><span>⛶ Full screen view</span><button id="fsGo">Enter</button><button id="fsLater" aria-label="Dismiss">✕</button></div><button class="unmute" id="playbtn" hidden>▶ Tap to play</button><button class="fsb" id="fsb" hidden aria-label="Full screen">⛶</button><button class="unmute" id="unmute" hidden>🔊 Tap to unmute</button>
+ <div class="stage" id="stage"><div id="player"></div><div class="shield" id="shield" hidden></div><div class="fshint" id="fsModal"><span>⛶ Better in full screen</span><button id="fsGo">Enter</button><button id="fsLater" aria-label="Dismiss">✕</button></div><button class="unmute" id="playbtn" hidden>▶ Tap to play</button><button class="fsb" id="fsb" hidden aria-label="Full screen">⛶</button><button class="unmute" id="unmute" hidden>🔊 Tap to unmute</button>
   <div class="ov" id="check" hidden><div class="chk"><svg viewBox="0 0 120 120"><circle class="rb" cx="60" cy="60" r="52"/><circle class="rf" id="rf" cx="60" cy="60" r="52"/></svg><div class="wave">👋</div></div><h2>Still with us?</h2><p>Tap to confirm you are watching.<br>The video restarts if you miss it.</p><button class="btn" id="here">Yes, I'm here!</button><small id="cnt">20s</small></div></div>
  <div class="card" style="margin-top:14px"><div class="steps" style="margin:0"><div class="st"><b>1</b>Watch video</div><div class="st"><b>2</b>Open form</div><div class="st"><b>3</b>Submit notes</div></div>
  <p class="mute" style="margin-top:12px;text-align:center">The form link appears automatically when the video ends. Do not close this page.</p></div>
@@ -203,10 +180,9 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 <script>
 (()=>{'use strict';
 const API='https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec';
-const WEBHOOK='PASTE_NEW_DISCORD_WEBHOOK_URL_HERE'; // replace with a NEW webhook (the old one was public)
+const WEBHOOK='PASTE_NEW_DISCORD_WEBHOOK_URL_HERE'; // put your NEW Discord webhook here
 const WIN=120,PASS_MIN=60,CHK=20;
-const TEST_MODE=true; // set to false before going live (enables ?reset=1 for testing)
-const lessonP=fetch(API).then(r=>r.json()).catch(()=>null); // prefetch while the user is still on the login screen
+const lessonP=fetch(API).then(r=>r.json()).catch(()=>null);
 const $=i=>document.getElementById(i);
 const day=()=>new Date().toLocaleDateString('en-CA');
 const em=()=>(sessionStorage.getItem('tara_user_email')||'').toLowerCase();
@@ -218,7 +194,6 @@ const toast=t=>{const d=document.createElement('div');d.className='toast';d.text
 const view=n=>{['login','dash','watch','qf','done'].forEach(v=>$(v).hidden=v!==n);scrollTo(0,0)};
 const steps=n=>document.querySelectorAll('.steps').forEach(s=>{s.style.setProperty('--p',Math.min(n,2)/2);s.querySelectorAll('.st').forEach((x,i)=>{x.classList.toggle('on',i<n);x.classList.toggle('cur',i===n)})});
 const hist=()=>jget(`tara_hist_${em()}`,[]);
-if(TEST_MODE&&/[?&]reset=1/.test(location.search)){Object.keys(localStorage).filter(k=>k.startsWith('tara_')&&k!=='tara_lms_theme').forEach(k=>localStorage.removeItem(k));history.replaceState(null,'',location.pathname);setTimeout(()=>toast('Test data reset. You can start again.'),400)}
 function confetti(){const c=['#2F54EB','#0EA5A4','#F59E0B','#16A34A','#EF4444'];for(let i=0;i<44;i++){const d=document.createElement('i');d.className='cf';d.style.cssText=`left:${Math.random()*100}vw;background:${c[i%5]};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;document.body.appendChild(d);setTimeout(()=>d.remove(),5000)}}
 
 /* theme */
@@ -249,7 +224,7 @@ function drawDash(){const done=hist().includes(day()),pass=jget(K('pass')),win=j
 const norm=d=>({no:d.no||1,video:d.video,dur:parseInt(d.duration,10)||60});
 function fresh(d){if(!d||!d.video)return;const n=norm(d);jset('tara_lesson_cache',{day:day(),L:n});if(!watching&&(!L||L.no!==n.no||L.video!==n.video)){L=n;drawDash()}}
 async function getLesson(){if(L)return L;
- const c=jget('tara_lesson_cache');if(c&&c.day===day()&&c.L){L=c.L;drawDash();lessonP.then(fresh);return L}   // instant from cache, refresh in background
+ const c=jget('tara_lesson_cache');if(c&&c.day===day()&&c.L){L=c.L;drawDash();lessonP.then(fresh);return L}
  fresh(await lessonP||await(await fetch(API)).json());if(L&&ytId(L.video))loadYT(()=>{});drawDash();return L}
 async function launch(){view('dash');$('user').hidden=false;$('user').textContent=sessionStorage.getItem('tara_user_name');drawDash();try{await getLesson()}catch(e){toast('Could not load the lesson. Please refresh.')}}
 
@@ -258,25 +233,29 @@ function handle(){if(!L)return toast('The lesson is still loading. Please try ag
  if(jget(K('win'),0)>Date.now())return openModal();
  startWatch()}
 
-/* ===== fullscreen (native -> stage -> pseudo + landscape rotation) ===== */
+/* ===== fullscreen: native -> stage -> pseudo (rotated on portrait phones). Button toggles in/out. ===== */
 const fsOn=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
 const inFs=()=>fsOn()||$('stage').classList.contains('pseudo');
-function enterFs(){const f=null,st=$('stage');
- const pseudo=()=>{st.classList.add('pseudo');document.body.style.overflow='hidden'};
- const tryEl=(el,next)=>{const r=el.requestFullscreen||el.webkitRequestFullscreen;if(!r)return next();try{Promise.resolve(r.call(el)).catch(next)}catch(e){next()}};
- f?tryEl(f,()=>tryEl(st,pseudo)):tryEl(st,pseudo)}
+const updFs=()=>{const b=$('fsb');b.textContent=inFs()?'✕':'⛶';b.setAttribute('aria-label',inFs()?'Exit full screen':'Full screen');if(inFs())$('fsModal').classList.remove('open')};
+function enterFs(){const st=$('stage');
+ const pseudo=()=>{st.classList.add('pseudo');document.body.style.overflow='hidden';updFs()};
+ const r=st.requestFullscreen||st.webkitRequestFullscreen;if(!r)return pseudo();
+ try{Promise.resolve(r.call(st)).catch(pseudo)}catch(e){pseudo()}}
 function exitFs(){$('stage').classList.remove('pseudo');document.body.style.overflow='';
  try{if(document.fullscreenElement)document.exitFullscreen();else if(document.webkitFullscreenElement)document.webkitExitFullscreen()}catch(e){}
- try{screen.orientation.unlock()}catch(e){}}
+ try{screen.orientation.unlock()}catch(e){}
+ updFs()}
 ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,()=>{
  try{fsOn()?screen.orientation.lock('landscape').catch(()=>{}):screen.orientation.unlock()}catch(e){}
- if(!fsOn()&&watching&&!$('stage').classList.contains('pseudo'))fsAt=el+90}));
+ if(!fsOn()&&watching&&!$('stage').classList.contains('pseudo'))fsAt=el+90;
+ updFs()}));
+$('fsb').onclick=()=>inFs()?exitFs():enterFs();
 $('fsGo').onclick=()=>{$('fsModal').classList.remove('open');enterFs()};
-$('fsLater').onclick=()=>$('fsModal').classList.remove('open');
+$('fsLater').onclick=()=>{$('fsModal').classList.remove('open');fsAt=el+120};
 
-/* ===== video: autoplay + resume-on-pause guard (playerjs), single-sitting tracking ===== */
-let yt=null,ytPoll,el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=12,winT,expired=false;
-/* Presence checks: 2-4 per session at RANDOM moments (new random set on every attempt) */
+/* ===== video ===== */
+let yt=null,ytPoll,el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=15,winT,expired=false,stall=0,hintT;
+/* 2-4 presence checks at RANDOM moments (new random set on every attempt) */
 function mk(){const n=L.dur<300?2:L.dur<900?3:4,lo=Math.max(8,Math.floor(L.dur*.08)),hi=Math.min(Math.floor(L.dur*.92),L.dur-10),gap=Math.max(15,Math.floor(L.dur/(n*3))),a=[];
  if(hi>lo){let g=0;while(a.length<n&&g++<300){const t=lo+Math.floor(Math.random()*(hi-lo+1));if(a.every(x=>Math.abs(x-t)>=gap))a.push(t)}}
  checks=a.sort((x,y)=>x-y)}
@@ -285,10 +264,10 @@ function loadYT(cb){if(window.YT&&YT.Player)return cb();const p=window.onYouTube
 function buildYT(id){$('player').innerHTML='<div id="ytp"></div>';$('shield').hidden=false;$('fsb').hidden=false;
  loadYT(()=>{yt=new YT.Player('ytp',{videoId:id,width:'100%',height:'100%',playerVars:{autoplay:1,controls:0,disablekb:1,rel:0,playsinline:1,modestbranding:1,fs:0,iv_load_policy:3},events:{
   onReady:e=>{pjReady=true;vd=e.target.getDuration()||0;e.target.playVideo();setTimeout(()=>{try{if(yt.getPlayerState()!==1){yt.mute();yt.playVideo();$('unmute').hidden=false}}catch(x){}},2500)},
-  onStateChange:e=>{const s=e.data;if(s===1)playing=true;else if(s===2){playing=false;if(watching&&!gate()&&!document.hidden)autoRes(()=>{try{yt.playVideo()}catch(x){}})}else if(s===0){playing=false;onEnded()}},
+  onStateChange:e=>{const s=e.data;if(s===1)playing=true;else if(s===2)playing=false;else if(s===0){playing=false;onEnded()}},
   onError:()=>toast('This video cannot be played. Check that embedding is allowed.')}});
-  clearInterval(ytPoll);ytPoll=setInterval(()=>{try{vt=yt.getCurrentTime();const d=yt.getDuration();if(d)vd=d;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')}catch(e){}},500)})}
-function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT);$('unmute').hidden=true;clearInterval(ytPoll);try{yt&&yt.destroy()}catch(e){}yt=null;$('shield').hidden=true;$('fsb').hidden=false;{const id=ytId(L.video);if(id)return buildYT(id)}
+  clearInterval(ytPoll);ytPoll=setInterval(()=>{try{vt=yt.getCurrentTime();const d=yt.getDuration();if(d)vd=d}catch(e){}},500)})}
+function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;stall=0;clearTimeout(rdyT);$('unmute').hidden=true;$('playbtn').hidden=true;clearInterval(ytPoll);try{yt&&yt.destroy()}catch(e){}yt=null;$('shield').hidden=true;$('fsb').hidden=false;updFs();{const id=ytId(L.video);if(id)return buildYT(id)}
  const f=document.createElement('iframe');let u=L.video;
  if(!/[?&]autoplay=/.test(u))u+=(u.includes('?')?'&':'?')+'autoplay=true&preload=true&playsinline=true';
  f.src=u;f.title='Training video';f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock');f.allowFullscreen=true;
@@ -299,32 +278,35 @@ function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT
   pj.on('ready',()=>{pjReady=true;pj.play();pj.getDuration(d=>{if(d)vd=d});
    setTimeout(()=>pj.getPaused(p=>{if(p){pj.mute();pj.play();$('unmute').hidden=false}}),2500)});
   pj.on('play',()=>{playing=true});
-  pj.on('pause',()=>{playing=false;if(watching&&!gate()&&!document.hidden)autoRes(()=>{try{pj.play()}catch(e){}})});
-  pj.on('timeupdate',d=>{vt=d.seconds||0;if(d.duration)vd=d.duration;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')});
+  pj.on('pause',()=>{playing=false});
+  pj.on('timeupdate',d=>{vt=d.seconds||0;if(d.duration)vd=d.duration});
   pj.on('ended',onEnded)}catch(e){console.error(e)}}
 $('unmute').onclick=()=>{try{pj&&pj.unmute();yt&&yt.unMute()}catch(e){}$('unmute').hidden=true};
-function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=12;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
+function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=15;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
+/* Watch time counts only while the video really plays and the page is visible. A pause never loops: no forced play/pause. */
 function tick(){
  if(chk){if(Date.now()>chk.dl)fail('Presence check missed. The video will restart.');else chkUI();return}
- if(playing&&!$('playbtn').hidden){$('playbtn').hidden=true;rc=[]}
- if(!playing&&!document.hidden&&pjReady){if(++stall>=4)$('playbtn').hidden=false}else stall=0
- if(document.hidden||!playing)return;               // timer only runs while the video is playing on screen
+ if(playing){stall=0;if(!$('playbtn').hidden)$('playbtn').hidden=true}
+ else if(!document.hidden&&pjReady){if(++stall>=3)$('playbtn').hidden=false}
+ else stall=0;
+ if(document.hidden||!playing)return;
  el++;
- if(checks.includes(el)){const fe=document.fullscreenElement||document.webkitFullscreenElement,nat=!!fe&&fe!==$('stage');   // only the player's own fullscreen hides our popup
+ if(checks.includes(el)){const fe=document.fullscreenElement||document.webkitFullscreenElement,nat=!!fe&&fe!==$('stage');   // only the player's own fullscreen would hide our popup
   chk={dl:Date.now()+CHK*1000,re:nat};if(nat)exitFs();halt();$('fsModal').classList.remove('open');$('check').hidden=false;
   $('check').classList.remove('shake');void $('check').offsetWidth;$('check').classList.add('shake');try{navigator.vibrate&&navigator.vibrate([180,90,180])}catch(e){}chkUI();return}
  if((!(pj||yt)||!pjReady)&&el>=L.dur)return finish();
- if(!inFs()&&el>=fsAt&&!$('fsModal').classList.contains('open'))$('fsModal').classList.add('open');fsAt=el+240;setTimeout(()=>$('fsModal').classList.remove('open'),10000)}
-$('fsb').onclick=enterFs;
-$('playbtn').onclick=()=>{rc=[];stall=0;$('playbtn').hidden=true;resume();try{yt&&yt.unMute();pj&&pj.unmute()}catch(e){}};
-const halt=()=>{try{yt?yt.pauseVideo():pj&&pj.pause()}catch(e){}},resume=()=>{try{yt?yt.playVideo():pj&&pj.play()}catch(e){}},gate=()=>chk,rc=[],stall=0,autoRes=f=>{const n=Date.now();rc=rc.filter(t=>n-t<4000);rc.push(n);if(rc.length>4)return $('playbtn').hidden=false;setTimeout(f,250)};
+ /* soft full-screen suggestion: appears now and then while not in full screen, hides itself */
+ if(inFs())$('fsModal').classList.remove('open');
+ else if(el>=fsAt){fsAt=el+90;$('fsModal').classList.add('open');clearTimeout(hintT);hintT=setTimeout(()=>$('fsModal').classList.remove('open'),8000)}}
+$('playbtn').onclick=()=>{stall=0;$('playbtn').hidden=true;resume();try{yt&&yt.unMute();pj&&pj.unmute()}catch(e){}};
+const halt=()=>{try{yt?yt.pauseVideo():pj&&pj.pause()}catch(e){}},resume=()=>{try{yt?yt.playVideo():pj&&pj.play()}catch(e){}};
 function leaveNat(){const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe&&fe!==$('stage'))exitFs()}
 function chkUI(){if(!chk)return;const r=Math.max(0,Math.ceil((chk.dl-Date.now())/1000));$('cnt').textContent=r+'s';$('rf').style.strokeDashoffset=327*(1-r/CHK)}
-$('here').onclick=()=>{const re=chk&&chk.re;chk=null;$('check').hidden=true;if(re)enterFs();resume()};   // returns to full screen if we had to leave it
-document.addEventListener('visibilitychange',()=>{if(!watching||!pjReady)return;document.hidden?halt():gate()||resume()});
-function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=12;leaveNat();build();toast(msg)}
-function onEnded(){if(!watching)return;if(el<(vd||L.dur)*.85)return fail('The video was skipped. It will restart.');finish()}
-function finish(){clearInterval(timer);clearInterval(ytPoll);try{yt&&yt.pauseVideo()}catch(e){}watching=false;chk=null;exitFs();$('fsModal').classList.remove('open');$('check').hidden=true;
+$('here').onclick=()=>{const re=chk&&chk.re;chk=null;$('check').hidden=true;if(re)enterFs();resume()};
+document.addEventListener('visibilitychange',()=>{if(!watching||!pjReady)return;if(document.hidden)halt();else if(!chk)resume()});
+function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=15;leaveNat();build();toast(msg)}
+function onEnded(){if(!watching)return;finish()}
+function finish(){clearInterval(timer);clearInterval(ytPoll);clearTimeout(hintT);try{yt&&yt.pauseVideo()}catch(e){}watching=false;chk=null;exitFs();$('fsModal').classList.remove('open');$('check').hidden=true;$('playbtn').hidden=true;
  jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
 
 /* ===== 2-minute window to open the form ===== */
@@ -373,7 +355,9 @@ const Form=(()=>{
 $('back').onclick=()=>{drawDash();view('dash')};
 
 addEventListener('beforeunload',e=>{if(watching){e.preventDefault();e.returnValue=''}});
-addEventListener('keydown',e=>{if(watching&&['ArrowRight','ArrowLeft',' ','k','K'].includes(e.key))e.preventDefault()},true);
+addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&$('stage').classList.contains('pseudo')){exitFs();return}
+ if(watching&&['ArrowRight','ArrowLeft',' ','k','K'].includes(e.key))e.preventDefault()},true);
 $('login-form').addEventListener('submit',login);
 if(!maint()&&sessionStorage.getItem('tara_user_name'))launch();
 setInterval(maint,15000);
