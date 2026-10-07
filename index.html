@@ -64,6 +64,8 @@ textarea.in{height:auto;padding:12px 14px;resize:vertical}.in:focus{outline:none
 @media(orientation:portrait){.stage.pseudo{inset:auto;top:0;left:0;width:100vh;height:100vw;transform-origin:0 0;transform:rotate(90deg) translateY(-100%)}}
 .ov{position:absolute;inset:0;z-index:5;background:rgba(6,12,28,.92);color:#fff;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:20px;animation:rise .3s both}
 .ov .btn{width:auto;padding:0 30px}.unmute{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;border:0;border-radius:99px;padding:10px 16px;background:#fff;color:#0F1B33;font-weight:800;font-size:13px;cursor:pointer}
+.shield{position:absolute;inset:0;z-index:2}.fsb{position:absolute;right:10px;top:10px;z-index:6;width:42px;height:42px;border-radius:12px;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:20px;cursor:pointer}
+.stage:fullscreen{border-radius:0;aspect-ratio:auto}.stage:-webkit-full-screen{border-radius:0;aspect-ratio:auto}
 /* sheet + modal */
 .sheet{position:fixed;inset:0;z-index:2000;background:rgba(6,12,28,.55);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;padding:16px}.sheet.open{display:flex}
 .sheet .card{width:100%;max-width:420px;text-align:center;margin-bottom:var(--sb);animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
@@ -118,7 +120,7 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 
 <section id="watch" hidden>
  <div class="wbar"><span id="wl">Today's lesson</span><span class="live"><i></i>Live tracking</span></div>
- <div class="stage" id="stage"><div id="player"></div><button class="unmute" id="unmute" hidden>🔊 Tap to unmute</button>
+ <div class="stage" id="stage"><div id="player"></div><div class="shield" id="shield" hidden></div><button class="fsb" id="fsb" hidden aria-label="Full screen">⛶</button><button class="unmute" id="unmute" hidden>🔊 Tap to unmute</button>
   <div class="ov" id="check" hidden><h2>Are you still watching?</h2><p style="opacity:.8">Tap within 20 seconds or the video restarts.</p><button class="btn" id="here">I'm here ✋</button></div></div>
  <div class="card" style="margin-top:14px"><div class="steps" style="margin:0"><div class="st"><b>1</b>Watch video</div><div class="st"><b>2</b>Open form</div><div class="st"><b>3</b>Submit notes</div></div>
  <p class="mute" style="margin-top:12px;text-align:center">The form link appears automatically when the video ends. Do not close this page.</p></div>
@@ -145,13 +147,12 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:10px 0 30px}
 <footer>© 2026 TARA LMS</footer>
 
 <div class="sheet" id="fsModal"><div class="card"><div class="ico">⛶</div><h2>Watch in full screen</h2><p>Rotate your phone and go full screen for the best view of today's session.</p><button class="btn" id="fsGo">Go full screen</button><button class="later" id="fsLater">Not now</button></div></div>
-<div class="modal" id="bkModal" style="z-index:4000" hidden><div class="card"><div style="font-size:46px">⚠️</div><h2>Go back?</h2><p class="mute" id="bkMsg" style="margin:6px 0 18px"></p><button class="btn" id="bkStay">Stay here</button><button class="later" id="bkLeave">Leave</button></div></div>
 <div class="modal" id="modal" hidden><div class="card"><div style="font-size:46px">🎯</div><h2 id="mt">Video complete!</h2><p class="mute" id="ms" style="margin-top:4px">Open the form now. Time left:</p><div class="time" id="mtime">02:00</div><button class="btn go" id="mgo">Open form</button></div></div>
 
 <script>
 (()=>{'use strict';
 const API='https://script.google.com/macros/s/AKfycbzXfKLksw0NHxRZEHBi2xydvkkIlGl5gxeTlwpYSfBsqjL0ZbMyCgnRjktLLTSqyO__/exec';
-const WEBHOOK='https://discord.com/api/webhooks/1555198707631263904/YQn1Y5WfBQ59i8QMcFFGqnIlXYb-NvCINHuNzoDtXuZV8ZZVYD-edA3ajcmjSijAnmjC'; // replace with a NEW webhook (the old one was public)
+const WEBHOOK='PASTE_NEW_DISCORD_WEBHOOK_URL_HERE'; // replace with a NEW webhook (the old one was public)
 const WIN=120,PASS_MIN=60,CHK=20;
 const $=i=>document.getElementById(i);
 const day=()=>new Date().toLocaleDateString('en-CA');
@@ -202,7 +203,7 @@ function handle(){if(!L)return toast('The lesson is still loading. Please try ag
 /* ===== fullscreen (native -> stage -> pseudo + landscape rotation) ===== */
 const fsOn=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
 const inFs=()=>fsOn()||$('stage').classList.contains('pseudo');
-function enterFs(){const f=document.querySelector('#player iframe'),st=$('stage');
+function enterFs(){const f=yt?null:document.querySelector('#player iframe'),st=$('stage');
  const pseudo=()=>{st.classList.add('pseudo');document.body.style.overflow='hidden'};
  const tryEl=(el,next)=>{const r=el.requestFullscreen||el.webkitRequestFullscreen;if(!r)return next();try{Promise.resolve(r.call(el)).catch(next)}catch(e){next()}};
  f?tryEl(f,()=>tryEl(st,pseudo)):tryEl(st,pseudo)}
@@ -216,12 +217,20 @@ $('fsGo').onclick=()=>{$('fsModal').classList.remove('open');enterFs()};
 $('fsLater').onclick=()=>{$('fsModal').classList.remove('open');fsAt=el+150};
 
 /* ===== video: autoplay + resume-on-pause guard (playerjs), single-sitting tracking ===== */
-let el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=15,winT,expired=false;
+let yt=null,ytPoll,el=0,timer,watching=false,playing=false,pj=null,pjReady=false,rdyT,vt=0,vd=0,checks=[],chk=null,fsAt=15,winT,expired=false;
 /* Presence checks: 2-4 per session at RANDOM moments (new random set on every attempt) */
 function mk(){const n=L.dur<300?2:L.dur<900?3:4,lo=Math.max(8,Math.floor(L.dur*.08)),hi=Math.min(Math.floor(L.dur*.92),L.dur-10),gap=Math.max(15,Math.floor(L.dur/(n*3))),a=[];
  if(hi>lo){let g=0;while(a.length<n&&g++<300){const t=lo+Math.floor(Math.random()*(hi-lo+1));if(a.every(x=>Math.abs(x-t)>=gap))a.push(t)}}
  checks=a.sort((x,y)=>x-y)}
-function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT);$('unmute').hidden=true;
+const ytId=u=>{const m=String(u).match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/);return m?m[1]:null};
+function loadYT(cb){if(window.YT&&YT.Player)return cb();const p=window.onYouTubeIframeAPIReady;window.onYouTubeIframeAPIReady=()=>{p&&p();cb()};if(!document.getElementById('ytapi')){const s=document.createElement('script');s.id='ytapi';s.src='https://www.youtube.com/iframe_api';document.head.appendChild(s)}}
+function buildYT(id){$('player').innerHTML='<div id="ytp"></div>';$('shield').hidden=false;$('fsb').hidden=false;
+ loadYT(()=>{yt=new YT.Player('ytp',{videoId:id,width:'100%',height:'100%',playerVars:{autoplay:1,controls:0,disablekb:1,rel:0,playsinline:1,modestbranding:1,fs:0,iv_load_policy:3},events:{
+  onReady:e=>{pjReady=true;vd=e.target.getDuration()||0;e.target.playVideo();setTimeout(()=>{try{if(yt.getPlayerState()!==1){yt.mute();yt.playVideo();$('unmute').hidden=false}}catch(x){}},2500)},
+  onStateChange:e=>{const s=e.data;if(s===1)playing=true;else if(s===2){playing=false;if(watching&&!document.hidden)setTimeout(()=>{try{yt.playVideo()}catch(x){}},250)}else if(s===0){playing=false;onEnded()}},
+  onError:()=>toast('This video cannot be played. Check that embedding is allowed.')}});
+  clearInterval(ytPoll);ytPoll=setInterval(()=>{try{vt=yt.getCurrentTime();const d=yt.getDuration();if(d)vd=d;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')}catch(e){}},500)})}
+function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT);$('unmute').hidden=true;clearInterval(ytPoll);try{yt&&yt.destroy()}catch(e){}yt=null;$('shield').hidden=true;$('fsb').hidden=true;{const id=ytId(L.video);if(id)return buildYT(id)}
  const f=document.createElement('iframe');let u=L.video;
  if(!/[?&]autoplay=/.test(u))u+=(u.includes('?')?'&':'?')+'autoplay=true&preload=true&playsinline=true';
  f.src=u;f.title='Training video';f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen; orientation-lock');f.allowFullscreen=true;
@@ -235,20 +244,21 @@ function build(){playing=false;pjReady=false;pj=null;vt=0;vd=0;clearTimeout(rdyT
   pj.on('pause',()=>{playing=false;if(watching&&!document.hidden)setTimeout(()=>{try{pj.play()}catch(e){}},250)});
   pj.on('timeupdate',d=>{vt=d.seconds||0;if(d.duration)vd=d.duration;if(watching&&vt>el+12)fail('Skipping detected. The video will restart.')});
   pj.on('ended',onEnded)}catch(e){console.error(e)}}
-$('unmute').onclick=()=>{try{pj.unmute()}catch(e){}$('unmute').hidden=true};
+$('unmute').onclick=()=>{try{pj&&pj.unmute();yt&&yt.unMute()}catch(e){}$('unmute').hidden=true};
 function startWatch(){view('watch');steps(0);watching=true;chk=null;el=0;mk();fsAt=15;$('check').hidden=true;build();clearInterval(timer);timer=setInterval(tick,1000)}
 function tick(){
  if(chk){if(Date.now()>chk.dl)fail('Presence check missed. The video will restart.');return}
  if(document.hidden||!playing)return;               // timer only runs while the video is playing on screen
  el++;
  if(checks.includes(el)){chk={dl:Date.now()+CHK*1000};if(fsOn())exitFs();$('fsModal').classList.remove('open');$('check').hidden=false;return}
- if((!pj||!pjReady)&&el>=L.dur)return finish();
+ if((!(pj||yt)||!pjReady)&&el>=L.dur)return finish();
  if(!inFs()&&el>=fsAt&&!$('fsModal').classList.contains('open'))$('fsModal').classList.add('open')}
+$('fsb').onclick=()=>inFs()?exitFs():enterFs();
 $('here').onclick=()=>{chk=null;$('check').hidden=true};
-document.addEventListener('visibilitychange',()=>{if(!watching||!pj||!pjReady)return;try{document.hidden?pj.pause():pj.play()}catch(e){}});
+document.addEventListener('visibilitychange',()=>{if(!watching||!pjReady)return;try{if(yt)document.hidden?yt.pauseVideo():yt.playVideo();else if(pj)document.hidden?pj.pause():pj.play()}catch(e){}});
 function fail(msg){chk=null;$('check').hidden=true;el=0;mk();fsAt=15;exitFs();build();toast(msg)}
 function onEnded(){if(!watching)return;if(el<(vd||L.dur)*.85)return fail('The video was skipped. It will restart.');finish()}
-function finish(){clearInterval(timer);watching=false;chk=null;exitFs();$('fsModal').classList.remove('open');$('check').hidden=true;
+function finish(){clearInterval(timer);clearInterval(ytPoll);try{yt&&yt.pauseVideo()}catch(e){}watching=false;chk=null;exitFs();$('fsModal').classList.remove('open');$('check').hidden=true;
  jset(K('win'),Date.now()+WIN*1000);view('dash');drawDash();openModal()}
 
 /* ===== 2-minute window to open the form ===== */
@@ -296,21 +306,6 @@ const Form=(()=>{
  return {open}})();
 $('back').onclick=()=>{drawDash();view('dash')};
 
-/* ===== accidental Back-button guard (video + form) ===== */
-const guarded=()=>watching||!$('qf').hidden;
-function leaveToDash(){
- if(watching){clearInterval(timer);watching=false;chk=null;el=0;try{pj&&pj.pause()}catch(e){}exitFs();$('fsModal').classList.remove('open');$('check').hidden=true}
- view('dash');drawDash()}
-function askBack(){
- $('bkMsg').textContent=watching?'If you leave now, today\'s video will restart from the beginning.':'You are on the notes form. Your typed answers are saved, but you will leave this form.';
- $('bkLeave').textContent=watching?'Leave and restart video':'Leave form';
- $('bkModal').hidden=false}
-try{history.replaceState({tara:'base'},'');history.pushState({tara:'guard'},'')}catch(e){}
-addEventListener('popstate',()=>{
- if(guarded()){try{history.pushState({tara:'guard'},'')}catch(e){}askBack()}   // stay on page, show warning
- else history.back()});                                                         // dashboard/login: normal back
-$('bkStay').onclick=()=>{$('bkModal').hidden=true};
-$('bkLeave').onclick=()=>{$('bkModal').hidden=true;leaveToDash()};
 addEventListener('beforeunload',e=>{if(watching){e.preventDefault();e.returnValue=''}});
 addEventListener('keydown',e=>{if(watching&&['ArrowRight','ArrowLeft',' ','k','K'].includes(e.key))e.preventDefault()},true);
 $('login-form').addEventListener('submit',login);
